@@ -1,0 +1,42 @@
+# dependencies
+node_modules
+
+# build output / cache
+.next
+out
+dist
+*.tsbuildinfo
+public/core-pack
+
+# env — keep the example, never the real values
+.env*
+!.env.example
+
+# vercel / wrangler / tooling caches
+.vercel
+.wrangler
+.qodo
+
+# logs
+*.log
+
+# Proprietary + ODbL-scaffold data — the license firewall: NEVER publish the
+# sellable OSM-free pack or the raw OSM scaffold. These are regenerable locally
+# (npm run extract:osm / build:admin) and are excluded from the app build anyway.
+data/core-pack-verified.json
+data/core_verified.json
+data/osm_raw/
+data/osm_import.sql
+data/promote_to_core.sql
+data/osm_treasure_map.html
+data/osm_treasure_map.json
+data/route-changes-review.json
+# generated public copy of the fieldwork treasure map (4.4MB, regenerable via npm run treasure-map)
+public/osm_treasure_map.html
+public/osm_treasure_map.json
+
+# large dev artifacts
+*.mp4
+
+# internal build/design docs — keep local, never publish
+*.md

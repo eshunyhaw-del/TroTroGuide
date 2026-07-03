@@ -1,0 +1,73 @@
+{
+  "exported_at": "2026-06-22T10:00:00Z",
+  "verifier": "yaw",
+  "source": "admin-dashboard",
+  "verified_stops": [
+    {
+      "osm_ref": "node/4990162109",
+      "name": "Circle",
+      "local_name": "Circle",
+      "mate_shout": "Circle!",
+      "exists": true,
+      "my_lat": 5.570751,
+      "my_lng": -0.213211,
+      "notes": "verified Line 11",
+      "verified_at": "2026-06-22T08:00:00Z"
+    },
+    {
+      "osm_ref": "node/4990163125",
+      "name": "Circle Overhead",
+      "local_name": "Circle Overhead",
+      "mate_shout": "Overhead!",
+      "exists": true,
+      "my_lat": 5.57025,
+      "my_lng": -0.213926,
+      "notes": "verified Line 11",
+      "verified_at": "2026-06-22T08:00:00Z"
+    },
+    {
+      "osm_ref": "node/4990163124",
+      "name": "Circle",
+      "local_name": "Sahara",
+      "mate_shout": "Sahara!",
+      "exists": true,
+      "my_lat": 5.57154,
+      "my_lng": -0.215794,
+      "notes": "verified Line 11",
+      "verified_at": "2026-06-22T08:00:00Z"
+    }
+  ],
+  "new_stops": [
+    {
+      "stop_id": "new-achimota-1",
+      "name": "New Achimota Terminal",
+      "local_name": "Achimota New",
+      "mate_shout": "Achimota! Achimota!",
+      "board_alight": "both",
+      "my_lat": 5.613,
+      "my_lng": -0.225,
+      "route_ref": "11",
+      "sequence": 4,
+      "notes": "New terminal opened 2023",
+      "is_new_stop": true,
+      "source": "fieldwork",
+      "verified_at": "2026-06-22T09:30:00Z"
+    }
+  ],
+  "route_changes": [
+    {
+      "route_ref": "11",
+      "change_type": "extended",
+      "change_types": [
+        "extended",
+        "new_stops"
+      ],
+      "description": "Now terminates at New Achimota Terminal",
+      "new_terminal": "New Achimota Terminal",
+      "old_terminal": "Abeka Lapaz",
+      "stops_added": 1,
+      "stops_removed": 0,
+      "verified_at": "2026-06-22T09:30:00Z"
+    }
+  ]
+}

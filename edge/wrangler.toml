@@ -1,0 +1,32 @@
+name = "trotro-edge"
+main = "src/index.ts"
+compatibility_date = "2024-09-23"
+
+# Free plan: Workers gives 100k requests/day. No paid add-ons used.
+# Bind the Worker to your zone's API + asset paths once the domain is on Cloudflare.
+# routes = [
+#   { pattern = "trotro.app/api/*",       zone_name = "trotro.app" },
+#   { pattern = "trotro.app/core-pack/*", zone_name = "trotro.app" },
+#   { pattern = "trotro.app/tiles/*",     zone_name = "trotro.app" },
+# ]
+
+[vars]
+# Local end-to-end: point at the local Next.js dev server. The Worker auto-uses
+# http for localhost/127.0.0.1 and https otherwise (see isLocalOrigin in index.ts).
+# In production set this to your Vercel host, e.g. "trotro-guide.vercel.app".
+ORIGIN_HOST = "localhost:3000"
+
+# Dev-only: emit X-Tk-Cell / X-Tk-Cache-Key verification headers. Leave this OUT
+# (or set "false") in production so cache internals are never exposed. For a
+# production deploy use a separate var set, e.g.:
+#   [env.production.vars]
+#   ORIGIN_HOST = "trotro-guide.vercel.app"
+#   # (DEBUG_HEADERS intentionally omitted -> headers stripped)
+DEBUG_HEADERS = "true"
+
+# Optional KV for a degraded-mode snapshot of the 10 core routes (free tier:
+# 100k reads/day, 1k writes/day). Uncomment + create with:
+#   npx wrangler kv namespace create SNAPSHOT
+# [[kv_namespaces]]
+# binding = "SNAPSHOT"
+# id = "<your-kv-namespace-id>"

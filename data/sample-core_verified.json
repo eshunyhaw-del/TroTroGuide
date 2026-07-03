@@ -1,0 +1,75 @@
+{
+  "generatedAt": "2026-06-21T22:33:15.786Z",
+  "sourceFormat": "admin-dashboard",
+  "stops": [
+    {
+      "id": "042821de-364a-42c3-8f8a-c7cf3f927be2",
+      "osmRef": "node/4990162109",
+      "name": "Circle",
+      "nameSource": "field",
+      "aliases": [],
+      "lat": 5.570751,
+      "lng": -0.213211,
+      "geomSource": "field",
+      "mateShout": "Circle! Circle!",
+      "notes": "Verified on Line 11 ride",
+      "confidence": 0.9
+    },
+    {
+      "id": "76d5f605-a7b5-45b7-90c3-2257c794596f",
+      "osmRef": "node/4990163125",
+      "name": "Circle Overhead",
+      "nameSource": "field",
+      "aliases": [],
+      "lat": 5.57025,
+      "lng": -0.213926,
+      "geomSource": "field",
+      "mateShout": "Overhead!",
+      "notes": "Verified on Line 11 ride",
+      "confidence": 0.9
+    },
+    {
+      "id": "540f4295-3e82-4e6b-ac38-7126468f0b1d",
+      "osmRef": "node/4990163124",
+      "name": "Circle",
+      "nameSource": "osm",
+      "aliases": [],
+      "lat": 5.57146,
+      "lng": -0.215874,
+      "geomSource": "osm",
+      "mateShout": "",
+      "notes": "Did not catch local name; GPS failed",
+      "confidence": 0.6
+    },
+    {
+      "id": "f80a9394-8aa7-4bdb-a259-9609f894e98c",
+      "osmRef": "node/4990163123",
+      "name": "Sahara",
+      "nameSource": "field",
+      "aliases": [
+        "Circle Asoredanho"
+      ],
+      "lat": 5.575531,
+      "lng": -0.216451,
+      "geomSource": "field",
+      "mateShout": "Sahara Sahara!",
+      "notes": "Verified on Line 11 ride",
+      "confidence": 0.9
+    },
+    {
+      "id": "f932d2ef-2593-4a82-aeb5-071bc490bb63",
+      "osmRef": "node/4990163121",
+      "name": "Abeka Lapaz",
+      "nameSource": "field",
+      "aliases": [
+        "Alajo"
+      ],
+      "lat": 5.590994,
+      "lng": -0.218223,
+      "geomSource": "field",
+      "mateShout": "Lapaz last stop!",
+      "notes": "Verified on Line 11 ride",
+      "confidence": 0.9
+    }
+  ]
+}

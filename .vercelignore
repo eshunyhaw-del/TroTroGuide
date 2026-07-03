@@ -1,0 +1,17 @@
+# Heavy / ODbL / synthetic artifacts that should NOT ship to Vercel.
+# NOTE: data/core_verified.json and data/routes.json are intentionally NOT
+# ignored — scripts/prepare-core-pack.mjs reads them at deploy time to build the
+# field-verified CorePack. Everything else under data/ is excluded.
+data/osm_raw/
+data/osm_import.sql
+data/promote_to_core.sql
+data/osm_treasure_map.html
+data/osm_treasure_map.json
+data/sample-fieldwork-export.json
+data/sample-admin-verification.json
+data/sample-admin-v2.json
+data/sample-routes.json
+data/sample-core_verified.json
+data/route-changes-review.json
+# The sellable, OSM-free verified pack (build:pack:beta output) — never ship publicly.
+data/core-pack-verified.json

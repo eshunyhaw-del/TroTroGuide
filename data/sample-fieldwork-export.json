@@ -1,0 +1,42 @@
+{
+  "exportedAt": "2026-06-21T18:30:00.000Z",
+  "captures": {
+    "shout|relation/7415862": "Circle Circle! Lapaz Lapaz! Abeka!",
+    "relation/7415862|node/4990162109": {
+      "visited": true,
+      "exists": true,
+      "shout": true,
+      "localname": true,
+      "note": "Locals call it \"Circle\". Mate shouts \"Lapaz Lapaz!\". Board on the overpass side."
+    },
+    "relation/7415862|node/4990163125": {
+      "visited": true,
+      "exists": true,
+      "shout": false,
+      "localname": true,
+      "note": "\"Odorna\" — still a real stop, no distinct shout here"
+    },
+    "relation/7415862|node/4990163124": {
+      "visited": true,
+      "exists": false,
+      "shout": false,
+      "localname": false,
+      "note": "STOP GONE — construction, trotros now pass without stopping"
+    },
+    "relation/7415862|node/4990163123": {
+      "visited": true,
+      "exists": true,
+      "shout": true,
+      "localname": true,
+      "note": "Locals say \"Kwame Nkrumah\" / \"Sahara\". Shout: \"Sahara!\""
+    },
+    "relation/7415862|node/4990163122": {
+      "visited": false,
+      "exists": false,
+      "shout": false,
+      "localname": false,
+      "note": ""
+    }
+  },
+  "count": 6
+}
