@@ -1,0 +1,12 @@
+[
+  {
+    "name": "Circle ↔ New Achimota",
+    "ref": "11",
+    "mateShout": "Achimota!",
+    "stops": [
+      "node/4990162109",
+      "node/4990163125",
+      "node/4990163124"
+    ]
+  }
+]

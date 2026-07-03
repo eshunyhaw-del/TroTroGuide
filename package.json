@@ -1,0 +1,46 @@
+{
+  "name": "trotro-guide",
+  "version": "0.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "dev:lan": "next dev -H 0.0.0.0",
+    "build": "node scripts/prepare-core-pack.mjs && next build",
+    "start": "next start",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "build:pack": "tsx scripts/build-core-pack.ts",
+    "extract:osm": "node scripts/extract-osm-accra.mjs",
+    "treasure-map": "node scripts/osm-treasure-map.mjs",
+    "import:osm": "node scripts/import-osm-to-mirror.mjs",
+    "build:admin": "node scripts/build-admin-data.mjs",
+    "promote": "node scripts/promote-verified-to-core.mjs",
+    "build:verified-pack": "node scripts/build-core-pack-from-verified.mjs",
+    "build:pack:beta": "node scripts/build-core-pack-beta.mjs",
+    "build:pack:all": "node scripts/build-core-pack-beta.mjs"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "2.110.0",
+    "@upstash/ratelimit": "2.0.3",
+    "@upstash/redis": "1.34.0",
+    "h3-js": "4.1.0",
+    "lucide-react": "^1.21.0",
+    "maplibre-gl": "^5.24.0",
+    "minisearch": "7.1.0",
+    "next": "15.5.20",
+    "pino": "9.3.2",
+    "preact": "10.23.2",
+    "react": "18.3.1",
+    "react-dom": "18.3.1"
+  },
+  "devDependencies": {
+    "@types/node": "20.14.10",
+    "@types/react": "18.3.3",
+    "@types/react-dom": "18.3.0",
+    "tsx": "4.16.5",
+    "typescript": "5.5.4",
+    "vitest": "2.0.5",
+    "workbox-build": "7.1.1"
+  }
+}

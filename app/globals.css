@@ -1,0 +1,873 @@
+/* ============================================================================
+   Trotro Guide — PUBLIC app design system.
+   Apple structure (glass, tight type, pills, scale-press) + Free Now green.
+   The admin dashboard (.adm-*) keeps its own deliberately-plain styling below.
+   ============================================================================ */
+:root {
+  color-scheme: light dark;
+
+  /* Free Now palette */
+  --color-primary: #00d166;
+  --color-primary-dark: #00b050;
+  --color-primary-ink: #007a36;     /* ~5:1 on white — AA for normal-size green text */
+  --color-dark: #1a1a1a;
+  --color-white: #ffffff;
+  --color-gray-50: #f5f5f5;
+  --color-gray-100: #e5e5e5;
+  --color-gray-400: #9e9e9e;
+  --color-gray-600: #6b7280;
+  --color-warning: #ffa726;
+  --color-warning-ink: #b26a00;
+  --color-error: #ff4444;
+  --color-error-ink: #c62020;
+  --color-map-start: #00d166;
+  --color-map-end: #ff3366;
+  --color-map-current: #0071e3;
+
+  /* Semantic surfaces / text (flip in dark mode) */
+  --bg: #ffffff;
+  --bg-app: #fafafa;                /* warm white — premium, not stark */
+  --text: #1a1a1a;
+  --text-secondary: #6b7280;
+  --text-muted: #9ca3af;
+  --hairline: #eceef1;
+
+  /* Soft, premium shadows (layered, low-opacity) */
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.07), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.08), 0 4px 6px -2px rgba(0, 0, 0, 0.03);
+  --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.08), 0 10px 10px -5px rgba(0, 0, 0, 0.02);
+
+  /* Glassmorphism */
+  --glass-bg: rgba(255, 255, 255, 0.72);   /* header: true backdrop blur */
+  --glass-border: rgba(255, 255, 255, 0.55);
+  --surface: rgba(255, 255, 255, 0.92);    /* cards/pills: frosted solid (cheap) */
+  --surface-border: rgba(0, 0, 0, 0.06);
+  --glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
+  --glass-shadow-lg: 0 12px 40px rgba(0, 0, 0, 0.12);
+  --glass-blur: blur(20px) saturate(180%);
+
+  /* Spacing + radius */
+  --space-xs: 4px; --space-sm: 8px; --space-md: 16px;
+  --space-lg: 24px; --space-xl: 32px; --space-2xl: 48px; --space-3xl: 64px;
+  --radius-sm: 8px; --radius-md: 16px; --radius-lg: 20px; --radius-xl: 24px; --radius-pill: 9999px;
+
+  --font: var(--font-aspekta), -apple-system, BlinkMacSystemFont, "SF Pro Display", "Inter", "Segoe UI", Roboto, system-ui, sans-serif;
+  --ease: cubic-bezier(0.4, 0, 0.2, 1);
+  --ease-spring: cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #1a1a1a;
+    --bg-app: #121212;
+    --text: #ffffff;
+    --text-secondary: #9e9e9e;
+    --text-muted: #7a7a7a;
+    --hairline: #2e2e2e;
+    --color-gray-50: #242424;
+    --color-gray-100: #2e2e2e;
+    --color-primary-ink: #23e07f;   /* brighter green reads better on dark */
+    --color-warning-ink: #ffb300;   /* brighter amber — #b26a00 fails AA on dark surfaces */
+    --color-error-ink: #ff6b6b;     /* brighter red — #c62020 fails AA on dark surfaces */
+    --glass-bg: rgba(30, 30, 30, 0.72);
+    --glass-border: rgba(255, 255, 255, 0.12);
+    --surface: rgba(34, 34, 34, 0.92);
+    --surface-border: rgba(255, 255, 255, 0.1);
+    --glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+    --glass-shadow-lg: 0 12px 40px rgba(0, 0, 0, 0.5);
+  }
+}
+
+* { box-sizing: border-box; }
+html, body { margin: 0; padding: 0; }
+body {
+  font-family: var(--font);
+  line-height: 1.5;
+  letter-spacing: -0.011em;
+  color: var(--text);
+  background: var(--bg-app);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+button { min-height: 44px; font-family: inherit; }
+
+/* --- frosted glass ------------------------------------------------------- */
+/* Content surfaces (cards, search, pills): near-opaque frosted solid. Over the
+   app's flat canvas a real backdrop-filter blurs nothing — it just burns GPU and
+   trips driver bugs on some low-end Android GPUs — so cards use a solid surface
+   that looks identical and renders everywhere. */
+.glass {
+  background: var(--surface);
+  border: 1px solid var(--surface-border);
+  box-shadow: var(--glass-shadow);
+}
+/* True backdrop blur ONLY where it earns its cost: the sticky header, which
+   frosts the content scrolling beneath it. */
+.glass--blur {
+  background: var(--glass-bg);
+  border-color: var(--glass-border);
+  -webkit-backdrop-filter: var(--glass-blur);
+  backdrop-filter: var(--glass-blur);
+}
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .glass--blur { background: var(--surface); border-color: var(--surface-border); }
+}
+
+/* --- app shell ----------------------------------------------------------- */
+.tg-app { min-height: 100dvh; display: flex; flex-direction: column; }
+.tg-header {
+  position: sticky; top: 0; z-index: 30;
+  border-radius: 0; border-left: 0; border-right: 0; border-top: 0;
+}
+.tg-header-in {
+  max-width: 480px; margin: 0 auto;
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 12px 16px;
+}
+.tg-brand { display: flex; align-items: center; gap: 8px; font-size: 18px; font-weight: 600; letter-spacing: -0.02em; margin: 0; color: var(--text); text-decoration: none; }
+.tg-brand-logo-wrap { position: relative; width: 28px; height: 28px; overflow: hidden; border-radius: 6px; flex: none; }
+.tg-brand-logo { position: absolute; left: -26px; top: -25px; width: 75px; height: 75px; }
+.tg-brand-name { white-space: nowrap; }
+.tg-brand-accent { color: var(--color-primary); }
+.tg-main { max-width: 480px; width: 100%; margin: 0 auto; padding: 16px; }
+
+/* --- status row ---------------------------------------------------------- */
+.tg-status { display: flex; align-items: center; gap: 6px 12px; flex-wrap: wrap; margin-bottom: 14px; font-size: 12px; color: var(--text-secondary); }
+.tg-status span { display: inline-flex; align-items: center; gap: 4px; }
+.tg-status svg { color: var(--text-muted); }
+.tg-status .warn { color: var(--color-warning-ink); }
+
+/* --- typography helpers -------------------------------------------------- */
+.tg-hero { font-size: 32px; font-weight: 700; line-height: 1.1; letter-spacing: -0.021em; margin: 6px 0 18px; }
+.tg-h2 { font-size: 24px; font-weight: 600; line-height: 1.2; letter-spacing: -0.021em; margin: 6px 0 12px; display: flex; align-items: center; gap: 8px; }
+.tg-h2 svg { color: var(--color-primary); flex: none; }
+.tg-h3 { font-size: 20px; font-weight: 600; line-height: 1.3; letter-spacing: -0.017em; margin: 0 0 4px; }
+.tg-body { font-size: 17px; line-height: 1.5; letter-spacing: -0.024em; margin: 8px 0; }
+.tg-caption { font-size: 14px; font-weight: 500; letter-spacing: -0.016em; color: var(--text-secondary); }
+.tg-meta { font-size: 12px; color: var(--text-secondary); margin: 6px 0; }
+/* Long-walk / attention note: same size, amber so the rider notices the caveat
+   without it reading as an error. */
+.tg-meta--warn {
+  color: #9a6a00;
+  font-weight: 600;
+  background: rgba(245, 178, 7, 0.12);
+  border: 1px solid rgba(245, 178, 7, 0.3);
+  border-radius: 10px;
+  padding: 8px 12px;
+}
+/* Neutral/informational note (e.g. "this trip changes cars once") — blue, to
+   match the transfer accent and read as info rather than a warning. */
+.tg-meta--info {
+  color: #1f5fd0;
+  font-weight: 600;
+  background: rgba(47, 111, 237, 0.10);
+  border: 1px solid rgba(47, 111, 237, 0.25);
+  border-radius: 10px;
+  padding: 8px 12px;
+}
+.tg-hint { font-size: 13px; color: var(--text-secondary); margin: 12px 0 4px; line-height: 1.45; }
+
+/* --- search bar ---------------------------------------------------------- */
+.tg-search { display: flex; align-items: center; gap: 10px; padding: 14px 18px; border-radius: var(--radius-pill); transition: box-shadow 200ms var(--ease); }
+.tg-search > svg { color: var(--text-muted); flex: none; }
+.tg-search input { flex: 1; min-width: 0; border: none; background: transparent; outline: none; font-size: 17px; letter-spacing: -0.011em; color: var(--text); }
+.tg-search input::placeholder { color: var(--text-secondary); }
+.tg-search:focus-within { box-shadow: var(--glass-shadow-lg), 0 0 0 2px var(--color-primary); }
+
+/* --- horizontal pills ---------------------------------------------------- */
+.tg-pills { display: flex; gap: 8px; overflow-x: auto; padding: 4px 2px; margin: 14px 0 6px; -webkit-overflow-scrolling: touch; scrollbar-width: none; }
+.tg-pills::-webkit-scrollbar { display: none; }
+.tg-pill {
+  flex: none; display: inline-flex; align-items: center; min-height: 44px;
+  padding: 10px 16px; border-radius: var(--radius-pill);
+  border: 1px solid var(--surface-border); background: var(--surface);
+  box-shadow: var(--glass-shadow);
+  font-size: 14px; font-weight: 500; color: var(--text); cursor: pointer; white-space: nowrap;
+  transition: transform 150ms var(--ease);
+}
+.tg-pill:active { transform: scale(0.95); }
+.tg-pilllabel { font-size: 13px; color: var(--text-secondary); margin: 10px 0 2px; }
+
+/* --- cards (premium: more breathing room) ------------------------------- */
+.tg-card { border-radius: var(--radius-lg); padding: var(--space-lg); margin: 14px 0; }
+.tg-card h3 { margin: 0 0 6px; }
+.tg-tap {
+  display: block; width: 100%; text-align: left; cursor: pointer;
+  border: 1px solid var(--surface-border); font: inherit; color: inherit;
+  transition: transform 180ms var(--ease), box-shadow 180ms var(--ease);
+}
+.tg-tap:active { transform: scale(0.985); }
+.tg-tap:hover { box-shadow: var(--glass-shadow-lg); }
+
+/* search result row */
+.tg-result { display: flex; align-items: center; gap: 12px; }
+.tg-result-main { flex: 1; min-width: 0; }
+.tg-result-title { display: flex; align-items: center; gap: 8px; font-size: 17px; font-weight: 600; letter-spacing: -0.012em; }
+.tg-result-title .name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.tg-chev { color: var(--text-muted); flex: none; }
+.tg-rowmeta { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; margin-top: 5px; color: var(--text-secondary); font-size: 13px; }
+.tg-rowmeta span { display: inline-flex; align-items: center; gap: 4px; }
+
+.tg-dot { width: 10px; height: 10px; border-radius: 50%; flex: none; }
+.tg-dot--verified { background: var(--color-primary); }
+.tg-dot--beta { background: #f6a623; }
+.tg-dot--user_reported { background: var(--text-muted); }
+.tg-badge { display: inline-flex; align-items: center; gap: 4px; font-size: 12px; font-weight: 600; color: var(--text-secondary); background: var(--color-gray-50); border-radius: var(--radius-pill); padding: 2px 9px; }
+/* Status badges (BETA model): amber beta, green verified, grey pending. */
+.tg-badge--beta { color: var(--color-warning-ink); background: rgba(246, 166, 35, 0.18); }
+.tg-badge--verified { color: var(--color-primary-ink); background: rgba(0, 209, 102, 0.14); }
+.tg-badge--pending { color: var(--text-secondary); background: var(--color-gray-100); }
+.tg-shouthead { display: flex; align-items: flex-start; justify-content: space-between; gap: 10px; }
+.tg-shouthead .tg-shout { margin: 2px 0; }
+.tg-shouthead .tg-badge { flex: none; margin-top: 6px; }
+.tg-betanote { font-size: 12.5px; color: var(--color-warning-ink); margin: 0 0 6px; }
+.tg-attribution { font-size: 11px; color: var(--text-muted); text-align: center; margin: 18px 0 4px; }
+
+/* Route-number badge (green pill) + badge column on the boarding card. */
+.tg-badgecol { display: flex; flex-direction: column; align-items: flex-end; gap: 6px; flex: none; }
+.tg-routeref { display: inline-flex; align-items: center; min-width: 28px; justify-content: center;
+  background: var(--color-primary); color: #1a1a1a; font-weight: 800; font-size: 13px;
+  border-radius: var(--radius-sm); padding: 2px 8px; letter-spacing: -0.01em; }
+
+/* "View all stops" expander + numbered stop list. */
+.tg-stoplist { margin: 4px 0 8px; padding-left: 26px; display: flex; flex-direction: column; gap: 4px; }
+.tg-stoplist li { font-size: 14px; color: var(--text-secondary); }
+.tg-stoplist li.board { color: var(--color-primary-ink); font-weight: 700; }
+.tg-stoplist li.alight { color: var(--color-map-end); font-weight: 700; }
+
+/* Support / donate — hosted Paystack payment page (MoMo + card). */
+.tg-support-card { display: flex; align-items: center; gap: 14px; text-decoration: none; color: inherit;
+  margin: 16px 0; padding: 16px 18px; border-radius: var(--radius-lg, 20px); background: var(--surface, #fff);
+  border: 1px solid var(--border, rgba(0,0,0,0.08)); box-shadow: var(--shadow-sm); }
+.tg-support-card:hover { box-shadow: var(--shadow-md); }
+.tg-support-heart { display: grid; place-items: center; width: 44px; height: 44px; flex: none;
+  border-radius: 50%; background: rgba(0,209,102,0.14); color: var(--color-primary-ink, #007a36); }
+.tg-support-body { display: flex; flex-direction: column; gap: 3px; flex: 1 1 auto; min-width: 0; }
+.tg-support-title { font-size: 15px; font-weight: 700; }
+.tg-support-sub { font-size: 13px; color: var(--text-secondary); line-height: 1.4; }
+.tg-support-cta { flex: none; align-self: center; font-size: 14px; font-weight: 700;
+  color: #0f2e19; background: var(--color-primary, #00d166); padding: 10px 16px; border-radius: 999px; }
+.tg-support-inline { display: inline-flex; align-items: center; gap: 7px; text-decoration: none;
+  font-size: 14px; font-weight: 600; color: var(--color-primary-ink, #007a36); padding: 12px 2px; margin-top: 6px; }
+.tg-support-inline > svg { color: #e0245e; flex: none; }
+
+/* Landmarks along the way (OSM-sourced, beta pack). */
+/* Landmarks shown inline UNDER their nearest stop in the ride thread (Step 3).
+   Indented, muted and smaller so the stop sequence stays the primary scan; a
+   small amber pin marks each. font-weight/colour are set explicitly to override
+   the bold board/alight/transfer styling the parent stop row may carry. */
+.tg-stoplandmarks { list-style: none; margin: 3px 0 2px; padding: 0 0 0 10px; margin-left: 2px;
+  border-left: 2px solid var(--hairline); display: flex; flex-direction: column; gap: 3px; }
+.tg-stoplandmarks li { display: flex; align-items: center; gap: 6px; font-size: 12.5px; font-weight: 400;
+  line-height: 1.35; color: var(--text-muted); }
+.tg-stoplandmarks li > svg { color: var(--color-landmark, #d98a00); flex: none; }
+.tg-stoplandmark-name { flex: 1 1 auto; min-width: 0; }
+.tg-stoplandmark-type { flex: none; font-size: 10px; font-weight: 600; text-transform: capitalize;
+  color: var(--color-warning-ink); background: rgba(217, 138, 0, 0.12); border-radius: 999px; padding: 1px 7px; }
+
+/* Star rating + issue checkboxes (rate & contribute). */
+.tg-stars { display: flex; gap: 6px; margin: 6px 0 16px; }
+.tg-star { background: none; border: 0; padding: 4px; color: var(--color-gray-100); cursor: pointer; line-height: 0; }
+.tg-star.on { color: var(--color-primary); }
+.tg-star:focus-visible { outline: 2px solid var(--color-map-current); outline-offset: 2px; border-radius: 8px; }
+.tg-checks { display: flex; flex-direction: column; gap: 8px; margin: 4px 0 12px; }
+.tg-check { display: flex; align-items: center; gap: 10px; font-size: 16px; min-height: 44px;
+  padding: 0 12px; border: 1px solid var(--surface-border); border-radius: var(--radius-md); cursor: pointer; }
+.tg-check.on { border-color: var(--color-primary); background: rgba(0, 209, 102, 0.08); }
+.tg-check input { width: 20px; height: 20px; accent-color: var(--color-primary); }
+
+/* --- buttons ------------------------------------------------------------- */
+.tg-btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+  width: 100%; min-height: 56px; margin-top: 12px; padding: 18px 28px;
+  border: none; border-radius: var(--radius-lg);
+  font-size: 17px; font-weight: 600; letter-spacing: -0.01em; cursor: pointer;
+  text-decoration: none;
+  transition: transform 150ms var(--ease), background-color 150ms var(--ease), box-shadow 150ms var(--ease);
+}
+.tg-btn:active { transform: scale(0.97); }
+.tg-btn:focus-visible,
+.tg-pill:focus-visible,
+.tg-tap:focus-visible,
+.tg-back:focus-visible { outline: 2px solid var(--color-map-current); outline-offset: 2px; }
+.tg-btn:disabled { opacity: 0.5; cursor: default; }
+/* Near-black label on the vibrant brand green (~8.9:1) — keeps Free Now's
+   signature colour while passing WCAG AA, which white-on-#00d166 (~2:1) fails. */
+.tg-btn--primary { background: var(--color-primary); color: #1a1a1a; box-shadow: 0 4px 14px rgba(0, 209, 102, 0.28); }
+.tg-btn--primary:hover:not(:disabled) { background: var(--color-primary-dark); box-shadow: 0 6px 18px rgba(0, 209, 102, 0.34); }
+.tg-btn--primary:active { box-shadow: 0 2px 8px rgba(0, 209, 102, 0.28); }
+.tg-btn--secondary { background: transparent; color: var(--color-primary-ink); border: 1.5px solid var(--color-primary); }
+.tg-btn--warning { background: var(--color-warning); color: #1a1a1a; }
+.tg-btn--ghost { background: var(--color-gray-50); color: var(--text); }
+.tg-btn--sm { width: auto; min-height: 44px; margin-top: 0; padding: 12px 18px; font-size: 15px; box-shadow: none; }
+
+.tg-back { display: inline-flex; align-items: center; gap: 4px; background: none; border: none; color: var(--color-primary-ink); font-size: 16px; font-weight: 500; padding: 8px 4px 8px 0; min-height: 44px; cursor: pointer; text-decoration: none; }
+.tg-controls { display: flex; gap: 10px; margin-top: 10px; }
+.tg-controls .tg-btn { flex: 1; margin-top: 0; }
+
+/* --- form fields --------------------------------------------------------- */
+.tg-field { display: block; margin: 14px 0; }
+.tg-field > span { display: block; font-size: 14px; font-weight: 600; margin-bottom: 6px; }
+.tg-textinput {
+  width: 100%; padding: 14px 16px; border-radius: var(--radius-md);
+  border: 1px solid var(--color-gray-100); background: var(--bg);
+  font-size: 17px; font-family: inherit; color: var(--text);
+}
+.tg-textinput::placeholder { color: var(--text-secondary); }
+.tg-textinput:focus { outline: none; border-color: var(--color-primary); box-shadow: 0 0 0 2px rgba(0, 209, 102, 0.25); }
+textarea.tg-textinput { resize: vertical; min-height: 96px; line-height: 1.45; }
+
+/* --- results header (origin -> dest, option count) ----------------------- */
+.tg-resultsheader { margin: 0 0 var(--space-md); }
+.tg-resultsroute { display: flex; align-items: center; gap: 4px; font-size: 22px; font-weight: 700;
+  letter-spacing: -0.02em; margin: 0 0 4px; }
+.tg-resultsroute svg { color: var(--text-muted); flex: none; }
+.tg-resultscount { font-size: 14px; color: var(--text-secondary); margin: 0; }
+
+/* --- numbered step labels inside a boarding-option card ------------------- */
+.tg-steplabel { font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em;
+  color: var(--color-primary-ink); margin: var(--space-md) 0 4px; }
+.tg-steplabel:first-of-type { margin-top: var(--space-sm); }
+
+/* --- inline (non-modal) walking map embedded in STEP 1 -------------------- */
+.tg-walkmap { width: 100%; height: 180px; border-radius: var(--radius-md); overflow: hidden;
+  margin: 4px 0 10px; background: var(--color-gray-50); }
+.tg-walkmap--loading { display: flex; align-items: center; justify-content: center;
+  color: var(--text-secondary); font-size: 13px; }
+
+/* --- boarding specifics -------------------------------------------------- */
+.tg-shout { display: flex; align-items: center; gap: 10px; font-size: 24px; font-weight: 700; line-height: 1.25; letter-spacing: -0.01em; color: var(--color-primary-ink); margin: 2px 0 4px; }
+.tg-shout svg { color: var(--color-primary); flex: none; }
+.tg-divider { height: 1px; background: var(--hairline); border: none; margin: 14px 0; }
+.tg-feat { display: flex; align-items: flex-start; gap: 10px; margin: 10px 0; font-size: 16px; line-height: 1.4; }
+.tg-feat > svg { color: var(--text-secondary); flex: none; margin-top: 2px; }
+.tg-feat .sub { display: block; color: var(--text-secondary); font-size: 14px; margin-top: 2px; }
+.tg-cue { font-size: 20px; font-weight: 600; line-height: 1.3; letter-spacing: -0.01em; margin: 0 0 6px; }
+
+/* --- on-board progress + guidance --------------------------------------- */
+.tg-progress { display: flex; align-items: center; gap: 10px; margin: 6px 0 var(--space-lg); }
+.tg-progress-label { font-size: 13px; font-weight: 600; color: var(--text-secondary); flex: none; max-width: 90px;
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.tg-progress-label.end { text-align: right; }
+.tg-progress-track { display: flex; align-items: center; gap: 6px; flex: 1; flex-wrap: wrap; }
+.tg-progress-track i { width: 12px; height: 12px; border-radius: 50%; background: var(--color-gray-100); display: block; transition: background 400ms var(--ease), transform 400ms var(--ease); }
+.tg-progress-track i.done { background: var(--color-primary); }
+.tg-progress-track i.here { background: var(--color-map-current); transform: scale(1.4); box-shadow: 0 0 0 4px rgba(0, 209, 102, 0.18); }
+.tg-gpsdot { width: 10px; height: 10px; border-radius: 50%; background: var(--color-map-current); animation: tg-pulse 2s var(--ease) infinite; flex: none; }
+.tg-nextcard { text-align: center; }
+.tg-stopsleft { font-size: 32px; font-weight: 800; letter-spacing: -0.5px; margin: 0 0 6px; }
+.tg-nextcard .tg-cue { text-align: center; }
+.tg-nextcard .tg-feat { text-align: left; }
+.tg-card--error { border: 1px solid var(--color-error); }
+.tg-card--error .tg-cue { color: var(--color-error-ink); }
+
+/* attention alert (get ready to alight) */
+.tg-alert { border: 2px solid var(--color-warning); border-radius: var(--radius-md); padding: var(--space-md); margin: 12px 0; animation: tg-borderpulse 1.6s ease-in-out infinite; }
+.tg-alert .tg-h3 { display: flex; align-items: center; gap: 8px; color: var(--color-warning-ink); }
+
+/* --- recording (contribute) --------------------------------------------- */
+.tg-rec { display: flex; align-items: center; gap: 8px; font-size: 17px; font-weight: 600; }
+.tg-rec .blip { width: 12px; height: 12px; border-radius: 50%; background: var(--color-error); animation: tg-pulse 1.2s infinite; flex: none; }
+
+/* --- toast / empty / progress ------------------------------------------- */
+.tg-toast { display: flex; align-items: center; gap: 8px; color: var(--color-primary-ink); background: rgba(0, 209, 102, 0.12); border-radius: var(--radius-md); padding: 12px 14px; margin: 10px 0; font-weight: 600; }
+.tg-empty { text-align: center; padding: 28px 12px; }
+.tg-empty .ico { color: var(--text-muted); margin-bottom: 8px; }
+.tg-loading { display: flex; flex-direction: column; align-items: center; gap: 14px; padding: 48px 16px; text-align: center; }
+.tg-bounce { color: var(--color-primary); animation: tg-bounce 1.2s ease-in-out infinite; }
+.tg-progressbar { width: 200px; max-width: 70%; height: 6px; border-radius: 3px; background: var(--color-gray-100); overflow: hidden; position: relative; }
+.tg-progressbar::after { content: ""; position: absolute; top: 0; left: -40%; height: 100%; width: 40%; background: var(--color-primary); border-radius: 3px; animation: tg-indeterminate 1.2s ease-in-out infinite; }
+
+/* --- keyframes ----------------------------------------------------------- */
+.tg-rise { animation: tg-rise 300ms var(--ease) both; }
+.tg-spin { animation: tg-spin 1s linear infinite; }
+@keyframes tg-rise { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes tg-pulse { 0%, 100% { transform: scale(1); opacity: 1; } 50% { transform: scale(1.25); opacity: 0.6; } }
+@keyframes tg-bounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-8px); } }
+@keyframes tg-spin { to { transform: rotate(360deg); } }
+@keyframes tg-indeterminate { 0% { left: -40%; } 100% { left: 100%; } }
+
+/* --- page-level transitions: directional "push" between search <-> result,
+   like a native nav stack, instead of the flat fade every section used before. */
+@keyframes tg-slidein-right { from { opacity: 0; transform: translateX(28px); } to { opacity: 1; transform: translateX(0); } }
+@keyframes tg-slidein-left { from { opacity: 0; transform: translateX(-28px); } to { opacity: 1; transform: translateX(0); } }
+.tg-slide-fwd { animation: tg-slidein-right 320ms var(--ease-spring) both; }
+.tg-slide-back { animation: tg-slidein-left 320ms var(--ease-spring) both; }
+
+/* --- staggered entrance: direct children pop in one after another instead of
+   all at once. Capped at 12 — anything past that just inherits the last delay. */
+@keyframes tg-pop { from { opacity: 0; transform: translateY(10px) scale(0.97); } to { opacity: 1; transform: translateY(0) scale(1); } }
+.tg-stagger > * { opacity: 0; animation: tg-pop 420ms var(--ease-spring) both; }
+.tg-stagger > *:nth-child(1) { animation-delay: 0ms; }
+.tg-stagger > *:nth-child(2) { animation-delay: 40ms; }
+.tg-stagger > *:nth-child(3) { animation-delay: 80ms; }
+.tg-stagger > *:nth-child(4) { animation-delay: 120ms; }
+.tg-stagger > *:nth-child(5) { animation-delay: 160ms; }
+.tg-stagger > *:nth-child(6) { animation-delay: 200ms; }
+.tg-stagger > *:nth-child(7) { animation-delay: 240ms; }
+.tg-stagger > *:nth-child(8) { animation-delay: 280ms; }
+.tg-stagger > *:nth-child(9) { animation-delay: 320ms; }
+.tg-stagger > *:nth-child(n+10) { animation-delay: 360ms; }
+
+/* --- menu sheet pop — replaces the instant show/hide with a quick scale+fade
+   anchored to the trigger button, so it reads as opening FROM the hamburger. */
+@keyframes tg-menupop { from { opacity: 0; transform: scale(0.92) translateY(-6px); } to { opacity: 1; transform: scale(1) translateY(0); } }
+.tg-menusheet { transform-origin: top right; animation: tg-menupop 160ms var(--ease-spring) both; }
+
+/* --- hover-lift: desktop pointer affordance on tappable cards. Harmless on
+   touch (no hover event fires), and :active scale still covers touch feedback. */
+.tg-quicktile, .tg-promocard, .tg-destrow, .tg-photocard-img {
+  transition: transform 180ms var(--ease), box-shadow 180ms var(--ease);
+}
+.tg-quicktile:hover, .tg-promocard:hover { transform: translateY(-2px); box-shadow: var(--shadow-md); }
+.tg-destrow:hover { transform: translateX(2px); }
+.tg-photocard-img:hover { box-shadow: var(--shadow-md); }
+.tg-photocard-img img { transition: transform 280ms var(--ease); }
+.tg-photocard-img:hover img { transform: scale(1.28); }
+@keyframes tg-borderpulse { 0%, 100% { box-shadow: 0 0 0 0 rgba(255, 167, 38, 0); } 50% { box-shadow: 0 0 0 4px rgba(255, 167, 38, 0.35); } }
+
+/* --- minimal "Where to?" home (premium, spacious) ----------------------- */
+.tg-where { padding-top: var(--space-md); }
+.tg-homehead { display: flex; align-items: center; justify-content: space-between; margin: 0 0 var(--space-lg); }
+.tg-homebrand { font-size: 19px; font-weight: 700; letter-spacing: -0.02em; margin: 0; color: var(--text); }
+.tg-homeheart { display: inline-flex; align-items: center; justify-content: center; width: 36px; height: 36px;
+  border-radius: 50%; background: rgba(255, 51, 102, 0.1); color: var(--color-map-end, #ff3366); flex: none; }
+.tg-greeting { font-size: 15px; font-weight: 600; color: var(--text); margin: 0 0 6px; }
+.tg-nearcard { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; color: var(--text-secondary);
+  margin: 0 0 var(--space-xl); }
+.tg-nearcard svg { color: var(--color-primary); flex: none; }
+.tg-where-title { font-size: 32px; font-weight: 700; line-height: 1.2; letter-spacing: -0.5px;
+  text-align: center; margin: 0 0 var(--space-lg); }
+
+/* Typewriter caret for the home "Where are you going?" heading — a slim brand-
+   green bar that blinks after the text types in. min-height keeps the line from
+   collapsing before the first character lands. */
+.tg-caret { display: inline-block; width: 3px; height: 1em; margin-left: 3px;
+  vertical-align: -0.08em; border-radius: 2px; background: var(--color-primary);
+  animation: tg-blink 1.05s step-end infinite; }
+@keyframes tg-blink { 0%, 50% { opacity: 1; } 50.01%, 100% { opacity: 0; } }
+.tg-search-premium { display: flex; align-items: center; gap: 12px; position: relative;
+  background: var(--bg); border: 2px solid var(--surface-border); border-radius: var(--radius-md);
+  padding: 18px 20px; box-shadow: var(--shadow-sm); transition: border-color 0.2s var(--ease), box-shadow 0.2s var(--ease); }
+.tg-search-premium:focus-within { border-color: var(--color-primary); box-shadow: 0 0 0 4px rgba(0, 209, 102, 0.12); }
+.tg-search-premium svg { color: var(--text-secondary); flex: none; }
+.tg-search-premium input { flex: 1; min-width: 0; border: 0; background: transparent; font: inherit; font-size: 17px; color: var(--text); outline: none; padding-right: 32px; }
+.tg-reassure { display: flex; gap: 12px; align-items: flex-start; margin: var(--space-2xl) auto 0; max-width: 320px; color: var(--text-secondary); }
+.tg-reassure svg { color: var(--color-primary); flex: none; margin-top: 2px; }
+.tg-reassure p { margin: 0; font-size: 15px; line-height: 1.6; }
+.tg-results { display: flex; flex-direction: column; gap: 12px; margin-top: var(--space-lg); }
+
+/* --- arrival celebration (rate/done screen) ----------------------------- */
+.tg-arrive { text-align: center; padding: var(--space-xl) 0 var(--space-sm); }
+.tg-arrive svg { color: var(--color-primary); }
+.tg-arrive-title { font-size: 28px; font-weight: 700; letter-spacing: -0.5px; margin: var(--space-md) 0 4px; }
+.tg-arrive-stop { font-size: 18px; font-weight: 600; color: var(--text); margin: 0; }
+.tg-bounce-once { animation: tg-bounce 1s ease-in-out 3; }
+
+/* --- full-screen "GET READY!" alight alert (impossible to miss) ---------- */
+.tg-getready { position: fixed; inset: 0; z-index: 60; background: #fef3c7; color: #1a1a1a;
+  display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center;
+  padding: var(--space-xl); animation: tg-rise 250ms var(--ease-spring) both; }
+.tg-getready-close { position: absolute; top: max(16px, env(safe-area-inset-top)); right: 16px;
+  width: 40px; height: 40px; border: 0; border-radius: 50%; background: rgba(0, 0, 0, 0.06);
+  color: #1a1a1a; display: inline-flex; align-items: center; justify-content: center; cursor: pointer; }
+.tg-getready-icon { color: #f59e0b; animation: tg-pulse 1.5s ease-in-out infinite; }
+.tg-getready-kicker { font-size: 32px; font-weight: 800; letter-spacing: -0.5px; margin: var(--space-md) 0 0; }
+.tg-getready-msg { font-size: 20px; margin: var(--space-sm) 0 var(--space-lg); }
+.tg-getready-stop { font-size: 28px; font-weight: 700; margin: 0 0 var(--space-md); }
+.tg-getready-shout { font-size: 17px; margin: 0 0 var(--space-sm); max-width: 320px; }
+.tg-getready-cue { font-size: 18px; font-weight: 600; margin: var(--space-md) 0 var(--space-lg); }
+.tg-getready .tg-btn { max-width: 320px; }
+
+/* --- demo-data banner (placeholder pack warning) ------------------------- */
+.tg-demobanner { display: flex; align-items: center; gap: 8px; margin: 0 0 10px;
+  padding: 8px 12px; border-radius: var(--radius-md); font-size: 13px; font-weight: 600;
+  color: var(--color-warning-ink); background: rgba(178, 106, 0, 0.1); }
+
+/* --- geolocation status banner (denied/unavailable/low-accuracy) --------- */
+.tg-geobanner { display: flex; align-items: center; gap: 8px; margin: 0 0 10px;
+  padding: 8px 12px; border-radius: var(--radius-md); font-size: 13px; font-weight: 600;
+  color: var(--color-warning-ink); background: rgba(178, 106, 0, 0.1); }
+
+/* --- minimal home search clear button (sits inside the "Where to?" search) -
+   Absolutely positioned + translateY(-50%) instead of flex/align-items: a
+   centering bug reported on a real Android device didn't reproduce under any
+   flex-based fix tested here, so this anchors it to the row's box directly,
+   immune to sibling line-height/font-scaling quirks in any browser engine. */
+.tg-home-clear { display: flex; align-items: center; justify-content: center;
+  position: absolute; right: 18px; top: 50%; transform: translateY(-50%);
+  width: 30px; height: 30px; min-width: 30px; min-height: 30px; flex: none; line-height: 1;
+  transition: background-color 150ms var(--ease);
+  border: 0; border-radius: 50%; background: var(--color-gray-50); color: var(--text); cursor: pointer; padding: 0; }
+.tg-home-clear:hover { background: var(--color-gray-100); }
+.tg-home-clear:active { transform: translateY(-50%) scale(0.9); }
+.tg-home-clear svg { display: block; }
+
+/* --- route map (Feature 2): full-screen MapLibre overlay ----------------- */
+.tg-mapmodal { position: fixed; inset: 0; z-index: 50; background: var(--bg-app); }
+.tg-mapmodal-canvas { position: absolute; inset: 0; width: 100%; height: 100%; }
+.tg-mapmodal-bar { position: absolute; top: 0; left: 0; right: 0; z-index: 2;
+  display: flex; align-items: center; gap: 12px; padding: 10px 14px;
+  padding-top: max(10px, env(safe-area-inset-top)); }
+.tg-mapmodal-title { font-weight: 650; letter-spacing: -0.02em; }
+.tg-mapmodal-hint { position: absolute; left: 50%; transform: translateX(-50%);
+  bottom: max(16px, env(safe-area-inset-bottom)); z-index: 2;
+  padding: 8px 14px; border-radius: 9999px; font-size: 13px; color: var(--text-secondary); }
+.tg-mapmodal-note { position: absolute; left: 50%; transform: translateX(-50%); top: 64px; z-index: 2;
+  display: flex; align-items: center; gap: 8px; padding: 10px 14px; border-radius: var(--radius-md);
+  color: var(--color-warning-ink); }
+
+/* Markers (DOM elements handed to maplibregl.Marker). */
+.tg-marker { border-radius: 50%; border: 2px solid #fff; box-shadow: 0 2px 5px rgba(0,0,0,0.3); cursor: pointer;
+  display: flex; align-items: center; justify-content: center; color: #fff; font-weight: 800; font-size: 14px; line-height: 1; }
+.tg-marker--stop { width: 14px; height: 14px; background: #9e9e9e; }
+.tg-marker--board { width: 24px; height: 24px; background: var(--color-primary); }
+.tg-marker--alight { width: 24px; height: 24px; background: var(--color-map-end, #ff3366); }
+.tg-marker--landmark { width: 14px; height: 14px; background: #f6c343; border-radius: 3px; }
+.tg-marker--you { width: 18px; height: 18px; background: var(--color-map-current, #0071e3);
+  box-shadow: 0 0 0 4px rgba(0,113,227,0.25), 0 2px 5px rgba(0,0,0,0.3); }
+.maplibregl-popup-content { border-radius: 12px; padding: 10px 12px; font-family: var(--font);
+  box-shadow: var(--glass-shadow-lg); }
+.tg-pop-sub { color: var(--text-secondary); font-size: 13px; }
+.tg-pop-label { color: var(--color-primary-ink); font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.03em; }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
+}
+
+/* ============================================================================
+   Home (search) + Result — redesigned 2-screen flow.
+   ============================================================================ */
+.tg-home { padding-top: var(--space-sm); }
+.tg-homehero { text-align: center; margin: var(--space-lg) 0 var(--space-md); }
+.tg-greetpill { display: inline-flex; align-items: center; font-size: 12px; font-weight: 700;
+  letter-spacing: 0.03em; text-transform: uppercase; color: var(--color-primary-ink);
+  background: rgba(0, 209, 102, 0.14); border-radius: var(--radius-pill); padding: 5px 14px; margin-bottom: 10px; }
+.tg-homesub { color: var(--text-secondary); font-size: 15px; margin: 6px 0 0; }
+.tg-homecard { background: var(--bg); border: 1px solid var(--surface-border); border-radius: var(--radius-xl);
+  box-shadow: var(--glass-shadow-lg); padding: var(--space-lg); margin: 0 0 var(--space-xl); position: relative; }
+.tg-homecard .tg-nearcard { display: flex; margin: 0 0 var(--space-md); }
+.tg-homecard .tg-acdropdown { position: relative; }
+.tg-homestats { text-align: center; font-size: 13px; color: var(--text-secondary); margin: var(--space-md) 0 0; }
+
+.tg-acdropdown { margin-top: 4px; border: 1px solid var(--surface-border); border-radius: var(--radius-md);
+  overflow: hidden; box-shadow: var(--shadow-md); }
+.tg-acrow { display: flex; align-items: center; gap: 10px; width: 100%; text-align: left;
+  background: var(--bg); border: 0; border-bottom: 1px solid var(--hairline); padding: 12px 14px;
+  font-size: 15px; color: var(--text); cursor: pointer; min-height: 44px; }
+.tg-acrow:last-child { border-bottom: 0; }
+.tg-acrow:hover { background: var(--color-gray-50); }
+.tg-acrow svg { color: var(--text-muted); flex: none; }
+
+/* result header rendered on the same green hero treatment as the brand mark */
+.tg-resultsheader--hero { margin: 0 0 var(--space-md); }
+.tg-back--onhero { color: var(--color-primary-ink); }
+
+/* hero (green) card used for Step 1 — matches the model's walk-to-stop panel */
+.tg-card--hero { background: linear-gradient(160deg, var(--color-primary-dark), var(--color-primary));
+  color: #0d2616; border: 0; }
+.tg-steplabel--hero { color: rgba(13, 38, 22, 0.88); }
+.tg-btn--onhero { background: #fff; color: var(--color-primary-ink); }
+.tg-btn--onhero:hover { background: #f3f3f3; }
+
+/* trip switcher (the "5 options found" summary + dropdown) */
+.tg-tripswitch { display: flex; align-items: center; gap: 8px; width: 100%; text-align: left;
+  background: var(--bg); border: 1px solid var(--surface-border); border-radius: var(--radius-md);
+  padding: 12px 14px; margin: 0 0 var(--space-md); cursor: pointer; box-shadow: var(--shadow-sm); }
+.tg-tripswitch-from { font-size: 13px; color: var(--text-secondary); flex: none; }
+.tg-tripswitch-mid { font-size: 12px; color: var(--text-muted); flex: none; }
+.tg-tripswitch-to { font-size: 15px; font-weight: 700; color: var(--color-primary-ink); flex: 1; min-width: 0;
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.tg-tripswitch svg.tg-rot { transform: rotate(180deg); }
+.tg-tripoptions { display: flex; flex-direction: column; gap: 8px; margin: -4px 0 var(--space-md); }
+.tg-tripoption { display: flex; align-items: center; justify-content: space-between; gap: 10px;
+  background: var(--surface); border: 1px solid var(--surface-border); border-radius: var(--radius-md);
+  padding: 12px 14px; cursor: pointer; text-align: left; }
+.tg-tripoption.on { border-color: var(--color-primary); }
+.tg-tripoption .name { display: block; font-weight: 600; font-size: 14px; }
+.tg-tripoption .meta { display: block; font-size: 12px; color: var(--text-secondary); margin-top: 2px; }
+
+.tg-listenfor { display: flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 600;
+  color: var(--color-warning-ink); margin: 4px 0 8px; }
+.tg-shoutpills { display: flex; gap: 8px; flex-wrap: wrap; margin: 0 0 8px; }
+.tg-shoutpill { background: rgba(0, 209, 102, 0.12); color: var(--color-primary-ink); font-weight: 700;
+  font-size: 15px; border-radius: var(--radius-pill); padding: 6px 14px; }
+
+.tg-ridelist { list-style: none; margin: 0; padding: 0 0 0 22px; position: relative;
+  border-left: 2px solid var(--color-gray-100); display: flex; flex-direction: column; gap: 6px; }
+/* Stop rows anchor the thread — full-strength text + semibold so each stop
+   reads as a mini heading above its (lighter, indented) landmarks. board/
+   alight/transfer rows override the colour below to keep their meaning. */
+.tg-ridelist li { font-size: 14px; font-weight: 600; color: var(--text); position: relative; padding: 2px 0; }
+.tg-ridelist li::before { content: ""; position: absolute; left: -27px; top: 8px; width: 8px; height: 8px;
+  border-radius: 50%; background: var(--color-gray-100); }
+.tg-ridelist li.board { color: var(--color-primary-ink); font-weight: 700; }
+.tg-ridelist li.board::before { background: var(--color-primary); width: 12px; height: 12px; left: -29px; }
+.tg-ridelist li.alight { color: var(--color-map-end); font-weight: 700; }
+.tg-ridelist li.alight::before { background: var(--color-map-end); width: 12px; height: 12px; left: -29px; }
+.tg-stoptag { display: inline-block; font-size: 10px; font-weight: 700; text-transform: uppercase;
+  letter-spacing: 0.03em; margin-left: 8px; padding: 1px 7px; border-radius: var(--radius-pill);
+  background: rgba(0, 209, 102, 0.16); color: var(--color-primary-ink); }
+.tg-stoptag--alight { background: rgba(255, 51, 102, 0.14); color: var(--color-map-end); }
+/* Transfer point: a distinct blue (not board-green / alight-pink) so a change of
+   cars reads as its own thing on the timeline. */
+.tg-ridelist li.transfer { color: #1f5fd0; font-weight: 700; }
+.tg-ridelist li.transfer::before { background: #2f6fed; width: 12px; height: 12px; left: -29px; }
+.tg-stoptag--transfer { background: rgba(47, 111, 237, 0.14); color: #1f5fd0; text-transform: none; letter-spacing: 0; }
+
+/* Ordered "1st car / 2nd car" list shown on a transfer trip's Step 2. */
+.tg-legshouts { list-style: none; margin: 0 0 8px; padding: 0; display: flex; flex-direction: column; gap: 10px; }
+.tg-legshout { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+.tg-legshout-label { font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.04em;
+  color: #1f5fd0; background: rgba(47, 111, 237, 0.12); border-radius: var(--radius-pill); padding: 3px 9px; }
+.tg-legshout-to { font-size: 12px; color: var(--text-secondary); width: 100%; }
+.tg-tellmate { margin: var(--space-md) 0; padding: 12px 14px; border-radius: var(--radius-md);
+  background: rgba(246, 166, 35, 0.12); color: var(--color-warning-ink); font-weight: 600; font-size: 14px; }
+
+.tg-otherways { display: flex; flex-direction: column; gap: 8px; margin: 0 0 var(--space-lg); }
+.tg-othercard { display: flex; align-items: center; justify-content: space-between; gap: 10px;
+  background: var(--surface); border: 1px solid var(--surface-border); border-radius: var(--radius-md);
+  padding: 12px 14px; cursor: pointer; text-align: left; }
+.tg-othercard-row { display: flex; flex-direction: column; min-width: 0; }
+.tg-othercard-row span { font-size: 12px; color: var(--text-secondary); }
+.tg-othercard-row .dest { font-size: 15px; font-weight: 700; color: var(--text); }
+
+/* ============================================================================
+   Compact top bar (brand + menu) — shared app chrome, replaces the old
+   centered "Trotro Guide" title bar. Pattern borrowed from ride-hailing apps'
+   logo-left / hamburger-right header, rebuilt with our glass + green system.
+   ============================================================================ */
+.tg-topbar { width: 100%; }
+.tg-topbar .tg-brand { font-size: 17px; }
+.tg-menubtn {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 40px; height: 40px; flex: none; border: 0;
+  border-radius: var(--radius-sm); background: transparent; color: var(--text);
+  cursor: pointer; transition: transform 150ms var(--ease), background-color 150ms var(--ease);
+}
+.tg-menubtn:hover { background: var(--color-gray-50); }
+.tg-menubtn:active { transform: scale(0.92); background: var(--color-gray-50); }
+.tg-menuwrap { position: relative; flex: none; }
+.tg-menusheet {
+  position: absolute; top: calc(100% + 8px); right: 0; z-index: 40;
+  min-width: 220px; background: var(--bg); border: 1px solid var(--surface-border);
+  border-radius: var(--radius-md); box-shadow: var(--glass-shadow-lg); overflow: hidden;
+  padding: 6px;
+}
+.tg-menuitem {
+  display: flex; align-items: center; gap: 10px; width: 100%; text-align: left;
+  padding: 11px 12px; border: 0; background: transparent; border-radius: var(--radius-sm);
+  font-size: 15px; font-weight: 500; color: var(--text); cursor: pointer; min-height: 44px;
+  text-decoration: none;
+}
+.tg-menuitem:hover { background: var(--color-gray-50); }
+.tg-menuitem svg { color: var(--text-secondary); flex: none; }
+.tg-menudivider { height: 1px; background: var(--hairline); margin: 4px 6px; }
+.tg-menufoot { padding: 8px 12px 6px; font-size: 12px; color: var(--text-muted); }
+
+/* ============================================================================
+   Quick-action tiles — the icon-tile shortcut row pattern (cf. Yango's
+   Delivery/Cargo/Rides tiles), recolored to our single green accent and
+   scoped to TroTro Guide's one job: find a trotro, or help map one.
+   ============================================================================ */
+.tg-quicktiles { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin: 0 0 var(--space-lg); }
+.tg-quicktile {
+  display: flex; flex-direction: column; align-items: flex-start; gap: 10px;
+  padding: 16px; min-height: 96px; border-radius: var(--radius-lg);
+  background: var(--surface); border: 1px solid var(--surface-border); box-shadow: var(--shadow-sm);
+  text-decoration: none; color: var(--text); cursor: pointer; text-align: left;
+  transition: transform 150ms var(--ease), box-shadow 150ms var(--ease);
+}
+.tg-quicktile:active { transform: scale(0.97); }
+.tg-quicktile-icon {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 44px; height: 44px; border-radius: var(--radius-md);
+  background: var(--color-gray-50); color: var(--color-primary-ink); flex: none;
+}
+.tg-quicktile-label { font-size: 14px; font-weight: 700; letter-spacing: -0.01em; line-height: 1.25; }
+.tg-quicktile-sub { font-size: 12px; color: var(--text-secondary); margin: -6px 0 0; }
+
+/* ============================================================================
+   Destination rows — leading icon avatar + title/sub stack + trailing meta,
+   used for "popular near you" and live search suggestions alike.
+   ============================================================================ */
+.tg-destlist { display: flex; flex-direction: column; gap: 2px; margin: 0 0 var(--space-md); }
+.tg-destrow {
+  display: flex; align-items: center; gap: 12px; width: 100%; text-align: left;
+  padding: 11px 4px; border: 0; border-bottom: 1px solid var(--hairline);
+  background: transparent; cursor: pointer; min-height: 44px;
+}
+.tg-destrow:last-child { border-bottom: 0; }
+.tg-destrow:hover { background: var(--color-gray-50); }
+.tg-destrow-icon {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 40px; height: 40px; border-radius: var(--radius-sm); flex: none;
+  background: var(--color-gray-50); color: var(--text-secondary);
+}
+.tg-destrow-main { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+.tg-destrow-title { display: block; font-size: 15px; font-weight: 600; color: var(--text); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.tg-destrow-sub { display: block; font-size: 12.5px; color: var(--text-secondary); margin-top: 1px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.tg-destrow-meta { font-size: 13px; font-weight: 600; color: var(--text-secondary); flex: none; }
+
+/* --- nearest-stop card (home screen, independent of any destination search) */
+.tg-nearestcard {
+  display: flex; align-items: center; gap: 12px; width: 100%; text-align: left;
+  padding: 12px 14px; margin: 0 0 var(--space-md); border-radius: var(--radius-lg);
+  border: 1px solid var(--color-primary); background: rgba(0, 209, 102, 0.08);
+  cursor: pointer; min-height: 44px; transition: background-color 150ms var(--ease);
+}
+.tg-nearestcard:hover { background: rgba(0, 209, 102, 0.14); }
+.tg-nearestcard-icon {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 36px; height: 36px; min-width: 36px; border-radius: 50%; flex: none;
+  background: var(--color-primary); color: #0d2616;
+}
+.tg-nearestcard-main { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+.tg-nearestcard-title { font-size: 14.5px; font-weight: 700; color: var(--text); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.tg-nearestcard-sub { font-size: 12.5px; color: var(--text-secondary); margin-top: 1px; }
+
+/* ============================================================================
+   Promo banners — full-bleed rounded gradient cards (cf. Yango's "THE GAME
+   GOES ON" hero card + 2-up grid below it), repurposed as community/contribute
+   calls-to-action instead of ads. One accent (brand green), no stock photography.
+   ============================================================================ */
+.tg-promo {
+  position: relative; overflow: hidden; border-radius: var(--radius-xl);
+  padding: 22px 20px; margin: 0 0 var(--space-md);
+  background: linear-gradient(135deg, var(--color-primary-dark), var(--color-primary));
+  color: #0d2616; isolation: isolate;
+}
+.tg-promo::after {
+  content: ""; position: absolute; inset: 0; z-index: -1;
+  background: radial-gradient(120% 140% at 100% 0%, rgba(255, 255, 255, 0.22), transparent 60%);
+}
+.tg-promo-kicker { font-size: 12px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.04em;
+  color: rgba(13, 38, 22, 0.65); margin: 0 0 4px; }
+.tg-promo-title { font-size: 22px; font-weight: 800; line-height: 1.15; letter-spacing: -0.02em; margin: 0 0 6px; max-width: 80%; }
+.tg-promo-body { font-size: 14px; color: rgba(13, 38, 22, 0.75); margin: 0 0 14px; max-width: 85%; }
+.tg-promo .tg-btn { width: auto; min-height: 40px; padding: 10px 18px; margin-top: 0; font-size: 14px; background: #0d2616; color: #fff; box-shadow: none; }
+
+.tg-promogrid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin: 0 0 var(--space-lg); }
+.tg-promocard {
+  display: flex; flex-direction: column; justify-content: space-between; gap: 8px;
+  min-height: 128px; padding: 16px; border-radius: var(--radius-lg);
+  background: var(--color-dark); color: #fff; text-decoration: none; cursor: pointer;
+  transition: transform 150ms var(--ease);
+}
+.tg-promocard:active { transform: scale(0.97); }
+.tg-promocard--light { background: var(--surface); color: var(--text); border: 1px solid var(--surface-border); }
+.tg-promocard-title { font-size: 15px; font-weight: 800; letter-spacing: -0.015em; line-height: 1.2; }
+.tg-promocard-sub { font-size: 12px; color: rgba(255, 255, 255, 0.7); }
+.tg-promocard--light .tg-promocard-sub { color: var(--text-secondary); }
+.tg-promocard-icon { color: var(--color-primary); }
+
+/* ============================================================================
+   Photography — premium, Ghana-specific imagery (trotro mates, Accra streets
+   and skyline) layered behind hero copy and gating screens. Brand green stays
+   the single accent; photos supply the "premium and Ghanaian" atmosphere
+   DESIGN.md's photography-first principle calls for, without stock-photo gloss.
+   ============================================================================ */
+.tg-herobanner {
+  position: relative; height: 224px; border-radius: var(--radius-xl); overflow: hidden;
+  margin: 0 0 var(--space-lg); isolation: isolate; box-shadow: var(--shadow-md);
+}
+.tg-herobanner-img { object-fit: cover; z-index: -2; }
+.tg-herobanner::after {
+  content: ""; position: absolute; inset: 0; z-index: -1;
+  background: linear-gradient(180deg, rgba(6, 12, 8, 0.1) 0%, rgba(6, 12, 8, 0.88) 100%);
+}
+.tg-herobanner-content { position: absolute; left: 0; right: 0; bottom: 0; padding: 18px 20px; }
+.tg-herobanner .tg-where-title { text-align: left; color: #fff; font-size: 26px; margin: 0 0 6px; }
+.tg-herobanner .tg-homesub { text-align: left; color: rgba(255, 255, 255, 0.86); margin: 0; max-width: 92%; }
+
+/* Hero slideshow — slide 1 is the "Where to?" intro; slides 2–4 are the old
+   "How TroTro works" steps. Slides are stacked and crossfade via opacity. */
+/* touch-action: pan-y lets a horizontal swipe drive the carousel while a
+   vertical drag still scrolls the page; user-select/touch-callout off so a
+   swipe doesn't select text or pop the image long-press menu. */
+.tg-heroslides { height: 264px; touch-action: pan-y; user-select: none; -webkit-touch-callout: none; }
+.tg-heroslides::after { display: none; }
+.tg-heroslide { position: absolute; inset: 0; opacity: 0; transition: opacity 800ms var(--ease); pointer-events: none; }
+.tg-heroslide.is-active { opacity: 1; pointer-events: auto; }
+.tg-heroslide .tg-herobanner-img { object-fit: cover; z-index: 0; }
+.tg-heroslide::after { content: ""; position: absolute; inset: 0; z-index: 1; background: linear-gradient(180deg, rgba(6, 12, 8, 0.12) 0%, rgba(6, 12, 8, 0.9) 100%); }
+.tg-heroslide .tg-herobanner-content { z-index: 2; padding-right: 56px; }
+.tg-hero-kicker { font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; color: rgba(255, 255, 255, 0.92); margin: 0 0 6px; }
+.tg-heroslide .tg-hero-kicker + .tg-where-title { font-size: 19px; line-height: 1.32; }
+.tg-herodots { position: absolute; z-index: 3; top: 14px; right: 14px; display: flex; gap: 6px; }
+.tg-herodot { width: 7px; height: 7px; min-width: 7px; min-height: 7px; padding: 0; border: none; border-radius: 50%; background: rgba(255, 255, 255, 0.45); cursor: pointer; transition: background 200ms var(--ease), width 200ms var(--ease); }
+.tg-herodot.is-active { width: 18px; min-width: 18px; border-radius: 4px; background: #fff; }
+@media (prefers-reduced-motion: reduce) { .tg-heroslide { transition: none; } }
+
+/* Promo banner — same component as before, now with a photographic base layer
+   under the green wash so the CTA reads as editorial, not a flat ad unit. */
+.tg-promo-img { position: absolute; inset: 0; z-index: -2; object-fit: cover; }
+.tg-promo::after { background: linear-gradient(135deg, rgba(0, 177, 84, 0.55), rgba(10, 26, 16, 0.86)); }
+.tg-promo { color: #fff; }
+.tg-promo-kicker { color: rgba(255, 255, 255, 0.78); }
+.tg-promo-body { color: rgba(255, 255, 255, 0.88); }
+.tg-promo-title { color: #fff; }
+
+/* Photo strip — horizontal-scroll gallery of Accra street/skyline photography.
+   Pure atmosphere, no CTAs; gives the app local visual identity beyond icons. */
+.tg-photostrip-wrap { margin: 0 0 var(--space-xl); }
+.tg-photostrip { overflow: hidden; padding: 2px 0 6px; -webkit-mask-image: linear-gradient(90deg, transparent, #000 5%, #000 95%, transparent); mask-image: linear-gradient(90deg, transparent, #000 5%, #000 95%, transparent); }
+.tg-photostrip-track { display: flex; gap: 10px; width: max-content; margin: 0; padding: 0 2px; list-style: none; animation: tg-photostrip-scroll 80s linear infinite; }
+.tg-photostrip:hover .tg-photostrip-track, .tg-photostrip:focus-within .tg-photostrip-track { animation-play-state: paused; }
+@keyframes tg-photostrip-scroll { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+@media (prefers-reduced-motion: reduce) {
+  .tg-photostrip { overflow-x: auto; -webkit-overflow-scrolling: touch; scrollbar-width: none; }
+  .tg-photostrip::-webkit-scrollbar { display: none; }
+  .tg-photostrip-track { animation: none; }
+}
+.tg-photocard { flex: none; width: 138px; margin: 0; }
+.tg-photocard-img { position: relative; width: 138px; height: 172px; border-radius: var(--radius-lg); overflow: hidden; background: var(--color-gray-50); }
+.tg-photocard-img img { object-fit: cover; transform: scale(1.18); }
+.tg-photocard-cap { font-size: 12.5px; font-weight: 600; color: var(--text-secondary); margin: 6px 2px 0; }
+
+/* CorePackGate background — full-bleed photo behind the download-consent /
+   loading / error cards, so the very first thing a new user sees is Accra. */
+.tg-gatewrap { position: fixed; inset: 0; z-index: 20; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: var(--space-lg); isolation: isolate; }
+.tg-gatebg-img { object-fit: cover; z-index: -2; }
+.tg-gatebg-scrim { position: absolute; inset: 0; z-index: -1; background: linear-gradient(180deg, rgba(8, 14, 10, 0.55) 0%, rgba(8, 14, 10, 0.88) 100%); }
+.tg-gatewrap > .tg-card, .tg-gatewrap > .tg-loading { position: relative; max-width: 420px; width: 100%; }
+.tg-loading--ongate { color: #fff; }
+.tg-loading--ongate .tg-caption { color: rgba(255, 255, 255, 0.85); }
+.tg-loading--ongate .tg-progressbar { background: rgba(255, 255, 255, 0.18); }
+
+/* --- admin treasure-map dashboard (internal-only, deliberately plain) --- */
+.adm { max-width: 760px; margin: 0 auto; padding: 12px; }
+.adm-banner { background: #fffceb; border: 1px solid #d9c98a; padding: 6px 10px; font-size: 13px; }
+.adm-stats { display: flex; flex-wrap: wrap; gap: 6px 16px; font-size: 14px;
+  border-bottom: 2px solid #333; padding: 8px 0; }
+.adm-stats b { font-size: 19px; }
+.adm-controls { position: sticky; top: 0; background: Canvas; padding: 8px 0;
+  display: flex; flex-wrap: wrap; gap: 6px; border-bottom: 1px solid #ccc; z-index: 5; }
+.adm-controls input, .adm-controls select { padding: 10px; font-size: 16px; min-height: 44px; }
+.adm-controls input[type=search] { flex: 1 1 180px; }
+.adm-chip { padding: 8px 12px; min-height: 40px; border: 1px solid #999; background: #f4f4f4;
+  cursor: pointer; font-size: 14px; }
+.adm-chip.on { background: #333; color: #fff; }
+.adm-dot { display: inline-block; width: 12px; height: 12px; border-radius: 50%;
+  vertical-align: -1px; margin: 0 4px; }
+.adm-fresh { background: #1a8a3a; } .adm-stale { background: #b8860b; }
+.adm-verystale { background: #c0392b; } .adm-ghost { background: #888; }
+.adm-card { border: 1px solid #ccc; margin: 8px 0; padding: 10px; }
+.adm-card.verified { border-color: #1a8a3a; border-left: 5px solid #1a8a3a; }
+.adm-cardhead { display: flex; flex-wrap: wrap; gap: 6px 8px; align-items: center; }
+.adm-name { font-weight: 600; flex: 1 1 auto; }
+.adm-refbadge { font-size: 12px; background: #eee; border-radius: 8px; padding: 1px 6px; }
+.adm-form label { display: block; margin: 8px 0 2px; font-size: 14px; font-weight: 600; }
+.adm-form input[type=text], .adm-form textarea { width: 100%; padding: 10px; font-size: 16px; }
+.adm-row { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+.adm-gps { background: #eef; flex: 1; }
+.adm-save { background: #1a8a3a; color: #fff; flex: 1; }
+.adm-bar { height: 10px; background: #1a8a3a; border-radius: 3px; display: inline-block; vertical-align: middle; }
+.adm-muted { color: #777; font-size: 13px; }
+.adm-saved { color: #1a8a3a; font-weight: bold; }
+@media print { .adm-controls, button, .adm-banner { display: none; } }

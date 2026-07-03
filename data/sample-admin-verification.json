@@ -1,0 +1,61 @@
+{
+  "exportedAt": "2026-06-21T19:00:00.000Z",
+  "source": "admin-dashboard",
+  "count": 6,
+  "verifications": {
+    "node/4990162109": {
+      "exists": true,
+      "mateShout": "Circle! Circle!",
+      "localName": "Circle",
+      "myLat": 5.570751,
+      "myLng": -0.213211,
+      "notes": "Verified on Line 11 ride",
+      "verifiedAt": 1782090000000
+    },
+    "node/4990163125": {
+      "exists": true,
+      "mateShout": "Overhead!",
+      "localName": "Circle Overhead",
+      "myLat": 5.57025,
+      "myLng": -0.213926,
+      "notes": "Verified on Line 11 ride",
+      "verifiedAt": 1782090000001
+    },
+    "node/4990163124": {
+      "exists": true,
+      "mateShout": "",
+      "localName": "",
+      "myLat": null,
+      "myLng": null,
+      "notes": "Did not catch local name; GPS failed",
+      "verifiedAt": 1782090000002
+    },
+    "node/4990163123": {
+      "exists": true,
+      "mateShout": "Sahara Sahara!",
+      "localName": "Sahara",
+      "myLat": 5.575531,
+      "myLng": -0.216451,
+      "notes": "Verified on Line 11 ride",
+      "verifiedAt": 1782090000003
+    },
+    "node/4990163122": {
+      "exists": false,
+      "mateShout": "Lapaz! Lapaz!",
+      "localName": "Lapaz Junction",
+      "myLat": null,
+      "myLng": null,
+      "notes": "Construction — trotros no longer stop here",
+      "verifiedAt": 1782090000004
+    },
+    "node/4990163121": {
+      "exists": true,
+      "mateShout": "Lapaz last stop!",
+      "localName": "Abeka Lapaz",
+      "myLat": 5.590994,
+      "myLng": -0.218223,
+      "notes": "Verified on Line 11 ride",
+      "verifiedAt": 1782090000005
+    }
+  }
+}
