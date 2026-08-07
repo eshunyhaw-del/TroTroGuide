@@ -505,6 +505,63 @@ textarea.tg-textinput { resize: vertical; min-height: 96px; line-height: 1.45; }
 .tg-home-clear svg { display: block; }
 
 /* --- route map (Feature 2): full-screen MapLibre overlay ----------------- */
+/* ============================================================================
+   Donate prompt (results screen). Rises from the bottom on a phone — thumb
+   reach, and it reads as a sheet rather than an interstitial ad — and settles
+   into a centred card once there is room. Sits BELOW the full-screen map
+   (z-50) since the map is armed-off anyway, and below the "get ready" alert.
+   ============================================================================ */
+.tg-donate-scrim {
+  position: fixed; inset: 0; z-index: 45;
+  display: flex; align-items: flex-end; justify-content: center;
+  background: rgba(8, 14, 10, 0.5); padding: 0;
+  animation: tg-donate-fade 220ms ease-out both;
+}
+.tg-donate {
+  position: relative; width: 100%; max-width: 480px;
+  padding: 22px 20px calc(20px + env(safe-area-inset-bottom));
+  border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+  background: var(--bg); text-align: center;
+  animation: tg-donate-rise 280ms var(--ease-spring) both;
+}
+/* 44px SQUARE, deliberately. The global `button { min-height: 44px }` tap-target
+   rule beats a smaller `height`, so a 32px button renders 32x44 and a 50% radius
+   draws an ellipse, not a circle. Matching 44 keeps it perfectly round and keeps
+   the touch target; aspect-ratio pins it square if that rule ever changes. */
+.tg-donate-x {
+  position: absolute; top: 8px; right: 8px; display: grid; place-items: center;
+  width: 44px; height: 44px; min-height: 44px; aspect-ratio: 1; flex: none;
+  padding: 0; line-height: 1; border: 0; border-radius: 50%; cursor: pointer;
+  background: var(--color-gray-50); color: var(--text-secondary);
+}
+.tg-donate-heart {
+  display: grid; place-items: center; width: 48px; height: 48px; margin: 0 auto 10px;
+  border-radius: 50%; background: rgba(224, 36, 94, 0.12); color: #e0245e;
+}
+.tg-donate-title { font-size: 20px; font-weight: 700; letter-spacing: -0.02em; margin: 0 0 6px; }
+.tg-donate-body {
+  font-size: 15px; line-height: 1.55; color: var(--text-secondary);
+  margin: 0 auto 18px; max-width: 34em;
+}
+.tg-donate-actions { display: flex; flex-direction: column; gap: 8px; }
+.tg-donate-actions .tg-btn { width: 100%; }
+
+@keyframes tg-donate-fade { from { opacity: 0; } to { opacity: 1; } }
+@keyframes tg-donate-rise {
+  from { transform: translateY(18px); opacity: 0; }
+  to   { transform: translateY(0);    opacity: 1; }
+}
+
+@media (min-width: 560px) {
+  .tg-donate-scrim { align-items: center; padding: var(--space-lg); }
+  .tg-donate { border-radius: var(--radius-lg); padding-bottom: 22px; }
+  .tg-donate-actions { flex-direction: row-reverse; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tg-donate-scrim, .tg-donate { animation: none; }
+}
+
 .tg-mapmodal { position: fixed; inset: 0; z-index: 50; background: var(--bg-app); }
 .tg-mapmodal-canvas { position: absolute; inset: 0; width: 100%; height: 100%; }
 .tg-mapmodal-bar { position: absolute; top: 0; left: 0; right: 0; z-index: 2;
