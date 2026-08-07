@@ -42,6 +42,7 @@ import {
 } from '@/lib/corepack/client';
 import { haversineM } from '@/lib/geo/haversine';
 import { walkingMinutes } from '@/lib/geo/nearest-stop';
+import { useRideProgress, type LiveRide } from '@/lib/onboard/useRideProgress';
 import { openWalkingDirections } from '@/lib/maps/open-external';
 import { SupportCard, SupportLink } from '@/components/Support';
 
@@ -86,6 +87,19 @@ const MAX_LANDMARKS_PER_STOP = 3;
 
 const formatDist = (m: number): string =>
   m < 1000 ? `${Math.round(m / 10) * 10} m` : `${(m / 1000).toFixed(1)} km`;
+
+/** One line of plain English for the live-tracking banner above the ride list. */
+function liveStatusText(live: LiveRide): string {
+  const { phase, stopId, metresToNext, stopsRemaining } = live.progress;
+  const here = getStopName(stopId) || 'your stop';
+
+  if (live.stale) return `Live tracking paused — last seen at ${here}.`;
+  if (phase === 'approaching') {
+    return `Not on board yet — ${formatDist(metresToNext ?? 0)} to ${here}.`;
+  }
+  if (phase === 'arrived') return `You've reached ${here} — get down here.`;
+  return `At ${here} · ${stopsRemaining} stop${stopsRemaining === 1 ? '' : 's'} to go`;
+}
 
 
 interface HeroSlide {
@@ -461,6 +475,14 @@ export function Trotro() {
   
   const active: Trip | undefined = trips[Math.min(activeIndex, Math.max(0, trips.length - 1))];
 
+  // Live "you are here" position along the planned trip. Same on-device GPS
+  // watch that already feeds the map, projected onto the cached route geometry
+  // — this is what moves the dot down the Step 3 list as the car moves.
+  const liveRide = useRideProgress(active?.legs ?? null, pos, {
+    enabled: hasRealFix,
+    accuracyM: geoAccuracy,
+  });
+
  
   const labelOrigin = tripOrigin ?? (hasRealFix ? pos : null);
   const originName = labelOrigin ? nearestNeighborhoodOffline(labelOrigin.lat, labelOrigin.lng) : null;
@@ -810,6 +832,17 @@ export function Trotro() {
               {/* STEP 3 — ride & alight: full stop list across all legs */}
               <div className="tg-card glass">
                 <p className="tg-steplabel">Step 3 · Ride &amp; alight</p>
+                {liveRide && (
+                  <p
+                    className={`tg-livestatus${liveRide.stale ? ' tg-livestatus--stale' : ''}`}
+                    role="status"
+                    aria-live="polite"
+                  >
+                    <span className="tg-livestatus-dot" aria-hidden="true" />
+                    {liveStatusText(liveRide)}
+                    {liveRide.confidence === 'low' && !liveRide.stale && ' · approximate'}
+                  </p>
+                )}
                 <ol className="tg-ridelist">
                   {(() => {
                     
@@ -855,12 +888,30 @@ export function Trotro() {
                         const isBoard = rs.seq === leg.board_seq;
                         const isAlight = rs.seq === leg.alight_seq;
                         const stopLm = lmBySeq.get(rs.seq);
+                        // Live position: exactly one row across the whole trip
+                        // carries `here`; everything before it is `passed`.
+                        const lp = liveRide?.progress;
+                        const isHere = lp != null && lp.legIndex === li && lp.seq === rs.seq;
+                        const isPassed =
+                          lp != null &&
+                          (li < lp.legIndex || (li === lp.legIndex && rs.seq < lp.seq));
+                        const role = isBoard
+                          ? 'board'
+                          : isAlight
+                            ? isTransferAlight
+                              ? 'transfer'
+                              : 'alight'
+                            : '';
                         return (
                           <li
                             key={leg.route_id + rs.stopId + rs.seq}
-                            className={isBoard ? 'board' : isAlight ? (isTransferAlight ? 'transfer' : 'alight') : ''}
+                            className={[role, isPassed ? 'passed' : '', isHere ? 'here' : '']
+                              .filter(Boolean)
+                              .join(' ')}
+                            aria-current={isHere ? 'step' : undefined}
                           >
                             {getStopName(rs.stopId) || 'Trotro stop'}
+                            {isHere && <span className="tg-stoptag tg-stoptag--here">You are here</span>}
                             {isBoard && li === 0 && <span className="tg-stoptag">Board here</span>}
                             {isAlight && isTransferAlight && (
                               <span className="tg-stoptag tg-stoptag--transfer">Transfer, board &ldquo;{nextShout}&rdquo;</span>
