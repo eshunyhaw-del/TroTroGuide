@@ -44,6 +44,7 @@ import { haversineM } from '@/lib/geo/haversine';
 import { walkingMinutes } from '@/lib/geo/nearest-stop';
 import { openWalkingDirections } from '@/lib/maps/open-external';
 import { SupportCard, SupportLink } from '@/components/Support';
+import { DonatePopup } from '@/components/DonatePopup';
 
 
 const RouteMap = dynamic(() => import('./RouteMap').then((m) => m.RouteMap), {
@@ -951,6 +952,11 @@ export function Trotro() {
           onClose={closeMap}
         />
       )}
+
+      {/* Donate prompt. Armed only once real directions are on screen, and it
+          waits (see lib/donate-prompt.ts) so it never lands on top of someone
+          still reading them. Suppressed while the full-screen map is open. */}
+      <DonatePopup armed={stage === 'result' && trips.length > 0 && !mapOpen} />
     </div>
   );
 }
