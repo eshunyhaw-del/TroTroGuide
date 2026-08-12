@@ -1,0 +1,13 @@
+{
+  "_comment": "Field-verified corrections to OSM route metadata, keyed by OSM relation ref (relRef). Applied at pack-build time in scripts/build-core-pack-beta.mjs (buildOsmBeta). This lets a wrong route field be fixed WITHOUT editing the OSM mirror (public/admin/osm-data.json), so a future `npm run build:admin` can never silently revert the correction. `shout` overrides the mate shout (a '!' is appended automatically, exactly as the OSM `to` tag becomes the shout today); `name` overrides the displayed route name. Cite the field evidence in `note`. An absent file, or a route not listed here, behaves exactly like plain OSM.",
+  "routes": {
+    "relation/16498284": {
+      "shout": "Dodowa Dodowa Dodowa",
+      "note": "Trotro 929 heading toward Oyibi (Kufour Station -> Ayikuma; Oyibi near the end of the sequence). Field-verified: the mate shouts 'Dodowa', not the OSM far-terminus 'Ministries'."
+    },
+    "relation/16498283": {
+      "shout": "Madina",
+      "note": "Trotro 929 heading toward Accra (Ayikuma -> Agric; passes Oyibi early). Field-verified: a rider bound for Madina/Adenta boards this direction; the mate shouts 'Madina', not 'Ministries'."
+    }
+  }
+}
