@@ -1,7 +1,10 @@
 # Heavy / ODbL / synthetic artifacts that should NOT ship to Vercel.
-# NOTE: data/core_verified.json and data/routes.json are intentionally NOT
-# ignored — scripts/prepare-core-pack.mjs reads them at deploy time to build the
-# field-verified CorePack. Everything else under data/ is excluded.
+# NOTE: this is an explicit DENYLIST — anything under data/ NOT listed below DOES
+# ship. data/core_verified.json, data/routes.json, and data/route-overrides.json
+# are intentionally kept (not listed) because scripts/prepare-core-pack.mjs and
+# scripts/build-core-pack-beta.mjs read them at deploy time to build the
+# field-verified CorePack (route-overrides.json corrects OSM route fields such as
+# mate shouts). Do NOT add those three here.
 data/osm_raw/
 data/osm_import.sql
 data/promote_to_core.sql
