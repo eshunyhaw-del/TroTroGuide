@@ -29,6 +29,7 @@ const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..');
 const OSM = join(ROOT, 'public', 'admin', 'osm-data.json');
 const VERIFIED_CORE = join(ROOT, 'data', 'core_verified.json');
 const ROUTES_DEF = join(ROOT, 'data', 'routes.json');
+const ROUTE_OVERRIDES = join(ROOT, 'data', 'route-overrides.json'); // field-verified corrections to OSM route metadata, keyed by relRef
 const PACK_DIR = join(ROOT, 'public', 'core-pack');
 const VERIFIED_OUT = join(ROOT, 'data', 'core-pack-verified.json');
 
@@ -94,6 +95,13 @@ function buildOsmBeta() {
     return { stops: new Map(), routes: [] };
   }
   const osm = JSON.parse(readFileSync(OSM, 'utf8'));
+  // Field-verified corrections to OSM route metadata (mate shout / display name),
+  // keyed by OSM relation ref. Lets a wrong route field be fixed without editing
+  // the OSM mirror; an absent file means no overrides (identical to plain OSM).
+  const overrides = existsSync(ROUTE_OVERRIDES)
+    ? JSON.parse(readFileSync(ROUTE_OVERRIDES, 'utf8')).routes || {}
+    : {};
+  let overridden = 0;
   const sid = (ref) => `osm-${String(ref).split('/')[1]}`;
 
   const stops = new Map(); // id -> PackStop
@@ -121,7 +129,12 @@ function buildOsmBeta() {
 
     const rid = `osm-r-${String(r.relRef).split('/')[1]}`;
     const coords = seq.map((e) => [e.lat, e.lng]);
-    const mateShout = r.to ? `${r.to}!` : '';
+    const ov = overrides[r.relRef] || {};
+    if (ov.shout != null || ov.name != null) overridden += 1;
+    // Mate shout = the OSM destination tag + "!", UNLESS a field override supplies
+    // the real shout (e.g. the local "Dodowa!" instead of the far terminus "Ministries!").
+    const shoutSrc = ov.shout != null ? ov.shout : r.to;
+    const mateShout = shoutSrc ? `${shoutSrc}!` : '';
     let cum = 0;
     const stopList = seq.map((e, i) => {
       if (i > 0) cum += haversineM(coords[i - 1][0], coords[i - 1][1], coords[i][0], coords[i][1]);
@@ -135,7 +148,7 @@ function buildOsmBeta() {
         i === seq.length - 1 ? `Tell the mate: "${nm}!"` : null,
       );
     });
-    routes.push({ id: rid, name: r.name || `Route ${r.ref || ''}`.trim(), ref: r.ref || '', mateShout, polyline: encode(coords, 6), stops: stopList, status: 'beta' });
+    routes.push({ id: rid, name: ov.name || r.name || `Route ${r.ref || ''}`.trim(), ref: r.ref || '', mateShout, polyline: encode(coords, 6), stops: stopList, status: 'beta' });
     routeLines.push(coords);
   }
 
@@ -148,7 +161,7 @@ function buildOsmBeta() {
 
   const merged = dedupeNearbyStops(stops, routes);
 
-  return { stops, routes, dedupCount: merged, routeLines };
+  return { stops, routes, dedupCount: merged, routeLines, overridden };
 }
 
 // ---------------------------------------------------------------------------
@@ -406,6 +419,7 @@ function main() {
   console.log('Two CorePacks built:');
   console.log(`  BETA   (public)  v${version}: ${betaPack.stops.length} stops (${betaStops} beta, ${named} named), ${betaPack.routes.length} routes, ${betaLandmarks.length} landmarks (near-line ≤${LANDMARK_NEAR_M}m), ${(betaBytes / 1024).toFixed(0)} KB`);
   console.log(`         + ODbL attribution embedded · ${superseded} beta stop(s) superseded by verified · ${beta.dedupCount ?? 0} duplicate OSM stop(s) merged (≤${STOP_DEDUP_M}m, same name)`);
+  if (beta.overridden) console.log(`         + ${beta.overridden} OSM route(s) corrected by data/route-overrides.json`);
   console.log(`         -> public/core-pack/manifest.json`);
   console.log(`  VERIFIED (B2B)   v${version}: ${verifiedPack.stops.length} stops, ${verifiedPack.routes.length} routes, ${(Buffer.byteLength(verifiedBody) / 1024).toFixed(1)} KB (OSM-free ✓)`);
   console.log(`         -> ${VERIFIED_OUT} (NOT served)`);
