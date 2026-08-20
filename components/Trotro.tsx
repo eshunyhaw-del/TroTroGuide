@@ -43,9 +43,11 @@ import {
 import { haversineM } from '@/lib/geo/haversine';
 import { walkingMinutes } from '@/lib/geo/nearest-stop';
 import { useRideProgress, type LiveRide } from '@/lib/onboard/useRideProgress';
+import { useLookout } from '@/lib/streetview/useLookout';
 import { openWalkingDirections } from '@/lib/maps/open-external';
 import { SupportCard, SupportLink } from '@/components/Support';
 import { DonatePopup } from '@/components/DonatePopup';
+import { LookOutFor } from '@/components/LookOutFor';
 
 
 const RouteMap = dynamic(() => import('./RouteMap').then((m) => m.RouteMap), {
@@ -484,6 +486,12 @@ export function Trotro() {
     accuracyM: geoAccuracy,
   });
 
+  // "Look out for": the upcoming on-route landmark + its street-level image.
+  // Reuses the same live position; picks the next landmark ahead and fetches
+  // imagery through /api/streetview. Gracefully absent when there's no landmark
+  // ahead or no GPS fix yet.
+  const lookout = useLookout(active?.legs ?? null, liveRide, hasRealFix);
+
  
   const labelOrigin = tripOrigin ?? (hasRealFix ? pos : null);
   const originName = labelOrigin ? nearestNeighborhoodOffline(labelOrigin.lat, labelOrigin.lng) : null;
@@ -844,6 +852,7 @@ export function Trotro() {
                     {liveRide.confidence === 'low' && !liveRide.stale && ' · approximate'}
                   </p>
                 )}
+                {lookout && <LookOutFor lookout={lookout} />}
                 <ol className="tg-ridelist">
                   {(() => {
                     
