@@ -43,6 +43,10 @@ export const searchLimiter = bucket('search', 10, '10 s', 30);
 export const boardingLimiter = bucket('boarding', 5, '10 s', 15);
 // Writes: fired once at end-of-trip, so keep it tight — ~1/12s sustained, burst 10.
 export const contributeLimiter = bucket('contribute', 5, '60 s', 10);
+// Street imagery: fired as the rider crosses landmarks (movement-gated + cached
+// client-side), so a modest sustained rate with a small burst for the app-open
+// prefetch. A 429 is soft — the client just shows the no-image state.
+export const streetviewLimiter = bucket('streetview', 5, '10 s', 15);
 
 /** Best-effort client IP for the bucket key (Cloudflare -> XFF -> real-ip). */
 export function clientIp(req: Request): string {
