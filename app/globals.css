@@ -562,6 +562,58 @@ textarea.tg-textinput { resize: vertical; min-height: 96px; line-height: 1.45; }
   .tg-donate-scrim, .tg-donate { animation: none; }
 }
 
+/* --- "mate shouts under review" disclaimer (one-time, on open) ----------- */
+/* Same bottom-sheet language as the donate prompt, in a neutral/amber key so it
+   reads as an informational heads-up, not an error. */
+.tg-disclaimer-scrim {
+  position: fixed; inset: 0; z-index: 46;
+  display: flex; align-items: flex-end; justify-content: center;
+  background: rgba(8, 14, 10, 0.5); padding: 0;
+  animation: tg-donate-fade 220ms ease-out both;
+}
+.tg-disclaimer {
+  position: relative; width: 100%; max-width: 480px;
+  padding: 22px 20px calc(20px + env(safe-area-inset-bottom));
+  border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+  background: var(--bg); text-align: center;
+  animation: tg-donate-rise 280ms var(--ease-spring) both;
+}
+.tg-disclaimer-x {
+  position: absolute; top: 8px; right: 8px; display: grid; place-items: center;
+  width: 44px; height: 44px; min-height: 44px; aspect-ratio: 1; flex: none;
+  padding: 0; line-height: 1; border: 0; border-radius: 50%; cursor: pointer;
+  background: var(--color-gray-50); color: var(--text-secondary);
+}
+.tg-disclaimer-icon {
+  display: grid; place-items: center; width: 48px; height: 48px; margin: 0 auto 10px;
+  border-radius: 50%; background: rgba(255, 167, 38, 0.15); color: var(--color-warning-ink);
+}
+.tg-disclaimer-title { font-size: 20px; font-weight: 700; letter-spacing: -0.02em; margin: 0 0 6px; }
+.tg-disclaimer-body {
+  font-size: 15px; line-height: 1.55; color: var(--text-secondary);
+  margin: 0 auto 18px; max-width: 34em;
+}
+.tg-disclaimer-actions { display: flex; flex-direction: column; gap: 8px; }
+.tg-disclaimer-actions .tg-btn { width: 100%; }
+
+@media (min-width: 560px) {
+  .tg-disclaimer-scrim { align-items: center; padding: var(--space-lg); }
+  .tg-disclaimer { border-radius: var(--radius-lg); padding-bottom: 22px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .tg-disclaimer-scrim, .tg-disclaimer { animation: none; }
+}
+
+/* Inline caution on the Step 2 shout card — quiet, at the point of use.
+   Bottom margin keeps it clear of the shout row below (both shout containers
+   carry no top margin of their own). */
+.tg-shoutnote {
+  display: flex; margin: 10px 0 14px; padding: 8px 12px;
+  font-size: 12.5px; line-height: 1.45; font-weight: 500;
+  color: var(--color-warning-ink); background: rgba(255, 167, 38, 0.1);
+  border-radius: var(--radius-md);
+}
+
 .tg-mapmodal { position: fixed; inset: 0; z-index: 50; background: var(--bg-app); }
 .tg-mapmodal-canvas { position: absolute; inset: 0; width: 100%; height: 100%; }
 .tg-mapmodal-bar { position: absolute; top: 0; left: 0; right: 0; z-index: 2;

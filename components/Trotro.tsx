@@ -48,6 +48,8 @@ import { openWalkingDirections } from '@/lib/maps/open-external';
 import { SupportCard, SupportLink } from '@/components/Support';
 import { DonatePopup } from '@/components/DonatePopup';
 import { LookOutFor } from '@/components/LookOutFor';
+import { ShoutDisclaimer } from '@/components/ShoutDisclaimer';
+import { SHOUTS_UNDER_REVIEW, SHOUT_REVIEW_NOTE } from '@/lib/shout-review';
 
 
 const RouteMap = dynamic(() => import('./RouteMap').then((m) => m.RouteMap), {
@@ -819,6 +821,11 @@ export function Trotro() {
                   <Megaphone size={16} strokeWidth={2} aria-hidden="true" />
                   Listen for the mate shouting
                 </p>
+                {SHOUTS_UNDER_REVIEW && (
+                  <p className="tg-shoutnote" role="note">
+                    {SHOUT_REVIEW_NOTE}
+                  </p>
+                )}
                 {active.legs.length === 1 ? (
                   <div className="tg-shoutpills">
                     <span className="tg-shoutpill">&ldquo;{active.legs[0].mate_shout}&rdquo;</span>
@@ -1017,6 +1024,11 @@ export function Trotro() {
           waits (see lib/donate-prompt.ts) so it never lands on top of someone
           still reading them. Suppressed while the full-screen map is open. */}
       <DonatePopup armed={stage === 'result' && trips.length > 0 && !mapOpen} />
+
+      {/* One-time "mate shouts under review" disclaimer, shown on app open.
+          Gated on SHOUTS_UNDER_REVIEW (lib/shout-review.ts) — flip that off
+          when verification is done and this stops rendering. */}
+      <ShoutDisclaimer />
     </div>
   );
 }
