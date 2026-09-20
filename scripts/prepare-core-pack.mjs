@@ -1,10 +1,7 @@
-// Chooses which CorePack to build at deploy time (runs inside `npm run build`).
-//   * public/admin/osm-data.json present -> BETA pack (OSM beta + verified core),
-//        the public app's pack; also writes the OSM-free verified pack to data/.
-//   * else data/core_verified.json present -> verified-only pack (no OSM available)
-//   * else -> demo fixture (PLACEHOLDER) — blocked in production unless ALLOW_DEMO_PACK=1
-// public/admin/osm-data.json ships under public/, so it's present in the Vercel
-// build too — the beta pack builds remotely without needing data/osm_raw.
+// Chooses which CorePack to build at deploy time (runs inside `npm run build`):
+//   public/admin/osm-data.json present  -> beta pack (OSM + verified core), the public app's pack
+//   else data/core_verified.json        -> verified-only pack
+//   else                                -> demo fixture, blocked in production unless ALLOW_DEMO_PACK=1
 
 import { execFileSync } from 'node:child_process';
 import { existsSync } from 'node:fs';
@@ -26,11 +23,8 @@ if (existsSync(osmData)) {
   console.log('prepare-core-pack: no OSM data -> VERIFIED-only pack');
   execFileSync('node', args, { stdio: 'inherit' });
 } else {
-  // FIREWALL GUARD: the fixture builder emits PLACEHOLDER geodata (incl. the
-  // hand-authored Abeka Lapaz -> Dome Kwabenya route). Fine for local dev, but it
-  // must NEVER silently ship as real product data. Refuse on production builds.
-  // Override only when you KNOWINGLY want a placeholder prod build:
-  //   ALLOW_DEMO_PACK=1 vercel --prod
+  // FIREWALL GUARD: the fixture builder emits PLACEHOLDER geodata (incl. the hand-authored Abeka
+  // Lapaz -> Dome Kwabenya route).
   const isProd = process.env.VERCEL_ENV === 'production' || process.env.NODE_ENV === 'production';
   if (isProd && process.env.ALLOW_DEMO_PACK !== '1') {
     console.error(

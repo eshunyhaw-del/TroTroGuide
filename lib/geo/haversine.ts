@@ -1,5 +1,4 @@
-// Great-circle distance in metres. Accurate enough at Accra scales for walking
-// distances and on-board map-matching (errors << GPS error at these distances).
+// Great-circle distance in metres.
 export function haversineM(aLat: number, aLng: number, bLat: number, bLng: number): number {
   const R = 6_371_000;
   const toRad = (d: number) => (d * Math.PI) / 180;

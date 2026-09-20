@@ -1,7 +1,5 @@
 'use client';
 // Inline (non-modal) walking-directions map for STEP 1 of the boarding flow.
-// Same MapLibre + Carto basemap as RouteMap, but small, embedded in the card,
-// and only draws the user -> boarding-stop walking line (no route polyline).
 
 import { useEffect, useRef } from 'react';
 import maplibregl from 'maplibre-gl';

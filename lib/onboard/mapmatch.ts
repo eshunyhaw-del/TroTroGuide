@@ -1,15 +1,5 @@
-// On-board guidance, computed 100% CLIENT-SIDE against the cached route polyline.
-// This is the headline "works offline" feature (CORRECTION #2). No network, no
-// server round-trip, no raw GPS leaves the device.
-//
-// Algorithm per GPS fix:
-//   1. Project the GPS point onto the route polyline (point-to-segment, in a
-//      local metres frame) -> distance ALONG the route + lateral (off-route) gap.
-//   2. Compare "along" distance to each stop's precomputed cumulative distance
-//      (route_stops.dist_m, shipped in the Core Pack) to find passed/next stop.
-//   3. Emit a landmark cue ("you'll pass X, your stop is N more after that") and
-//      an alight prompt when the destination is next/reached.
-//   4. Off-route detection: lateral gap > 150 m for 3 consecutive fixes.
+// On-board guidance, computed 100% CLIENT-SIDE against the cached route polyline. This is the
+// headline "works offline" feature.
 
 import { decode } from '@/lib/geo/polyline';
 import { haversineM } from '@/lib/geo/haversine';

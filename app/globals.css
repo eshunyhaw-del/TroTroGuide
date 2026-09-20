@@ -899,8 +899,7 @@ textarea.tg-textinput { resize: vertical; min-height: 96px; line-height: 1.45; }
 .tg-menufoot { padding: 8px 12px 6px; font-size: 12px; color: var(--text-muted); }
 
 /* ============================================================================
-   Quick-action tiles — the icon-tile shortcut row pattern (cf. Yango's
-   Delivery/Cargo/Rides tiles), recolored to our single green accent and
+   Quick-action tiles — icon-tile shortcut row in the brand green,
    scoped to TroTro Guide's one job: find a trotro, or help map one.
    ============================================================================ */
 .tg-quicktiles { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin: 0 0 var(--space-lg); }
@@ -960,9 +959,8 @@ textarea.tg-textinput { resize: vertical; min-height: 96px; line-height: 1.45; }
 .tg-nearestcard-sub { font-size: 12.5px; color: var(--text-secondary); margin-top: 1px; }
 
 /* ============================================================================
-   Promo banners — full-bleed rounded gradient cards (cf. Yango's "THE GAME
-   GOES ON" hero card + 2-up grid below it), repurposed as community/contribute
-   calls-to-action instead of ads. One accent (brand green), no stock photography.
+   Promo banners — full-bleed rounded gradient cards used as
+   community/contribute calls-to-action. One accent (brand green), no stock photography.
    ============================================================================ */
 .tg-promo {
   position: relative; overflow: hidden; border-radius: var(--radius-xl);

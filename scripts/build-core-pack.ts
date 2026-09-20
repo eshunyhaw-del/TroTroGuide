@@ -1,14 +1,4 @@
 // Build the Accra Core Pack from the DB and write versioned, immutable files.
-// Run manually for Phase 0 (later: a cron / on contribution publish):
-//   npx tsx scripts/build-core-pack.ts
-//
-// Output (served as static assets by Next.js / Cloudflare):
-//   public/core-pack/v<version>/accra-core.json   (immutable)
-//   public/core-pack/manifest.json                (tiny pointer, short TTL)
-//
-// Freshness without Enterprise cache-tags (CORRECTION #5): the pack URL is
-// versioned + immutable; clients poll the small manifest and swap when version
-// changes. No purge-by-tag anywhere.
 
 import { createClient } from '@supabase/supabase-js';
 import { createHash } from 'node:crypto';
@@ -29,8 +19,8 @@ const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
 const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
 if (!url || !serviceKey) throw new Error('Set NEXT_PUBLIC_SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY');
 
-// Shape of core.export_core_pack()'s jsonb. Routes carry GeoJSON here and are
-// converted to polyline6 below. This single cast is the only DB-JSON boundary.
+// Shape of core.export_core_pack()'s jsonb. Routes carry GeoJSON here and are converted to
+// polyline6 below.
 interface RawRoute {
   id: string;
   name: string;

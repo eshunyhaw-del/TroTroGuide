@@ -1,14 +1,6 @@
 'use client';
 
-// Drives the "you are here" dot on the Step 3 ride list from the live GPS watch.
-//
-// Everything here is on-device: the same `watchPosition` feed the app already
-// runs, projected against the cached Core Pack polyline. No network, no fix
-// ever leaves the phone — same guarantee as the rest of the on-board guidance.
-//
-// The row-picking maths lives in ride-progress.ts (pure, unit-tested). What
-// this hook owns is the messy real-world part: which fixes to trust, and how to
-// stop a jittering GPS from making the dot twitch between two stops.
+// Drives the "you are here" dot on the ride list from the live GPS watch.
 
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { getRoute, getStop, type BoardingOption } from '@/lib/corepack/client';
@@ -27,11 +19,7 @@ import {
 const MAX_ACCURACY_M = 200;
 /** Above this the dot still moves, but we tell the rider it's approximate. */
 const LOW_CONFIDENCE_M = 75;
-/**
- * Backwards movement smaller than this is treated as GPS jitter and ignored.
- * Bigger than this is taken at face value — a rider really can go backwards
- * (wrong car, driver doubles back, ride restarted from a new origin).
- */
+/** Backwards movement smaller than this is treated as GPS jitter and ignored. */
 const BACKWARD_TOLERANCE_M = 75;
 /** No accepted fix in this long and the dot is stale rather than wrong. */
 const STALE_AFTER_MS = 90_000;
@@ -56,8 +44,8 @@ export function useRideProgress(
 ): LiveRide | null {
   const [live, setLive] = useState<LiveRide | null>(null);
 
-  // Identity of the planned trip. When this changes the rider picked a
-  // different route, so any accumulated progress is meaningless.
+  // Identity of the planned trip. When this changes the rider picked a different route, so any
+  // accumulated progress is meaningless.
   const tripKey = useMemo(
     () => (legs ?? []).map((l) => `${l.route_id}:${l.board_seq}:${l.alight_seq}`).join('>'),
     [legs],
@@ -67,16 +55,13 @@ export function useRideProgress(
     if (!legs || legs.length === 0) return [];
     return legs.map((leg) => {
       const route = getRoute(leg.route_id);
-      // A polyline needs at least one segment to project onto. Everything in
-      // the current pack clears this, but a hand-authored or partial route
-      // must degrade to "no live dot" rather than pinning it at 0 m.
+      // A polyline needs at least one segment to project onto.
       const usable = !!route && decode(route.polyline, 6).length >= 2;
       const matcher = usable ? new RouteMatcher(route!) : null;
 
-      // Put the stops in the SAME space as the rider by projecting each stop's
-      // own coordinate onto the polyline, rather than trusting the pack's
-      // vertex-derived distM (see RideStop for the measurements). Cheap: these
-      // polylines are stop-count sized, so this is tens of ops per leg, once.
+      // Put the stops in the SAME space as the rider by projecting each stop's own coordinate onto
+      // the polyline, rather than trusting the pack's vertex-derived distM (see RideStop for the
+      // measurements).
       const stops: RideStop[] = route
         ? [...route.stops]
             .sort((a, b) => a.seq - b.seq)
@@ -124,9 +109,7 @@ export function useRideProgress(
       return;
     }
 
-    // Forward-biased smoothing. Small backwards deltas are jitter around a
-    // stationary car (in traffic, at a stop) and would otherwise flip the dot
-    // between two rows on every fix.
+    // Forward-biased smoothing.
     const prev = acceptedRef.current.get(m.legIndex);
     let alongM = m.alongM;
     if (prev != null && alongM < prev && prev - alongM < BACKWARD_TOLERANCE_M) {
@@ -148,8 +131,8 @@ export function useRideProgress(
     });
   }, [enabled, geometry, pos.lat, pos.lng, accuracyM]);
 
-  // Flip to stale when the watch stops delivering, so the UI can say "last
-  // known" instead of silently showing a dot that stopped being true.
+  // Flip to stale when the watch stops delivering, so the UI can say "last known" instead of
+  // silently showing a dot that stopped being true.
   useEffect(() => {
     if (!live || live.stale) return;
     const id = setInterval(() => {

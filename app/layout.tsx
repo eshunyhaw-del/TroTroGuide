@@ -2,8 +2,8 @@ import type { ReactNode } from 'react';
 import localFont from 'next/font/local';
 import './globals.css';
 
-// Aspekta — self-hosted variable font (weights 100–900), exposed as a CSS
-// variable so globals.css's `--font` can pick it up as the primary family.
+// Aspekta — self-hosted variable font (weights 100–900), exposed as a CSS variable so globals.css's
+// `--font` can pick it up as the primary family.
 const aspekta = localFont({
   src: './fonts/AspektaVF.woff2',
   variable: '--font-aspekta',

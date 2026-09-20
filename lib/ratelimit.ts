@@ -1,17 +1,4 @@
 // Rate limiting for the public B2C read endpoints (Upstash token bucket).
-//
-// Token bucket (not fixed window) so a legitimate app-open burst — search +
-// boarding-point fired together — is allowed, while the sustained rate is capped.
-//
-// IMPORTANT interactions:
-//   * The Cloudflare Worker serves cache HITs WITHOUT reaching this route, so the
-//     limiter only spends Redis commands on cache MISSES (origin hits). Cached
-//     navigation is free and unthrottled.
-//   * Under carrier-grade NAT many real users share one IP, so limits are kept
-//     GENEROUS and a 429 tells the client to fall back to the offline pack rather
-//     than hard-failing the navigation path.
-//   * If Upstash env vars are absent (local dev), limiting is DISABLED (fail-open)
-//     instead of crashing.
 
 import { Ratelimit, type Duration } from '@upstash/ratelimit';
 import { Redis } from '@upstash/redis';
@@ -43,9 +30,8 @@ export const searchLimiter = bucket('search', 10, '10 s', 30);
 export const boardingLimiter = bucket('boarding', 5, '10 s', 15);
 // Writes: fired once at end-of-trip, so keep it tight — ~1/12s sustained, burst 10.
 export const contributeLimiter = bucket('contribute', 5, '60 s', 10);
-// Street imagery: fired as the rider crosses landmarks (movement-gated + cached
-// client-side), so a modest sustained rate with a small burst for the app-open
-// prefetch. A 429 is soft — the client just shows the no-image state.
+// Street imagery: fired as the rider crosses landmarks (movement-gated + cached client-side), so a
+// modest sustained rate with a small burst for the app-open prefetch.
 export const streetviewLimiter = bucket('streetview', 5, '10 s', 15);
 
 /** Best-effort client IP for the bucket key (Cloudflare -> XFF -> real-ip). */

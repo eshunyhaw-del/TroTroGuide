@@ -51,7 +51,6 @@ import { LookOutFor } from '@/components/LookOutFor';
 import { ShoutDisclaimer } from '@/components/ShoutDisclaimer';
 import { SHOUTS_UNDER_REVIEW, SHOUT_REVIEW_NOTE } from '@/lib/shout-review';
 
-
 const RouteMap = dynamic(() => import('./RouteMap').then((m) => m.RouteMap), {
   ssr: false,
   loading: () => <div className="tg-loading">Loading map…</div>,
@@ -63,9 +62,7 @@ const WalkMap = dynamic(() => import('./WalkMap').then((m) => m.WalkMap), {
 
 type Stage = 'search' | 'result';
 
-
 const DEFAULT_POS = { lat: 5.5703, lng: -0.2074 };
-
 
 const POPULAR_HUBS = [
   'Circle',
@@ -84,9 +81,7 @@ const POPULAR_HUBS = [
   'Nungua',
 ];
 
-
 const POPULAR_COUNT = 6;
-
 
 const MAX_LANDMARKS_PER_STOP = 3;
 
@@ -105,7 +100,6 @@ function liveStatusText(live: LiveRide): string {
   if (phase === 'arrived') return `You've reached ${here} — get down here.`;
   return `At ${here} · ${stopsRemaining} stop${stopsRemaining === 1 ? '' : 's'} to go`;
 }
-
 
 interface HeroSlide {
   img: string;
@@ -135,7 +129,6 @@ const HERO_SLIDES: HeroSlide[] = [
   },
 ];
 
-
 interface Trip {
   legs: BoardingOption[];
   transfers: number;
@@ -147,7 +140,6 @@ function computeTrips(
   hasRealFix: boolean,
 ): { trips: Trip[]; fromPreview: boolean } {
   let direct = boardingPointOffline(pos.lat, pos.lng, dest.id, dest.type);
-
 
   if (hasRealFix) {
     if (direct.options.length > 0) {
@@ -183,7 +175,6 @@ function computeTrips(
   const trips: Trip[] = direct.options.map((o) => ({ legs: [o], transfers: 0 }));
   return { trips, fromPreview: trips.length > 0 };
 }
-
 
 const RIDE_KEY = 'trotro:activeRide';
 
@@ -225,7 +216,6 @@ function clearSavedRide(): void {
     
   }
 }
-
 
 function Typewriter({ text, speed = 60 }: { text: string; speed?: number }) {
   const [count, setCount] = useState(0);
@@ -480,18 +470,13 @@ export function Trotro() {
   
   const active: Trip | undefined = trips[Math.min(activeIndex, Math.max(0, trips.length - 1))];
 
-  // Live "you are here" position along the planned trip. Same on-device GPS
-  // watch that already feeds the map, projected onto the cached route geometry
-  // — this is what moves the dot down the Step 3 list as the car moves.
+  // Live "you are here" position along the planned trip.
   const liveRide = useRideProgress(active?.legs ?? null, pos, {
     enabled: hasRealFix,
     accuracyM: geoAccuracy,
   });
 
   // "Look out for": the upcoming on-route landmark + its street-level image.
-  // Reuses the same live position; picks the next landmark ahead and fetches
-  // imagery through /api/streetview. Gracefully absent when there's no landmark
-  // ahead or no GPS fix yet.
   const lookout = useLookout(active?.legs ?? null, liveRide, hasRealFix);
 
  
@@ -905,8 +890,8 @@ export function Trotro() {
                         const isBoard = rs.seq === leg.board_seq;
                         const isAlight = rs.seq === leg.alight_seq;
                         const stopLm = lmBySeq.get(rs.seq);
-                        // Live position: exactly one row across the whole trip
-                        // carries `here`; everything before it is `passed`.
+                        // Live position: exactly one row across the whole trip carries `here`;
+                        // everything before it is `passed`.
                         const lp = liveRide?.progress;
                         const isHere = lp != null && lp.legIndex === li && lp.seq === rs.seq;
                         const isPassed =

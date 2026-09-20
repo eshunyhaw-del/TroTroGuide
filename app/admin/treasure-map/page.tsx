@@ -1,15 +1,5 @@
 'use client';
-// ============================================================================
 // PHASE 2 — Internal admin "Treasure Map" dashboard.
-// ============================================================================
-// Browse the ODbL OSM scaffold (stops + routes + freshness) and record YOUR
-// field verifications (exists? mate shout, local name, YOUR GPS). Saved to
-// IndexedDB on THIS device only — never synced. Export feeds the Phase 4
-// promote-to-core pipeline. The public app never sees any of this.
-//
-// Offline-first: data is a static JSON (public/admin/osm-data.json), no backend.
-// Auth is obscurity only (a token that ships in the client bundle) — enough to
-// keep the page off random users, NOT real security. Don't put secrets here.
 
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import {
@@ -27,10 +17,8 @@ import {
   type Verification,
 } from '@/lib/admin/verification-store';
 
-// Obscurity, NOT security — this string ships in the client bundle and the data
-// it gates (/admin/osm-data.json) is public ODbL scaffold anyway. Rotated off the
-// old published default; put nothing sensitive behind this. Real access control
-// would require a server-side auth check, which this static page has by design not.
+// Obscurity, NOT security — this string ships in the client bundle and the data it gates
+// (/admin/osm-data.json) is public ODbL scaffold anyway.
 const ADMIN_KEY = 'tg-fieldwork-x7q29m';
 const DATA_URL = '/admin/osm-data.json';
 const MAX_RENDER = 400; // cap visible cards so low-end phones stay snappy
@@ -80,7 +68,6 @@ function download(name: string, obj: unknown) {
   URL.revokeObjectURL(a.href);
 }
 
-// ---------------------------------------------------------------------------
 export default function AdminTreasureMap() {
   const [authed, setAuthed] = useState(false);
   const [keyInput, setKeyInput] = useState('');
@@ -97,7 +84,7 @@ export default function AdminTreasureMap() {
   const [bucket, setBucket] = useState<Bucket | 'all'>('all');
   const [unverifiedOnly, setUnverifiedOnly] = useState(false);
 
-  // --- auth gate ---
+  // auth gate
   useEffect(() => {
     const fromUrl = new URLSearchParams(window.location.search).get('key');
     const stored = localStorage.getItem('tg-admin-key');
@@ -109,7 +96,7 @@ export default function AdminTreasureMap() {
     }
   }, []);
 
-  // --- load data + verifications once authed ---
+  // load data + verifications once authed
   useEffect(() => {
     if (!authed) return;
     fetch(DATA_URL)
@@ -185,7 +172,7 @@ export default function AdminTreasureMap() {
     return { total, counted, pct: total ? Math.round((counted / total) * 100) : 0, byBucket, topHoods };
   }, [data, verif, stopByRef]);
 
-  // --- auth gate UI ---
+  // auth gate UI
   if (!authed) {
     return (
       <main className="adm">
@@ -298,7 +285,6 @@ export default function AdminTreasureMap() {
   );
 }
 
-// ---------------------------------------------------------------------------
 function ExportButton() {
   const [busy, setBusy] = useState(false);
   return (

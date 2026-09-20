@@ -3,9 +3,8 @@ import { encode } from '@/lib/geo/polyline';
 import type { PackRoute } from '@/lib/corepack/types';
 import { RouteMatcher } from './mapmatch';
 
-// A straight WEST→EAST polyline at a constant latitude, so "distance along the
-// route" is simply (lng - lng0) * metresPerDegreeLng. This makes the expected
-// projected distance exact for the test (no real Accra geometry needed).
+// A straight WEST→EAST polyline at a constant latitude, so "distance along the route" is simply
+// (lng - lng0) * metresPerDegreeLng.
 const LAT = 5.6;
 const M_PER_LNG = 111_320 * Math.cos((LAT * Math.PI) / 180);
 const lngAt = (metres: number): number => metres / M_PER_LNG;
@@ -38,10 +37,7 @@ describe('on-board map-matching (straight-line)', () => {
   });
 
   it('GPS at 3100 m: passed=3, next=stop_4, remaining=2 (correct math)', () => {
-    // NOTE on the prompt's example: it expected "stops_passed:2, next:stop_3" at
-    // 3100 m. That is the state just BEFORE the 2800 m stop (~2100 m). At 3100 m
-    // you have physically passed the 2800 m stop, so the correct values are
-    // passed=3 / next=stop_4. The prompt's "remaining:2" DOES match 3100 m.
+    // 3100 m is past the 2800 m stop; passed=2 / next=stop_3 is the state at ~2100 m (below).
     const g = matcher().guidance(LAT, lngAt(3100), 'stop_5');
     expect(g.stopsPassed).toBe(3);
     expect(g.stopsRemaining).toBe(2);
@@ -51,7 +47,7 @@ describe('on-board map-matching (straight-line)', () => {
     expect(g.confidence).toBe('high');
   });
 
-  it("matches the prompt's 'passed=2, next=stop_3' state at ~2100 m", () => {
+  it("reports passed=2, next=stop_3 at ~2100 m", () => {
     const g = matcher().guidance(LAT, lngAt(2100), 'stop_5');
     expect(g.stopsPassed).toBe(2); // stop_1 (0 m) + stop_2 (1200 m)
     expect(g.nextStopId).toBe('stop_3'); // the 2800 m stop is still ahead

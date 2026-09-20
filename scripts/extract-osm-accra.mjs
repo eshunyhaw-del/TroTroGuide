@@ -1,26 +1,4 @@
-// ============================================================================
 // TASK 1 — OSM "Treasure Map": RAW extraction only.
-// ============================================================================
-// Pull the AccraMobile3 / GUMAP trotro data out of OpenStreetMap via the
-// Overpass API and dump the responses VERBATIM to data/osm_raw/. This is the
-// ODbL "parking lot": scaffold that tells us WHERE to look in the field. There
-// is deliberately NO conversion to CorePack and NO database here — that mixing
-// is forbidden by the license firewall (see LICENSE-BOUNDARY.md, later task).
-//
-//   Run:    node scripts/extract-osm-accra.mjs
-//           node scripts/extract-osm-accra.mjs --dry-run        # print queries, no fetch
-//           node scripts/extract-osm-accra.mjs --strict         # exact prompt queries (area + bus=unofficial)
-//           node scripts/extract-osm-accra.mjs --endpoint https://overpass.kumi.systems/api/interpreter
-//           node scripts/extract-osm-accra.mjs --bbox 5.40,-0.70,6.10,0.30   # south,west,north,east
-//
-//   Output (data/osm_raw/):
-//     stops.json          raw Overpass JSON: trotro stops / platforms
-//     route_masters.json  raw Overpass JSON: route_master relations (the "line")
-//     routes.json         raw Overpass JSON: route relations (each direction) + member geometry
-//     _manifest.json      counts, freshness, tag histograms, exact queries, ODbL attribution
-//     ATTRIBUTION.txt     ODbL notice — this whole folder is © OpenStreetMap contributors
-//
-// Pure Node 18+ (global fetch), zero deps, no Supabase. Safe to run standalone.
 
 import { mkdirSync, writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
@@ -28,13 +6,12 @@ import { fileURLToPath } from 'node:url';
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..');
 
-// Greater Accra — the SAME box the app's geofence + fixture pack use
-// (db/migrations/0001 geofence polygon, scripts/build-fixture-pack bbox).
-// Order here is [south, west, north, east] = Overpass bbox order.
+// Greater Accra — the SAME box the app's geofence + fixture pack use (db/migrations/0001 geofence
+// polygon, scripts/build-fixture-pack bbox).
 const DEFAULT_BBOX = [5.4, -0.7, 6.1, 0.3];
 
-// Public Overpass mirrors, tried in order. The API is shared + rate-limited;
-// we fall through to the next mirror on overload (429/504) after retries.
+// Public Overpass mirrors, tried in order. The API is shared + rate-limited; we fall through to the
+// next mirror on overload (429/504) after retries.
 const DEFAULT_ENDPOINTS = [
   'https://overpass-api.de/api/interpreter',
   'https://overpass.kumi.systems/api/interpreter',
@@ -47,9 +24,7 @@ const USER_AGENT =
 const ATTRIBUTION = '© OpenStreetMap contributors';
 const LICENSE = 'ODbL-1.0';
 
-// ---------------------------------------------------------------------------
 // CLI args
-// ---------------------------------------------------------------------------
 function parseArgs(argv) {
   const args = { strict: false, dryRun: false, endpoint: null, bbox: null, out: null };
   for (let i = 0; i < argv.length; i++) {
@@ -76,20 +51,9 @@ function resolveBbox(raw) {
   return parts;
 }
 
-// ---------------------------------------------------------------------------
-// Query builders
-//
-// ROBUST (default): bbox-scoped, drops the dubious bus=unofficial filter, and
-//   uses `out meta` so every element carries its last-edit timestamp (Task 2
-//   needs freshness; the original prompt's `out body` would discard it).
-// STRICT: reproduces the prompt's exact selection — area["name"="Accra"] +
-//   ["bus"="unofficial"] — for side-by-side comparison. (Still `out meta`:
-//   that only ADDS metadata to the same elements, it never changes selection.)
-//
-// We intentionally OVER-capture (all route=bus in the box) rather than guess
-// the exact AccraMobile tag. Task 1 is raw extraction; classifying/filtering is
-// a later step, informed by the tag histogram this script prints.
-// ---------------------------------------------------------------------------
+// Query builders ROBUST (default): bbox-scoped, drops the dubious bus=unofficial filter, and uses
+// `out meta` so every element carries its last-edit timestamp (the admin map needs freshness;
+// `out body` would discard it).
 function buildQueries({ strict, bbox }) {
   const [s, w, n, e] = bbox;
   const box = `(${s},${w},${n},${e})`;
@@ -112,8 +76,8 @@ function buildQueries({ strict, bbox }) {
     `relation["type"="route_master"]["route_master"="bus"]${unofficial}${scope};\n` +
     `out meta;`;
 
-  // `>;` pulls member ways + their nodes so route geometry can be rebuilt later
-  // (Task 6: polyline6 + cumulative distM). `out skel qt` emits coords only.
+  // `>;` pulls member ways + their nodes so route geometry can be rebuilt later (Task 6: polyline6
+  // + cumulative distM).
   const routes =
     `[out:json][timeout:120];\n` +
     prelude +
@@ -122,12 +86,8 @@ function buildQueries({ strict, bbox }) {
     `>;\n` +
     `out skel qt;`;
 
-  // NAVIGATION LANDMARKS — named POIs that riders actually use to orient
-  // ("get down at the Shell", "before Kaneshie Market"). Curated categories
-  // only; a `["name"]` filter drops the thousands of unnamed nodes. `nwr`
-  // covers node/way/relation; `out center` gives ways/relations one coord.
-  // Still ODbL scaffold — these ship ONLY in the public BETA pack, never the
-  // sellable verified pack (the beta builder enforces near-a-route + firewall).
+  // NAVIGATION LANDMARKS — named POIs that riders actually use to orient ("get down at the Shell",
+  // "before Kaneshie Market").
   const L_AMENITY = 'marketplace|fuel|hospital|clinic|place_of_worship|university|college|bank|police|bus_station|cinema|theatre|townhall|fire_station|courthouse|library|fast_food';
   const L_SHOP = 'mall|supermarket|department_store';
   const L_TOURISM = 'hotel|attraction|museum';
@@ -145,9 +105,7 @@ function buildQueries({ strict, bbox }) {
   return { stops, route_masters, routes, landmarks };
 }
 
-// ---------------------------------------------------------------------------
 // Overpass fetch with mirror fallback + backoff
-// ---------------------------------------------------------------------------
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
 async function overpass(query, { endpoints, timeoutMs = 180_000, retries = 3 }) {
@@ -199,9 +157,7 @@ async function overpass(query, { endpoints, timeoutMs = 180_000, retries = 3 }) 
   throw new Error(`all endpoints failed; last error: ${lastErr?.message}`);
 }
 
-// ---------------------------------------------------------------------------
 // Summaries (printed + stored in _manifest.json so we can craft Task 2 filters)
-// ---------------------------------------------------------------------------
 function countByType(data) {
   const by = { node: 0, way: 0, relation: 0 };
   for (const el of data.elements ?? []) by[el.type] = (by[el.type] ?? 0) + 1;
@@ -231,9 +187,7 @@ function editDateRange(elements) {
   return { earliest: min, latest: max };
 }
 
-// ---------------------------------------------------------------------------
 // Main
-// ---------------------------------------------------------------------------
 async function main() {
   const args = parseArgs(process.argv.slice(2));
   const bbox = resolveBbox(args.bbox);
@@ -319,9 +273,9 @@ async function main() {
   writeFileSync(join(outDir, '_manifest.json'), JSON.stringify(manifest, null, 2));
   writeFileSync(join(outDir, 'ATTRIBUTION.txt'), attributionText());
 
-  // Print the tag histograms so we can SEE the real AccraMobile tagging and
-  // design the precise Task 2 filter (e.g. is it bus=unofficial or
-  // official_status=unofficial? which operator/network values exist?).
+  // Print the tag histograms so we can SEE the real AccraMobile tagging and design the precise Task
+  // 2 filter (e.g. is it bus=unofficial or official_status=unofficial? which operator/network
+  // values exist?).
   const routeFile = manifest.files['routes.json'];
   if (routeFile && !routeFile.error) {
     console.log('\nRoute relation tag distribution (top values):');

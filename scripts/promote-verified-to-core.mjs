@@ -1,23 +1,4 @@
-// ============================================================================
 // PHASE 4.1 (+ new-stops) — Promote field data into the PROPRIETARY core schema.
-// ============================================================================
-// Reads a verification export and emits idempotent SQL + a local core dataset.
-// Handles THREE export shapes (backward-compatible):
-//   * new admin export   -> { verified_stops:[], new_stops:[], route_changes:[] }
-//   * old admin export   -> { verifications: { "node/..": {...} } }
-//   * treasure-map HTML  -> { captures: { "rel|node": {...}, "shout|rel": "..." } }
-//
-// Firewall rules (strict):
-//   * core rows get FRESH UUIDs; an OSM node id is NEVER a core key.
-//   * core.informal_stops.osm_ref stays NULL; the OSM link lives only in
-//     core.provenance.osm_ref ("located against", not "copied from").
-//   * VERIFIED stops may fall back to OSM name/geom when field data is missing —
-//     those fields are tagged license='ODbL' in provenance (excluded from B2B).
-//   * NEW stops are 100% proprietary: osm_ref NULL everywhere, YOUR GPS only.
-//     If a new stop has no name or no GPS it is skipped (can't satisfy NOT NULL).
-//   * route_changes go to core.route_changes (curation queue), NOT the pack.
-//
-//   node scripts/promote-verified-to-core.mjs --input <verification.json> [--osm public/admin/osm-data.json]
 
 import { randomUUID } from 'node:crypto';
 import { existsSync, readFileSync, writeFileSync, statSync } from 'node:fs';
@@ -47,7 +28,7 @@ const sqlInt = (n) => (n == null ? 'NULL' : String(Math.trunc(n)));
 const sqlArray = (arr) => (arr && arr.length ? 'ARRAY[' + arr.map((x) => q(x)).join(',') + ']::text[]' : "'{}'::text[]");
 const sqlGeog = (lng, lat) => `ST_GeogFromText('SRID=4326;POINT(${lng} ${lat})')`;
 
-// --- normalize any export shape -> { verified, newStops, routeChanges } ---
+// normalize any export shape -> { verified, newStops, routeChanges }
 function normalize(input) {
   if (input.verified_stops || input.new_stops || input.route_changes) {
     return {
@@ -110,7 +91,7 @@ function main() {
   const warn = { osmName: 0, osmGeom: 0 };
   let skippedGone = 0, skippedNoData = 0, skippedNewNoData = 0;
 
-  // --- verified existing OSM stops ---
+  // verified existing OSM stops
   for (const r of verified) {
     if (!r.exists) { skippedGone += 1; continue; }
     const osm = osmIndex[r.osmRef] || {};
@@ -133,7 +114,7 @@ function main() {
     });
   }
 
-  // --- NEW stops (purely proprietary, osm_ref NULL) ---
+  // NEW stops (purely proprietary, osm_ref NULL)
   for (const s of newStops) {
     const hasGps = s.myLat != null && s.myLng != null;
     if (!s.name || !hasGps) { skippedNewNoData += 1; continue; } // new stops MUST have name + YOUR GPS
@@ -147,10 +128,10 @@ function main() {
     });
   }
 
-  // --- core_verified.json (consumed by build-core-pack-from-verified) ---
+  // core_verified.json (consumed by build-core-pack-from-verified)
   writeFileSync(CORE_JSON, JSON.stringify({ generatedAt: new Date().toISOString(), sourceFormat: format, stops, routeChanges }, null, 2));
 
-  // --- promote_to_core.sql ---
+  // promote_to_core.sql
   const ids = stops.map((s) => q(s.id));
   const out = [];
   out.push('-- Trotro Guide — promote field data -> PROPRIETARY core.');
@@ -183,7 +164,7 @@ function main() {
       out.push(`INSERT INTO core.provenance (entity_type, entity_id, field, source, license, osm_ref, note) VALUES ('stop', ${q(s.id)}, 'geom', 'osm', 'ODbL', ${sqlText(s.osmRef)}, 'geom from OSM fallback — capture your own GPS');`);
   }
 
-  // --- route changes (curation queue; never auto-applied) ---
+  // route changes (curation queue; never auto-applied)
   if (routeChanges.length) {
     const refs = [...new Set(routeChanges.map((c) => c.routeRef).filter(Boolean))].map(q);
     out.push('');
@@ -205,7 +186,7 @@ function main() {
   out.push('');
   writeFileSync(OUT_SQL, out.join('\n'));
 
-  // --- summary ---
+  // summary
   const nNew = stops.filter((s) => s.isNew).length;
   console.log(`Promote (${format}):`);
   console.log(`  promoted: ${stops.length} stop(s) (${stops.length - nNew} verified OSM, ${nNew} NEW)`);

@@ -3,14 +3,8 @@ import { createClient, type SupabaseClient } from '@supabase/supabase-js';
 let _anon: SupabaseClient | null = null;
 
 /**
- * Anonymous client for READS (search, boarding-point). RLS allows public SELECT
- * of approved truth and EXECUTE on the two read RPCs. No service-role secret on
- * the read path.
- *
- * Created LAZILY on first use so that merely importing this module never throws.
- * That lets `next build` collect page data without DB creds, and a missing config
- * surfaces as a clean request-time 500 — which the edge Worker turns into a
- * degraded "use the offline pack" response instead of a hard failure.
+ * Anonymous client for READS (search, boarding-point). RLS allows public SELECT of approved truth
+ * and EXECUTE on the two read RPCs.
  */
 export function supabaseAnon(): SupabaseClient {
   if (_anon) return _anon;
@@ -24,8 +18,7 @@ export function supabaseAnon(): SupabaseClient {
 }
 
 /**
- * Service-role client for the contribution PIPELINE only (validate/approve/apply
- * /export/revert). NEVER import this into a client component or expose the key.
+ * Service-role client for the contribution PIPELINE only (validate/approve/apply /export/revert).
  */
 export function supabaseAdmin(): SupabaseClient {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;

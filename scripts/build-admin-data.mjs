@@ -1,20 +1,4 @@
-// ============================================================================
 // PHASE 2 (data) — build the lean OSM dataset the admin dashboard reads.
-// ============================================================================
-// Reads the raw Overpass dumps (data/osm_raw/) and writes a compact, dashboard-
-// shaped JSON to public/admin/osm-data.json (served as a static asset, fetched
-// client-side — keeps the admin page offline-first with NO backend / Supabase).
-//
-// This is still ODbL scaffold: it shows the operator WHERE to verify; it is
-// never the proprietary product. Run locally (NOT in the Vercel build, since
-// data/ is .vercelignore'd) then deploy:  npm run build:admin
-//
-// Shape:
-//   { generatedAt, attribution, license, summary,
-//     neighborhoods:[{name,routeCount}],
-//     stops:[{ref,name,lat,lng,edited,bucket,routes:[ref],hood}],
-//     routes:[{ref,relRef,name,from,to,operator,bucket,stops:[stopRef]}],
-//     stopIndex:{ ref: {name,lat,lng,bucket} } }  // covers every route-member stop
 
 import { mkdirSync, readFileSync, writeFileSync, statSync } from 'node:fs';
 import { dirname, join } from 'node:path';
@@ -203,9 +187,8 @@ function main() {
     s.hood = best;
   }
 
-  // Navigation landmarks (optional — only present if the extract pulled them).
-  // ODbL scaffold, same as everything else here. The beta pack builder decides
-  // which of these actually ship (near a route line) and keeps them OSM-attributed.
+  // Navigation landmarks (optional — only present if the extract pulled them). ODbL scaffold, same
+  // as everything else here.
   const landmarksRaw = readJsonSafe('landmarks.json');
   const landmarks = [];
   if (landmarksRaw?.elements?.length) {

@@ -1,8 +1,5 @@
-// Tiny zero-dependency static file server for the data/ folder, so generated
-// artifacts (e.g. the OSM treasure map) can be previewed in a browser. Not part
-// of the app — a dev/preview convenience only.
-//   node scripts/serve-data.mjs [port]   (default 5055)  ->  http://localhost:PORT/
-// "/" serves osm_treasure_map.html when present.
+// Tiny zero-dependency static file server for the data/ folder, so generated artifacts (e.g. the
+// OSM treasure map) can be previewed in a browser.
 
 import { createReadStream, existsSync, statSync } from 'node:fs';
 import { createServer } from 'node:http';

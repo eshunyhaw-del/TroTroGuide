@@ -1,19 +1,5 @@
-// Image selection scoring — PURE and provider-independent (see #6).
-//
-// No network, no React, no Mapillary. Given normalised candidates and the query
-// point (an upcoming, ON-ROUTE landmark plus the rider's direction of travel),
-// score each candidate and return them best-first. Kept pure so the weighting
-// is unit-testable and adjustable in one place.
-//
-// WHY "distance from the landmark point" stands in for "distance from route":
-// the target we rank against is not an arbitrary place — it's a landmark that
-// getLandmarksNearRoute() already filtered to within ~130 m of the route line
-// and in the ridden window. So a candidate close to that point is, by
-// construction, close to the route too. This lets the ranking run server-side
-// from a single point (cacheable, no route geometry in the request) while still
-// honouring "on or close to the route" and "ahead of the user". Direction is
-// carried by `bearing`: the rider's heading of travel at the landmark, computed
-// client-side from the route polyline.
+// Image selection scoring — PURE and provider-independent. No network, no React, no
+// Mapillary.
 
 import type { ImageCandidate, ImageQuery } from './types';
 import { haversineM } from '@/lib/geo/haversine';
@@ -37,8 +23,8 @@ export function bearingDiffDeg(a: number, b: number): number {
 
 /** 1 when the camera faces the travel direction, 0 when it faces backwards. */
 function facingScore(candidateBearing: number | null, travelBearing: number | null | undefined): number {
-  // Neutral (0.5) when either heading is unknown: we neither reward nor punish
-  // a candidate for metadata the provider didn't supply.
+  // Neutral (0.5) when either heading is unknown: we neither reward nor punish a candidate for
+  // metadata the provider didn't supply.
   if (candidateBearing == null || travelBearing == null) return 0.5;
   const diff = bearingDiffDeg(candidateBearing, travelBearing);
   return (Math.cos((diff * Math.PI) / 180) + 1) / 2;
@@ -64,14 +50,7 @@ export interface ScoredCandidate {
   parts: { proximity: number; facing: number; recency: number; distM: number };
 }
 
-/**
- * Score every candidate against the query. Returns a NEW array sorted best
- * first; ties broken by proximity then recency so the result is deterministic
- * (important for the endpoint cache and for tests).
- *
- * `now` is injected rather than read from the clock so scoring is pure and
- * reproducible in tests.
- */
+/** Score every candidate against the query. */
 export function rankCandidates(
   candidates: readonly ImageCandidate[],
   query: ImageQuery,

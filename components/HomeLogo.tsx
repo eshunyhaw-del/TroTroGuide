@@ -2,7 +2,6 @@
 
 import type { ReactNode } from 'react';
 
-
 export function HomeLogo({ children }: { children: ReactNode }) {
   return (
     <a

@@ -4,15 +4,10 @@ import { log } from '@/lib/log';
 import { check, clientIp, retryAfterSeconds, searchLimiter } from '@/lib/ratelimit';
 
 export const runtime = 'nodejs';
-// CORRECTION #3 (co-location): pin the function next to Supabase (eu-west-1 = 'dub1')
-// so DB-touching requests don't cross regions. When the DB moves to af-south-1,
-// change this to 'cpt1' — one line, no rewrite.
+// Pinned next to Supabase (eu-west-1 = 'dub1') so DB requests don't cross regions.
 export const preferredRegion = ['dub1'];
 
-// GET /api/search?q=circle
-// Text-only (no location, no PII) -> safe to edge-cache aggressively. Note the
-// Cloudflare Worker serves cache HITs without reaching here, so the limiter only
-// runs on cache misses (origin hits).
+// GET /api/search?q=circle Text-only (no location, no PII) -> safe to edge-cache aggressively.
 export async function GET(req: NextRequest) {
   const rl = await check(searchLimiter, clientIp(req));
   if (!rl.success) {

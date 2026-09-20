@@ -1,14 +1,7 @@
 'use client';
 
-// The donate prompt on the results screen.
-//
-// Timing rules (and the reasoning behind them) live in lib/donate-prompt.ts.
-// This component owns only the browser-shaped parts: the delay timer, reading
-// and writing localStorage, and behaving like a proper modal dialog.
-//
-// It records "shown" the moment it becomes visible rather than on dismissal, so
-// a prompt that gets ignored — tab closed, phone pocketed — still starts the
-// cooldown. Anything else would re-prompt on the next search.
+// The donate prompt on the results screen. Timing rules (and the reasoning behind them) live in
+// lib/donate-prompt.ts.
 
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { Heart, X } from 'lucide-react';
@@ -55,8 +48,8 @@ export function DonatePopup({ armed }: DonatePopupProps) {
     setOpen(false);
   }, []);
 
-  // Arm the delay. Re-running when `armed` flips false also cancels a pending
-  // timer, so leaving the results screen before it fires shows nothing.
+  // Arm the delay. Re-running when `armed` flips false also cancels a pending timer, so leaving the
+  // results screen before it fires shows nothing.
   useEffect(() => {
     if (!SUPPORT_ENABLED || !armed) return;
     if (!shouldShowPrompt(readRecord(), Date.now())) return;

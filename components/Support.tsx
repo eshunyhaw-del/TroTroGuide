@@ -1,7 +1,6 @@
 import { Heart } from 'lucide-react';
 import { SUPPORT_URL, SUPPORT_ENABLED } from '@/lib/support';
 
-
 export function SupportCard() {
   if (!SUPPORT_ENABLED) return null;
   return (
@@ -19,7 +18,6 @@ export function SupportCard() {
     </a>
   );
 }
-
 
 export function SupportLink() {
   if (!SUPPORT_ENABLED) return null;

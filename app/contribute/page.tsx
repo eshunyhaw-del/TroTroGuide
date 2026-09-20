@@ -1,9 +1,5 @@
 'use client';
 // PHASE 3.2 — "Help us map it" lightweight contribution form.
-// A demand signal, NOT the full route-recording pipeline: a rider tells us where
-// they tried to go so we know where to walk next. Saved to the SAME IndexedDB
-// capture store as ride traces, synced opportunistically on Wi-Fi. Stores only
-// what the user types — never their location.
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
@@ -18,8 +14,8 @@ export default function Contribute() {
   const [busy, setBusy] = useState(false);
   const [done, setDone] = useState(false);
 
-  // Prefill from ?q= (what they searched for in the public app). Read from
-  // window so we don't need a Suspense boundary around useSearchParams.
+  // Prefill from ?q= (what they searched for in the public app). Read from window so we don't need
+  // a Suspense boundary around useSearchParams.
   useEffect(() => {
     const q = new URLSearchParams(window.location.search).get('q');
     if (q) setDestination(q);

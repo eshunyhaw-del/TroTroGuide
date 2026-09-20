@@ -1,8 +1,5 @@
-// The Accra Core Pack: a compact, versioned, APPROVED-only snapshot that ships
-// to the device so SEARCH and on-board guidance work with ZERO network.
-// Served at an immutable, versioned URL (CORRECTION #5 — no purge-by-tag):
-//   /core-pack/v<version>/accra-core.json   (immutable, max-age=1y)
-//   /core-pack/manifest.json                (tiny, short TTL, points at current)
+// The Accra Core Pack: a compact, versioned, APPROVED-only snapshot that ships to the device so
+// SEARCH and on-board guidance work with ZERO network.
 
 export interface CorePackManifest {
   version: number;        // epoch ms, monotonically increasing
@@ -11,8 +8,7 @@ export interface CorePackManifest {
   sha256: string;
 }
 
-/** Provenance/verification state of a record (BETA status model). Absent on the
- *  synthetic demo fixture; 'verified' on the sellable pack; mixed in the beta pack. */
+/** Provenance/verification state of a record (BETA status model). */
 export type RecordStatus = 'beta' | 'verified' | 'user_reported';
 
 export interface PackStop {
@@ -69,12 +65,11 @@ export interface PackSynonym {
 
 export interface CorePack {
   version: number;
-  // True ONLY for the placeholder/demo fixture pack (hand-authored, unverified
-  // data). Absent/false on real field-verified packs. The UI shows a banner when
-  // set so demo data is never mistaken for real product data. See firewall memo.
+  // True ONLY for the placeholder/demo fixture pack (hand-authored, unverified data). Absent/false
+  // on real field-verified packs.
   demo?: boolean;
-  // Present on the public BETA pack, which merges ODbL OpenStreetMap data. ODbL
-  // requires this be surfaced to users. Absent on the proprietary verified pack.
+  // Present on the public BETA pack, which merges ODbL OpenStreetMap data. ODbL requires this be
+  // surfaced to users.
   attribution?: string;   // e.g. "© OpenStreetMap contributors"
   license?: string;       // e.g. "ODbL-1.0"
   bbox: [number, number, number, number]; // [minLng, minLat, maxLng, maxLat]

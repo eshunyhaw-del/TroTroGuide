@@ -38,5 +38,14 @@ public/osm_treasure_map.json
 # large dev artifacts
 *.mp4
 
-# internal build/design docs — keep local, never publish
+# local-only notes and docs; only the public docs below are tracked
 *.md
+!/README.md
+!/CONTRIBUTING.md
+!/CODE_OF_CONDUCT.md
+!/SECURITY.md
+!/.github/*.md
+
+# local editor / agent tooling
+.claude/
+.kilo/

@@ -14,14 +14,11 @@ describe('H3 quantization (res 9)', () => {
     const cellA = quantize(A.lat, A.lng);
     const cellB = quantize(B.lat, B.lng);
 
-    // The exact base-16 index is computed by h3-js at runtime. Paste these into
-    // an H3 calculator (e.g. https://wolf-h3-viewer.glitch.me) to verify.
-    // eslint-disable-next-line no-console
+    // The exact base-16 index is computed by h3-js at runtime.
     console.log('H3 res-9 cells:', { A: cellA, B: cellB });
 
-    // Verifiable invariants of every H3 res-9 index:
-    //   - resolution is exactly 9
-    //   - the string is 15 hex chars and (for res 9) begins with "89"
+    // Verifiable invariants of every H3 res-9 index: - resolution is exactly 9 - the string is 15
+    // hex chars and (for res 9) begins with "89"
     for (const c of [cellA, cellB]) {
       expect(getResolution(c)).toBe(H3_RES);
       expect(isValidR9(c)).toBe(true);

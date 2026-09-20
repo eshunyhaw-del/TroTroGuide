@@ -3,12 +3,12 @@
 import { useCallback, useEffect, useState } from 'react';
 import { ensurePack, isConnectionMetered, peekManifest } from './client';
 
-// State machine for the first-run pack load:
-//   loading       -> checking IndexedDB / non-metered auto-download
-//   ready         -> pack present; search + on-board guidance work offline
-//   needs-consent -> metered connection, no cached pack: ask before spending data
-//   downloading   -> user accepted; fetching the pack
-//   error         -> offline with nothing cached (retryable)
+// First-run pack load:
+//   loading       checking IndexedDB / auto-downloading on an un-metered connection
+//   ready         pack present, everything works offline
+//   needs-consent metered connection and no cached pack: ask before spending data
+//   downloading   user accepted, fetching the pack
+//   error         offline with nothing cached (retryable)
 export type PackState = 'loading' | 'ready' | 'needs-consent' | 'downloading' | 'error';
 
 export interface UsePack {
@@ -29,8 +29,8 @@ export function usePack(): UsePack {
     let timedOut = false;
     const timer = setTimeout(() => {
       timedOut = true;
-      // Never leave the user stuck on "Loading…" — anything still pending
-      // (slow network, blocked IndexedDB, etc.) falls back to a retryable error.
+      // Never leave the user stuck on "Loading…" — anything still pending (slow network, blocked
+      // IndexedDB, etc.) falls back to a retryable error.
       setState('error');
     }, LOAD_TIMEOUT_MS);
     try {

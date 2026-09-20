@@ -1,14 +1,7 @@
 'use client';
 
-// "Look out for" — the passenger-facing card that shows the upcoming landmark
-// with real street-level imagery, so a rider can recognise where they are and
-// know when to get down. Rendered inside Step 3; updates itself as the trotro
-// moves (all the logic is in useLookout).
-//
-// It degrades gracefully on EVERY axis (#10): while imagery loads it shows a
-// skeleton; when the provider has no photo (or isn't configured, or errored) it
-// still shows the landmark and distance with a quiet "no street image" note —
-// navigation never depends on the image existing.
+// "Look out for" — the passenger-facing card that shows the upcoming landmark with real
+// street-level imagery, so a rider can recognise where they are and know when to get down.
 
 import { useEffect, useState } from 'react';
 import { Eye, MapPin, ImageOff } from 'lucide-react';
@@ -43,9 +36,8 @@ export function LookOutFor({ lookout }: { lookout: Lookout }) {
   const hasImage = image !== 'loading' && image.status === 'ok' && !imgFailed;
   const loading = image === 'loading';
 
-  // A resolved 'ok' just means the API returned a URL — on a slow trotro-window
-  // connection the actual photo bytes can still take a moment. Track that
-  // separately so the figure doesn't sit blank between the two.
+  // A resolved 'ok' just means the API returned a URL — on a slow trotro-window connection the
+  // actual photo bytes can still take a moment.
   const imgSrc = hasImage && image.status === 'ok' ? image.image.thumbUrl : null;
   useEffect(() => {
     setImgPainted(false);

@@ -2,12 +2,9 @@
 const nextConfig = {
   reactStrictMode: true,
 
-  // Preact alias for the prod client bundle was reverted: preact/compat@10.23.2
-  // doesn't implement React's `use()` hook, which Next 14.2.35's App Router
-  // client runtime calls internally — crashed the whole tree with "c.use is
-  // not a function" on first render (stuck on "Loading…" forever). Falling
-  // back to plain React per the original instruction; bundle is bigger but
-  // works.
+  // Preact alias for the prod client bundle was reverted: preact/compat@10.23.2 doesn't implement
+  // React's `use()` hook, which Next 14.2.35's App Router client runtime calls internally — crashed
+  // the whole tree with "c.use is not a function" on first render (stuck on "Loading…" forever).
 
   async headers() {
     return [
@@ -20,14 +17,7 @@ const nextConfig = {
         headers: [{ key: 'Cache-Control', value: 'public, max-age=60, stale-while-revalidate=600' }],
       },
       {
-        // Baseline security headers on every response. A full Content-Security-
-        // Policy is deliberately deferred (MapLibre workers, Carto tiles, the
-        // Paystack link and inline styles need careful allow-listing) and tracked
-        // separately. When it lands it must also allow Mapillary street imagery:
-        // img-src the Facebook CDN that serves thumbnails (*.fbcdn.net) — the
-        // "Look out for" card renders those URLs directly. Our own server calls
-        // graph.mapillary.com (that's server-side, not a browser connect-src).
-        // Note: `geolocation=(self)` MUST stay — the app uses GPS.
+        // Baseline security headers on every response.
         source: '/:path*',
         headers: [
           { key: 'X-Content-Type-Options', value: 'nosniff' },

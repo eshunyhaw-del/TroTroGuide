@@ -1,10 +1,5 @@
 'use client';
-// Field-capture store: route contributions (#2a) and ride records (#3).
-//
-// Kept in its OWN IndexedDB ('trotro-captures') so it can never collide with the
-// core-pack DB's version. Everything is saved locally first; syncing is
-// opportunistic and only happens when the device is online AND on an un-metered
-// (Wi-Fi) link, so we never spend a rider's mobile data.
+// Field-capture store: route contributions and ride records.
 
 import { isConnectionMetered } from '@/lib/corepack/client';
 
@@ -46,9 +41,8 @@ export interface RideRecord {
   synced: boolean;
 }
 
-// Lightweight demand signal: a rider searched for somewhere we don't cover yet
-// and asked us to map it. NOT a route trace — just "walk here next". Holds no
-// location, only what the user typed.
+// Lightweight demand signal: a rider searched for somewhere we don't cover yet and asked us to map
+// it.
 export interface MapRequest {
   id: string;
   kind: 'map-request';
@@ -58,9 +52,8 @@ export interface MapRequest {
   synced: boolean;
 }
 
-// Post-ride feedback (Yango-style rate & contribute). Rates ROUTE ACCURACY (not a
-// driver), flags issues, and opportunistically crowdsources the fare. Reviewed by
-// the operator before anything is promoted — never auto-trusted.
+// Post-ride feedback. Rates ROUTE ACCURACY (not a driver), flags
+// issues, and opportunistically crowdsources the fare.
 export interface RouteRating {
   id: string;
   kind: 'route-rating';
@@ -124,11 +117,7 @@ export async function countUnsynced(): Promise<number> {
   return (await listCaptures()).filter((c) => !c.synced).length;
 }
 
-/**
- * Opportunistic sync. Only runs when online AND un-metered (Wi-Fi). POSTs each
- * unsynced capture to the ingestion endpoint and marks it synced on success.
- * Fail-open: anything that doesn't go through stays queued for next time.
- */
+/** Opportunistic sync. Only runs when online AND un-metered (Wi-Fi). */
 export async function syncCaptures(): Promise<{ synced: number; remaining: number }> {
   if (typeof navigator === 'undefined' || !navigator.onLine) {
     return { synced: 0, remaining: await countUnsynced() };
@@ -137,10 +126,7 @@ export async function syncCaptures(): Promise<{ synced: number; remaining: numbe
   let synced = 0;
   for (const c of await listCaptures()) {
     if (c.synced) continue;
-    // On mobile data, still send the tiny text-only captures (a missing-route
-    // report or a rating is ~100 bytes) so the operator sees them right away, but
-    // hold the GPS-trace captures (ride records, route contributions) for Wi-Fi —
-    // those can be hundreds of KB and we never spend a rider's mobile data on them.
+    // On mobile data send only the tiny text captures; hold GPS traces (large) for Wi-Fi.
     if (metered && (c.kind === 'ride' || c.kind === 'route-contrib')) continue;
     try {
       const res = await fetch('/api/contribute', {

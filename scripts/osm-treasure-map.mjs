@@ -1,25 +1,5 @@
-// ============================================================================
-// TASK 2 — OSM "Treasure Map" viewer.
-// ============================================================================
-// Reads the RAW Overpass dumps (data/osm_raw/, from Task 1) and produces a
-// FIELDWORK GUIDE — not a CorePack. Two outputs:
-//
-//   data/osm_treasure_map.html   self-contained, offline, phone + print friendly.
-//                                Checklists persist in localStorage; "Export my
-//                                fieldwork" downloads what you verified (feeds Task 4).
-//   data/osm_treasure_map.json   programmatic view. Its `features[]` array is shaped
-//                                to the REAL osm_mirror.osm_features columns
-//                                (osm_ref / kind / tags / geom-as-lat,lng / content_hash
-//                                / fetched_at) so Task 3's importer maps 1:1.
-//
-// This is ODbL scaffold ("where to look"). It is NEVER copied into core.* /
-// CorePack — that happens only after field verification (Task 4). See ATTRIBUTION.txt.
-//
-//   Run:  node scripts/osm-treasure-map.mjs
-//         npm run treasure-map
-//
-// Scope: the FULL Greater Accra extract — all stops, all routes, every terminal
-// from Tema to Kasoa to Ashaiman. No metro-only sub-filtering.
+// TASK 2 — OSM "Treasure Map" viewer. Reads the RAW Overpass dumps (data/osm_raw/, from Task 1) and
+// produces a FIELDWORK GUIDE — not a CorePack.
 
 import { createHash } from 'node:crypto';
 import { readFileSync, writeFileSync } from 'node:fs';
@@ -34,8 +14,8 @@ const OUT_JSON = join(ROOT, 'data', 'osm_treasure_map.json');
 const ATTRIBUTION = '© OpenStreetMap contributors';
 const LICENSE = 'ODbL-1.0';
 
-// Freshness windows, measured from "now" at generation time. Red = nobody has
-// touched this since (around) the original 2017 survey -> verify it FIRST.
+// Freshness windows, measured from "now" at generation time. Red = nobody has touched this since
+// (around) the original 2017 survey -> verify it FIRST.
 const NOW = Date.now();
 const YEAR_MS = 365.25 * 24 * 3600 * 1000;
 const FRESH_MAX_YEARS = 2; // green
@@ -49,9 +29,8 @@ function freshness(ts) {
   return 'stale';
 }
 
-// A route is a trotro if it's tagged trô trô, OR tagged informal (bus=unofficial),
-// OR simply named "Trotro N" (mappers often omit the network tag). Everything else
-// (e.g. the one City Electric Bus line) is kept but flagged 'other'.
+// A route is a trotro if it's tagged trô trô, OR tagged informal (bus=unofficial), OR simply named
+// "Trotro N" (mappers often omit the network tag).
 function classify(tags) {
   const net = tags.network || '';
   const name = tags.name || '';
@@ -61,8 +40,8 @@ function classify(tags) {
   return 'other';
 }
 
-// Pull a line ref from the tag, else from the name ("Trotro 282 : ..."). Used
-// for grouping directions of the same line and for numeric sorting.
+// Pull a line ref from the tag, else from the name ("Trotro 282 : ..."). Used for grouping
+// directions of the same line and for numeric sorting.
 function deriveRef(tags) {
   if (tags.ref) return String(tags.ref);
   const m = (tags.name || '').match(/trotro\s+([0-9a-z]+)/i);
@@ -79,9 +58,7 @@ function readJson(name) {
   return JSON.parse(readFileSync(join(RAW, name), 'utf8'));
 }
 
-// ---------------------------------------------------------------------------
 // Build the model
-// ---------------------------------------------------------------------------
 function build() {
   let manifest = {};
   try {
@@ -101,8 +78,8 @@ function build() {
   const fetchedAt = manifest.generatedAt ?? null;
   const osmTimestampBase = routesRaw.osm3s?.timestamp_osm_base ?? manifest.files?.['routes.json']?.osmTimestampBase ?? null;
 
-  // Lookups. Stop nodes (full tags + meta) come from stops.json; geometry-only
-  // node coords (incl. stop members not in stops.json) come from routes.json.
+  // Lookups. Stop nodes (full tags + meta) come from stops.json; geometry-only node coords (incl.
+  // stop members not in stops.json) come from routes.json.
   const stopById = new Map(stopsRaw.elements.map((s) => [s.id, s]));
   const coordById = new Map(routesRaw.elements.filter((e) => e.type === 'node').map((n) => [n.id, n]));
   const relations = routesRaw.elements.filter((e) => e.type === 'relation');
@@ -220,8 +197,8 @@ function build() {
     return (a.name || '').localeCompare(b.name || '');
   });
 
-  // Neighborhoods = route endpoints (the terminal/area names). Count distinct
-  // trotro routes touching each -> "which areas have the most / least routes".
+  // Neighborhoods = route endpoints (the terminal/area names). Count distinct trotro routes
+  // touching each -> "which areas have the most / least routes".
   const hoodMap = new Map();
   function touch(name, role, route) {
     const key = name.trim();
@@ -277,9 +254,7 @@ function build() {
   };
 }
 
-// ---------------------------------------------------------------------------
 // HTML rendering (self-contained: data + CSS + JS inlined, works fully offline)
-// ---------------------------------------------------------------------------
 function renderHtml(data) {
   const json = JSON.stringify(data).replace(/<\//g, '<\\/'); // safe inside <script>
   const s = data.summary;
@@ -569,7 +544,6 @@ function esc(x) {
   return String(x ?? '').replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
 }
 
-// ---------------------------------------------------------------------------
 function main() {
   const data = build();
   writeFileSync(OUT_JSON, JSON.stringify(data, null, 2));

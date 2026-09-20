@@ -1,20 +1,8 @@
 'use client';
 
-// Drives the "Look out for" card: turns the live ride position into a single
-// upcoming landmark + its best street image, updating automatically as the
-// trotro moves — and doing so WITHOUT hammering the provider (#7).
-//
-// How it stays cheap:
-//   * The surfaced target only changes when the rider crosses a landmark, so the
-//     image fetch is keyed on the landmark id — GPS ticks that don't change the
-//     target trigger no network at all (the movement gate).
-//   * The NEXT landmark is prefetched, so it's already cached when the rider
-//     reaches it (route-based prefetching).
-//   * client.ts adds a coarse-grid cache + in-flight de-dupe on top.
-//
-// Privacy: we pass the LANDMARK's public coordinates to the fetch, never the
-// rider's GPS (see the API route). The rider's position is used only on-device,
-// to choose which landmark is next.
+// Drives the "Look out for" card: turns the live ride position into a single upcoming landmark +
+// its best street image, updating automatically as the trotro moves — and doing so WITHOUT
+// hammering the provider.
 
 import { useEffect, useMemo, useState } from 'react';
 import { getRoute, getLandmarksNearRoute, type BoardingOption } from '@/lib/corepack/client';
@@ -33,8 +21,10 @@ export interface Lookout {
   image: ImageResult | 'loading';
 }
 
-/** Build the ordered landmark targets for a whole trip. Memo-heavy work, done
- *  once per trip (keyed by tripKey), not per GPS tick. */
+/**
+ * Build the ordered landmark targets for a whole trip. Memo-heavy work, done once per trip (keyed
+ * by tripKey), not per GPS tick.
+ */
 function buildTargets(legs: readonly BoardingOption[]): LookoutTarget[] {
   const targets: LookoutTarget[] = [];
   legs.forEach((leg, legIndex) => {
@@ -75,8 +65,8 @@ export function useLookout(
 
   const targets = useMemo(() => (legs && legs.length ? buildTargets(legs) : []), [tripKey]);
 
-  // Rider position → next target. Before a live fix exists, preview from the
-  // start of the first leg so the card still shows the first landmark ahead.
+  // Rider position → next target. Before a live fix exists, preview from the start of the first leg
+  // so the card still shows the first landmark ahead.
   const legIndex = live?.progress.legIndex ?? 0;
   const alongM = live?.progress.alongM ?? 0;
   const next = useMemo(
@@ -90,8 +80,8 @@ export function useLookout(
 
   const [image, setImage] = useState<ImageResult | 'loading'>('loading');
 
-  // Fetch is keyed on the LANDMARK id (+bearing bucket): the effect re-runs only
-  // when the surfaced landmark actually changes, not on every GPS tick.
+  // Fetch is keyed on the LANDMARK id (+bearing bucket): the effect re-runs only when the surfaced
+  // landmark actually changes, not on every GPS tick.
   const landmarkId = target?.landmark.id ?? null;
   useEffect(() => {
     if (!enabled || !target) {
@@ -127,10 +117,8 @@ export function useLookout(
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [enabled, landmarkId]);
 
-  // "Look out for" is a live-journey feature: only surface it once there's a
-  // real GPS fix driving position. Before that, showing it would mean a
-  // permanent skeleton (fetching is gated on `enabled`) or a speculative
-  // landmark — neither is honest, so the card stays hidden.
+  // "Look out for" is a live-journey feature: only surface it once there's a real GPS fix driving
+  // position.
   if (!enabled || !target) return null;
   return { target, distanceAheadM, image };
 }

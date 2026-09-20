@@ -1,15 +1,7 @@
-// Client-side consumption of the Accra Core Pack.
-//
-// Lifecycle:
-//   1. First run (online, prefer un-metered): fetch manifest -> fetch versioned
-//      pack -> store in IndexedDB -> build a MiniSearch index for instant,
-//      OFFLINE typeahead.
-//   2. Subsequent runs: load pack + index from IndexedDB INSTANTLY (works with
-//      no signal). Check the manifest in the background; swap if newer.
-//   3. Search & boarding-point both run locally — no server once the pack exists.
-//
-// CORRECTION #1: nothing here sends GPS anywhere. CORRECTION #2: the on-board
-// guidance math lives in ../onboard/mapmatch.ts and consumes routes from here.
+// Client-side consumption of the Accra Core Pack: fetch and cache it in IndexedDB on first run,
+// then load it (and a MiniSearch index) from IndexedDB so search and directions work offline.
+// The manifest is checked in the background and the pack swapped when a newer one exists.
+// Nothing here sends GPS anywhere; on-board guidance lives in ../onboard/mapmatch.ts.
 
 import MiniSearch, { type SearchResult } from 'minisearch';
 import { idbGet, idbPut } from './idb';
@@ -22,11 +14,8 @@ const DB_NAME = 'trotro';
 const STORE = 'corepack';
 const PACK_KEY = 'accra';
 
-// How far we'll ask a rider to walk to a boarding stop. The product rule is
-// "nearest walkable stop, but never more than a 30-minute walk". At the ~80
-// m/min pace used everywhere else (see lib/geo/nearest-stop.ts) that's 2400 m,
-// so this doubles as the boarding-search radius: any stop returned is, by
-// construction, within a 30-minute walk.
+// How far we'll ask a rider to walk to a boarding stop. The product rule is "nearest walkable stop,
+// but never more than a 30-minute walk".
 export const WALK_PACE_M_PER_MIN = 80;
 export const MAX_WALK_MIN = 30;
 export const MAX_WALK_M = WALK_PACE_M_PER_MIN * MAX_WALK_MIN; // 2400
@@ -61,8 +50,8 @@ function buildIndex(pack: CorePack): MiniSearch<SearchDoc> {
   };
 
   const docs: SearchDoc[] = [
-    // Only NAMED stops are searchable. The beta pack also carries unnamed
-    // route-member stops (needed for boarding/map geometry); they'd pollute search.
+    // Only NAMED stops are searchable. The beta pack also carries unnamed route-member stops
+    // (needed for boarding/map geometry); they'd pollute search.
     ...pack.stops
       .filter((s) => s.name && s.name.trim())
       .map((s) => ({
@@ -175,8 +164,8 @@ export interface SearchHit {
 /** OFFLINE search — instant, no network. */
 export function search(q: string, limit = 12): SearchHit[] {
   if (!_mini) return [];
-  // MiniSearch returns its built-in fields plus our storeFields; intersect with
-  // SearchDoc so the stored fields are typed (no `as any`).
+  // MiniSearch returns its built-in fields plus our storeFields; intersect with SearchDoc so the
+  // stored fields are typed (no `as any`).
   const hits = _mini.search(q) as Array<SearchResult & SearchDoc>;
   return hits.slice(0, limit).map((r) => ({
     id: r.id,
@@ -202,10 +191,7 @@ export interface BoardingOption {
   alight_stop_id: string;
   alight_stop_name: string;
   alight_phrase: string;
-  // The exact seq positions the engine chose on the route. The UI must tag the
-  // board/alight rows by THESE seqs, not by stopId — a route can revisit the
-  // same stopId at two seqs (53/566 routes do), which would otherwise tag the
-  // wrong/duplicate rows.
+  // The exact seq positions the engine chose on the route.
   board_seq: number;
   alight_seq: number;
   stops_between: number;
@@ -213,11 +199,7 @@ export interface BoardingOption {
   status?: RecordStatus;
 }
 
-/**
- * Pre-formatted "tell the mate" instruction for an alight stop. Most stops are
- * named, but the pack also carries unnamed route-member points; without this
- * guard an unnamed alight produced a malformed `Tell the mate: ", bus stop!"`.
- */
+/** Pre-formatted "tell the mate" instruction for an alight stop. */
 function alightPhrase(name: string | undefined): string {
   return name?.trim()
     ? `Tell the mate: "${name}, bus stop!"`
@@ -230,12 +212,7 @@ export function boardingPointOffline(
   userLng: number,
   destId: string,
   destType: 'stop' | 'neighborhood' | 'landmark',
-  radiusM = MAX_WALK_M, // nearest walkable stop within a 30-min walk (see
-  // MAX_WALK_M). The old 900 m (~11 min) was far too tight for the sparse
-  // mapped network — it made most real origins find "no direct route" and fall
-  // through to the desktop-only Circle fallback, which always surfaced a single
-  // far stop (Paloma, the nearest stop to Circle). Must also stay >=
-  // planTripOffline's seed radius so a direct route never loses to a detour.
+  radiusM = MAX_WALK_M, // must stay >= planTripOffline's seed radius
 ): { options: BoardingOption[]; noDirectRoute: boolean } {
   if (!_pack) return { options: [], noDirectRoute: true };
 
@@ -296,19 +273,13 @@ export function boardingPointOffline(
 export interface TripOption {
   legs: BoardingOption[];
   transfers: number; // legs.length - 1
-  totalWalkM: number; // walk to the FIRST boarding stop only (transfers reuse the same physical stop)
+  totalWalkM: number;
   totalLegM: number; // summed ride distance across all legs
 }
 
 /**
- * Multi-leg trip search for journeys with no single direct route — the real
- * Accra pattern of "car to Lapaz, then another car to your final stop".
- * A transfer is only valid at a stop SHARED by two routes (no separate walk
- * between stops at the transfer point — same recommendation as boarding:
- * pick the nearest usable stop, don't force a minimum walk).
- *
- * DFS over routes, capped at `maxLegs` (default 3, i.e. up to 2 transfers).
- * Ranked: fewest transfers first, then shortest total walk + ride distance.
+ * Multi-leg trip search for journeys with no single direct route — the real Accra pattern of "car
+ * to Lapaz, then another car to your final stop".
  */
 export function planTripOffline(
   userLat: number,
@@ -333,15 +304,13 @@ export function planTripOffline(
   const stopById = new Map(_pack.stops.map((s) => [s.id, s]));
   const routeById = new Map(_pack.routes.map((r) => [r.id, r]));
 
-  // Unnamed route-member stops are fine for boarding/alighting at the ends of
-  // a single ride (the user can see the place on the map), but they make
-  // terrible mid-trip waypoints — "transfer at ''" / "get down at ''" tells
-  // the rider nothing. Restrict transfers and destination-matching to named
-  // stops only, same filter the search index already applies.
+  // Unnamed route-member stops are fine for boarding/alighting at the ends of a single ride (the
+  // user can see the place on the map), but they make terrible mid-trip waypoints — "transfer at
+  // ''" / "get down at ''" tells the rider nothing.
   const isNamed = (stopId: string) => Boolean(stopById.get(stopId)?.name?.trim());
 
-  // stopId -> every (route, seq) it appears in — this IS the transfer graph,
-  // since a stop shared by two routes is exactly a valid transfer point.
+  // stopId -> every (route, seq) it appears in — this IS the transfer graph, since a stop shared by
+  // two routes is exactly a valid transfer point.
   const stopRouteIndex = new Map<string, { routeId: string; rs: PackRouteStop }[]>();
   for (const route of _pack.routes) {
     for (const rs of route.stops) {
@@ -352,12 +321,7 @@ export function planTripOffline(
     }
   }
 
-  // Candidate alight stops near the destination, across the whole pack. Unlike
-  // mid-trip transfer points (which must be NAMED — an unnamed waypoint tells
-  // the rider nothing), the FINAL alight is the rider's own named destination,
-  // so an unnamed nearby stop is a fine place to get down (alightPhrase handles
-  // the missing name). Matches boardingPointOffline, which never name-filters
-  // the alight.
+  // Candidate alight stops near the destination, across the whole pack.
   const destCandidates = new Set<string>();
   for (const s of _pack.stops) {
     if (haversineM(dest.lat, dest.lng, s.lat, s.lng) <= destRadiusM) destCandidates.add(s.id);
@@ -389,12 +353,8 @@ export function planTripOffline(
     };
   }
 
-  // Per-depth cap (safety valve against pathological branching), NOT a global
-  // cutoff — search exhausts one transfer-count fully before ever trying the
-  // next, so a real fewest-transfers route can never be starved out by junk
-  // deeper-transfer paths discovered earlier in route-iteration order (the
-  // bug that let a same-named-but-6km-away "Atomic First" duplicate hijack
-  // every result slot before the real 1-transfer trip was ever reached).
+  // Cap per transfer depth, not overall: each depth is searched fully before the next, so deeper
+  // junk paths can't crowd out a real fewest-transfers trip.
   const PER_DEPTH_CAP = 400;
 
   function searchAtDepth(targetTransfers: number): TripOption[] {
@@ -443,13 +403,7 @@ export function planTripOffline(
       }
     }
 
-    // Seed: EVERY boardable stop within the walk radius per route, not just the
-    // single nearest. A transfer point must be downstream (seq > board) of the
-    // boarding stop, so seeding only the nearest — which may be a high-seq stop
-    // near the route's end — would prune valid transfers reachable from a
-    // slightly-farther but lower-seq in-range stop. Ranking still favours the
-    // shortest first-leg walk (totalWalkM = legs[0].walk_m), so the extra seeds
-    // never displace a nearer valid option; they only add coverage.
+    // Seed: EVERY boardable stop within the walk radius per route, not just the single nearest.
     for (const route of _pack!.routes) {
       const seeds: { rs: PackRouteStop; walk: number }[] = [];
       for (const rs of route.stops) {
@@ -469,19 +423,18 @@ export function planTripOffline(
     return found;
   }
 
-  // Try 1 transfer first; only escalate to 2 transfers if NOTHING works with
-  // fewer — this is what guarantees "fewest transfers" instead of just sorting
-  // a possibly-incomplete sample after the fact.
+  // Try 1 transfer first; only escalate to 2 transfers if NOTHING works with fewer — this is what
+  // guarantees "fewest transfers" instead of just sorting a possibly-incomplete sample after the
+  // fact.
   let results: TripOption[] = [];
   for (let transfers = 1; transfers < maxLegs; transfers++) {
     results = searchAtDepth(transfers);
     if (results.length > 0) break;
   }
 
-  // Dedupe identical route sequences, then rank by WALK distance first (the
-  // thing the rider actually feels and what they asked to minimize), riding
-  // distance only as a tiebreaker — summing the two punished a 0m-walk option
-  // with a long ride below a long-walk option with a short ride.
+  // Dedupe identical route sequences, then rank by WALK distance first (the thing the rider
+  // actually feels and what they asked to minimize), riding distance only as a tiebreaker — summing
+  // the two punished a 0m-walk option with a long ride below a long-walk option with a short ride.
   const seen = new Set<string>();
   const multiLeg = results
     .sort((a, b) => a.totalWalkM - b.totalWalkM || a.totalLegM - b.totalLegM)
@@ -515,8 +468,8 @@ export function getLandmarks(): PackLandmark[] {
   return _pack?.landmarks ?? [];
 }
 
-// Distance (m) from point P to segment A→B via a local equirectangular
-// projection centred on P, plus the fraction t along AB of the closest point.
+// Distance (m) from point P to segment A→B via a local equirectangular projection centred on P,
+// plus the fraction t along AB of the closest point.
 function segProjM(
   plat: number, plng: number,
   alat: number, alng: number,
@@ -533,8 +486,8 @@ function segProjM(
   return { offsetM: Math.hypot(cx, cy), t };
 }
 
-// Project P onto the whole polyline: how far ALONG the route its closest point
-// is (metres) and how far OFF the line P sits.
+// Project P onto the whole polyline: how far ALONG the route its closest point is (metres) and how
+// far OFF the line P sits.
 function projectToLine(
   line: [number, number][], cum: number[], plat: number, plng: number,
 ): { alongM: number; offsetM: number } {
@@ -548,16 +501,11 @@ function projectToLine(
 
 export interface RouteLandmark {
   landmark: PackLandmark;
-  alongM: number;  // metres travelled along the route to the landmark's nearest point
+  alongM: number; // metres travelled along the route to the landmark's nearest point
   offsetM: number; // metres the landmark sits off the line
 }
 
-/**
- * Landmarks that sit near a route's line, in travel order. When board/alight
- * stops are given, only landmarks BETWEEN them (± a small pad) are returned —
- * i.e. "landmarks along the way" for the rider's actual leg. Pure/offline;
- * safe to call every render (a route has a few dozen segments at most).
- */
+/** Landmarks that sit near a route's line, in travel order. */
 export function getLandmarksNearRoute(
   routeId: string,
   opts: { maxOffsetM?: number; boardStopId?: string; alightStopId?: string } = {},
@@ -601,10 +549,8 @@ export interface NearestStopResult {
 }
 
 /**
- * Closest stop in the whole pack to (userLat,userLng) — independent of any
- * destination search, so the rider can just be told "walk here" before they've
- * even picked where they're going. Pure geometry over the already-loaded pack;
- * no network, no GPS leaves the device (see file header).
+ * Closest stop in the whole pack to (userLat,userLng) — independent of any destination search, so
+ * the rider can just be told "walk here" before they've even picked where they're going.
  */
 export function nearestStopOffline(userLat: number, userLng: number): NearestStopResult | null {
   if (!_pack || _pack.stops.length === 0) return null;
@@ -617,9 +563,9 @@ export function nearestStopOffline(userLat: number, userLng: number): NearestSto
 }
 
 /**
- * Closest named neighborhood to (userLat,userLng) — used to label "near you"
- * without a network reverse-geocode call (keeps the no-GPS-leaves-the-device
- * promise above; the pack already carries neighborhood centroids).
+ * Closest named neighborhood to (userLat,userLng) — used to label "near you" without a network
+ * reverse-geocode call (keeps the no-GPS-leaves-the-device promise above; the pack already carries
+ * neighborhood centroids).
  */
 export function nearestNeighborhoodOffline(userLat: number, userLng: number): string | null {
   if (!_pack || _pack.neighborhoods.length === 0) return null;
@@ -652,11 +598,8 @@ export function getAttribution(): { attribution: string; license: string } | nul
 }
 
 /**
- * Last-resort boarding lookup: for each route that REACHES the destination,
- * board at that route's FIRST stop ("assume you walk to the terminal"). Used
- * only when proximity-based boardingPointOffline finds nothing, so a route far
- * from the user (e.g. on a desktop demo) is still viewable and map-able.
- * walk_m is the honest distance from the user to that terminal.
+ * Last-resort boarding lookup: for each route that REACHES the destination, board at that route's
+ * FIRST stop ("assume you walk to the terminal").
  */
 export function boardingFromTerminalOffline(
   userLat: number,

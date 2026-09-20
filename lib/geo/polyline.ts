@@ -1,9 +1,4 @@
-// Encoded-polyline (Google/Mapbox algorithm) — vendored so we don't depend on
-// @mapbox/polyline. Coordinates are [lat, lng]; default precision 5, but we use
-// 6 (polyline6) for the Core Pack so route geometry round-trips to ~10 cm.
-//
-// This is the canonical, well-tested algorithm. Accra coordinates (lat ~5.6,
-// lng ~-0.2) at 1e6 fit comfortably in 32-bit, so the bitwise ops are safe.
+// Encoded-polyline (Google/Mapbox algorithm) — vendored so we don't depend on @mapbox/polyline.
 
 function encodeSigned(num: number): string {
   let sgn = num < 0 ? ~(num << 1) : num << 1;

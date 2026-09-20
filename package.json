@@ -2,6 +2,12 @@
   "name": "trotro-guide",
   "version": "0.0.0",
   "private": true,
+  "description": "Step-by-step trotro directions for Accra: free, offline, and safety-first.",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/eshunyhaw-del/TroTroGuide.git"
+  },
   "scripts": {
     "dev": "next dev",
     "dev:lan": "next dev -H 0.0.0.0",

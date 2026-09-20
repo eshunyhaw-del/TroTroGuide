@@ -60,8 +60,8 @@ describe('rankCandidates', () => {
   });
 
   it('breaks equal scores by proximity, order-independently', () => {
-    // Same facing + recency, but "b" sits slightly closer. The distance
-    // tiebreak must make "b" win regardless of input order (deterministic).
+    // Same facing + recency, but "b" sits slightly closer. The distance tiebreak must make "b" win
+    // regardless of input order (deterministic).
     const a = candidate({ id: 'a', lat: QUERY.lat + mLat(40) });
     const b = candidate({ id: 'b', lat: QUERY.lat + mLat(20) });
     expect(rankCandidates([a, b], QUERY, NOW)[0].candidate.id).toBe('b');

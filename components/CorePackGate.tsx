@@ -7,7 +7,6 @@ import { usePack } from '@/lib/corepack/usePack';
 
 const fmtMb = (bytes: number | null): string => (bytes ? (bytes / 1_000_000).toFixed(1) : '~1.2');
 
-
 function GateBackdrop({ children }: { children: ReactNode }) {
   return (
     <div className="tg-gatewrap">
@@ -24,7 +23,6 @@ function GateBackdrop({ children }: { children: ReactNode }) {
     </div>
   );
 }
-
 
 export function CorePackGate({ children }: { children: ReactNode }) {
   const { state, sizeBytes, confirmDownload, retry } = usePack();

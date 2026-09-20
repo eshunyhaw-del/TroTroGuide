@@ -1,6 +1,5 @@
-// Find the nearest stop to a user and estimate walking time. Pure geometry —
-// no network, no GPS leaves the device. Works over any {lat,lng}-bearing list,
-// so it serves both PackStop search results and route-stop joins.
+// Find the nearest stop to a user and estimate walking time. Pure geometry — no network, no GPS
+// leaves the device.
 
 import { haversineM } from './haversine';
 
@@ -18,9 +17,8 @@ export interface NearestStop<T> {
 }
 
 /**
- * Nearest stop to (userLat,userLng) among `stops`. Pass `canBoard` to consider
- * only boarding-enabled stops (the rest are alight-only). Returns null for an
- * empty list.
+ * Nearest stop to (userLat,userLng) among `stops`. Pass `canBoard` to consider only
+ * boarding-enabled stops (the rest are alight-only).
  */
 export function findNearestStop<T extends { lat: number; lng: number }>(
   userLat: number,

@@ -1,6 +1,5 @@
 import Image from 'next/image';
 
-
 const PHOTOS = [
   { src: '/img/yellow-trotro.jpg', caption: "Driver's view" },
   { src: '/img/trotro-two.jpg', caption: 'Kaneshie traffic' },

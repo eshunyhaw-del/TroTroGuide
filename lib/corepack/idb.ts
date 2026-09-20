@@ -1,5 +1,5 @@
-// Minimal promise wrapper over IndexedDB — vendored so we don't depend on `idb`.
-// One object store, get/put by key. Browser-only (guards against SSR).
+// Minimal promise wrapper over IndexedDB — vendored so we don't depend on `idb`. One object store,
+// get/put by key.
 
 function assertBrowser(): void {
   if (typeof indexedDB === 'undefined') {

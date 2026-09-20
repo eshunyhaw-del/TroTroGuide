@@ -1,25 +1,11 @@
 // Cloudflare Worker — Phase 0 edge layer (FREE TIER ONLY).
-//
-// Responsibilities:
-//   * Cache-key normalization for GET /api/search (text only).
-//   * Coarse, privacy-safe cache variant for POST /api/boarding-point keyed on
-//     (H3 cell, destination) — never on raw GPS (CORRECTION #1).
-//   * Defensive H3 res-9 quantization: if a client wrongly sends lat/lng, the
-//     Worker collapses it to a cell and strips the raw fix before it can reach
-//     the origin, the logs, or any cache key.
-//   * Degraded mode: time-bounded origin fetch wrapped in try/catch that
-//     FAILS OPEN — serve a "use the offline pack" signal rather than an error.
-//   * Static assets (/core-pack/*, /tiles/*) are immutable + versioned, so
-//     freshness needs NO purge-by-tag (CORRECTION #5).
-//
-// No Enterprise features: no cache tags, no purge API, no Load Balancing.
 
 import { latLngToCell, isValidCell, getResolution } from 'h3-js';
 
 interface Env {
   ORIGIN_HOST: string;       // e.g. "trotro-guide.vercel.app"
   SNAPSHOT?: KVNamespace;    // optional: KV holding a degraded-mode snapshot
-  DEBUG_HEADERS?: string;    // "true" in dev -> emit X-Tk-* verification headers; absent/false in prod
+  DEBUG_HEADERS?: string; // "true" in dev -> emit X-Tk-* verification headers
 }
 
 const H3_RES = 9;
@@ -48,7 +34,7 @@ export default {
   },
 };
 
-// --- /api/search ------------------------------------------------------------
+// /api/search
 async function handleSearch(req: Request, env: Env, ctx: ExecutionContext, url: URL): Promise<Response> {
   const q = normalizeQuery(url.searchParams.get('q') ?? '');
   const cacheKey = new Request(`https://cache.trotro/api/search?q=${encodeURIComponent(q)}`, { method: 'GET' });
@@ -64,8 +50,8 @@ async function handleSearch(req: Request, env: Env, ctx: ExecutionContext, url: 
     return degraded(); // origin unreachable
   }
   if (origin.status >= 500) {
-    // Origin up but failing (e.g. Supabase unconfigured) -> serve stale if we
-    // have it, otherwise tell the client to use its offline pack.
+    // Origin up but failing (e.g. Supabase unconfigured) -> serve stale if we have it, otherwise
+    // tell the client to use its offline pack.
     const stale = await cache.match(cacheKey);
     return stale ? withHeader(stale, 'X-Edge-Cache', 'STALE') : degraded();
   }
@@ -73,15 +59,15 @@ async function handleSearch(req: Request, env: Env, ctx: ExecutionContext, url: 
   return withHeader(origin, 'X-Edge-Cache', 'MISS');
 }
 
-// --- /api/boarding-point ----------------------------------------------------
+// /api/boarding-point
 async function handleBoarding(req: Request, env: Env, ctx: ExecutionContext): Promise<Response> {
   const body = await req
     .json<{ cell?: unknown; lat?: unknown; lng?: unknown; destinationId?: unknown; destinationType?: unknown }>()
     .catch(() => null);
   if (!body) return json({ error: 'bad_json' }, 400);
 
-  // Resolve a coarse H3 cell. Prefer the client-sent cell; defensively quantize
-  // any stray lat/lng and DISCARD the raw fix so it can never be cached/logged.
+  // Resolve a coarse H3 cell. Prefer the client-sent cell; defensively quantize any stray lat/lng
+  // and DISCARD the raw fix so it can never be cached/logged.
   let cell = typeof body.cell === 'string' ? body.cell : undefined;
   if ((!cell || !isR9(cell)) && typeof body.lat === 'number' && typeof body.lng === 'number') {
     cell = latLngToCell(body.lat, body.lng, H3_RES);
@@ -97,16 +83,12 @@ async function handleBoarding(req: Request, env: Env, ctx: ExecutionContext): Pr
   // Sanitized body forwarded to origin: ONLY the coarse cell (no raw GPS).
   const sanitized = { cell, destinationId: destId, destinationType: destType };
 
-  // Coarse cache variant: (cell, dest). POST is uncacheable by default, so we
-  // synthesize a GET key. The key contains only a ~174 m cell — privacy-safe.
+  // Coarse cache variant: (cell, dest).
   const cacheKeyUrl = `https://cache.trotro/api/boarding-point?cell=${cell}&d=${destType}:${destId}`;
   const cacheKey = new Request(cacheKeyUrl, { method: 'GET' });
 
-  // Verification aids (no raw GPS — only the coarse cell + derived key).
-  // GATED: emitted ONLY when DEBUG_HEADERS=true (dev). In production the var is
-  // absent/false, so these headers are stripped and cache internals never leak.
-  //   X-Tk-Cell      -> the H3 res-9 cell the edge resolved/quantized to
-  //   X-Tk-Cache-Key -> the exact cache key (cell-based, never coordinates)
+  // Verification aids (no raw GPS — only the coarse cell + derived key). GATED: emitted ONLY when
+  // DEBUG_HEADERS=true (dev).
   const dbg: Record<string, string> =
     env.DEBUG_HEADERS === 'true' ? { 'X-Tk-Cell': cell, 'X-Tk-Cache-Key': cacheKeyUrl } : {};
 
@@ -129,7 +111,7 @@ async function handleBoarding(req: Request, env: Env, ctx: ExecutionContext): Pr
   return withHeaders(origin, { ...dbg, 'X-Edge-Cache': 'MISS' });
 }
 
-// --- static (versioned, immutable) -----------------------------------------
+// static (versioned, immutable)
 async function handleStatic(req: Request, env: Env, url: URL): Promise<Response> {
   const isManifest = url.pathname.endsWith('/manifest.json');
   const cache = caches.default;
@@ -153,7 +135,7 @@ async function handleStatic(req: Request, env: Env, url: URL): Promise<Response>
   return res;
 }
 
-// --- helpers ----------------------------------------------------------------
+// helpers
 function isR9(cell: string): boolean {
   try {
     return isValidCell(cell) && getResolution(cell) === H3_RES;

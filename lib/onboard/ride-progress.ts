@@ -1,41 +1,11 @@
-// WHERE IS THE RIDER RIGHT NOW, across a whole planned trip?
-//
-// mapmatch.ts answers this for ONE route. A trip can be several legs (with a
-// transfer between them), and the Step 3 ride list renders every leg's stops as
-// one continuous timeline — so the "you are here" dot needs a trip-level answer:
-// which leg, and which stop row on it.
-//
-// This module is deliberately pure (no React, no GPS, no clock) so the row-
-// picking maths is unit-testable. The stateful parts — accepting/rejecting each
-// GPS fix, smoothing jitter — live in useRideProgress.ts.
-//
-// IMPORTANT — what the geometry actually is. Core Pack polylines carry exactly
-// one vertex per stop (verified across all 566 routes), i.e. straight chords
-// between consecutive stops rather than real road shape. Two consequences:
-//   * `lateralM` is NOT a usable off-route signal. Stops sit a median 303 m
-//     apart but 783 segments exceed 1 km, and a rider following a curving road
-//     is legitimately far from the straight chord. So we never declare
-//     "off route" here (that is what RouteMatcher.guidance()'s OFF_ROUTE_M is
-//     for, and it would false-positive on this data); we only use lateralM as a
-//     relative score to decide WHICH leg the rider is on.
-//   * Distances must be measured in ONE space. See RideStop below: the pack's
-//     own `distM` is not that space, so the caller re-projects the stops.
+// WHERE IS THE RIDER RIGHT NOW, across a whole planned trip? mapmatch.ts answers this for ONE
+// route.
 
 import type { RouteMatcher } from './mapmatch';
 
 /**
- * A stop placed in the SAME along-route space the rider is projected into.
- *
- * `alongM` is deliberately NOT the pack's `route_stops.distM`. That value is
- * pinned to a polyline vertex which, in the beta pack, can sit a long way from
- * the stop it labels — name-folding in the builder (STOP_DEDUP_M = 250) gives a
- * stop one canonical coordinate while its vertex keeps another. Measured across
- * the shipped pack: 21.7% of stops are >25 m from their own vertex, 7.1% are
- * >100 m, worst 470 m. Comparing a projected rider against vertex-derived stop
- * distances therefore lands on the wrong row surprisingly often — standing
- * exactly at a stop named the right stop only 91.5% of the time. Projecting the
- * STOP's own coordinate onto the same polyline instead cancels the error out
- * and lifts that to 98.0%, so the caller passes projected distances in here.
+ * A stop placed in the SAME along-route space the rider is projected into. `alongM` is deliberately
+ * NOT the pack's `route_stops.distM`.
  */
 export interface RideStop {
   stopId: string;
@@ -98,14 +68,7 @@ export function riddenStops(leg: LegGeometry): RideStop[] {
     .sort((a, b) => a.seq - b.seq);
 }
 
-/**
- * Which leg is the rider on, and how far along it?
- *
- * Scored by lateral distance from the leg's line PLUS how far outside that
- * leg's ridden window the projection fell. The window penalty is what stops a
- * two-leg trip from claiming the rider is on leg 2 while they are still riding
- * leg 1 down a road the two legs happen to share.
- */
+/** Which leg is the rider on, and how far along it? */
 export function matchLegs(
   legs: readonly LegGeometry[],
   lat: number,
@@ -134,12 +97,7 @@ export function matchLegs(
   return best;
 }
 
-/**
- * Map an along-route distance onto the stop row the dot should sit on.
- *
- * `alongM` is passed in rather than measured here so the caller can smooth it
- * across fixes (see useRideProgress) without this function needing state.
- */
+/** Map an along-route distance onto the stop row the dot should sit on. */
 export function progressFromAlong(
   legs: readonly LegGeometry[],
   legIndex: number,
@@ -195,13 +153,8 @@ export function progressFromAlong(
 }
 
 /**
- * Normalise a transfer point to a single row.
- *
- * A transfer stop is one physical place that appears on both legs — as leg N's
- * alight and leg N+1's board. The ride list renders it ONCE (it filters leg
- * N+1's board row out), so a progress result landing on leg N+1's board seq
- * would highlight a row that does not exist. Re-attribute it to the row that is
- * actually rendered: the previous leg's alight.
+ * Normalise a transfer point to a single row. A transfer stop is one physical place that appears on
+ * both legs — as leg N's alight and leg N+1's board.
  */
 export function normaliseTransfer(
   legs: readonly LegGeometry[],

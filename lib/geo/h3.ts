@@ -1,9 +1,4 @@
-// H3 quantization — the single source of truth for turning a precise GPS fix
-// into a coarse cell. Used identically on the client (before any request) and,
-// defensively, at the Cloudflare edge. Resolution 9 ≈ 174 m edge length.
-//
-// CORRECTION #1: raw GPS must never appear in a URL, query string, cache key,
-// or log. The client quantizes to a cell and sends ONLY the cell id.
+// H3 quantization — the single source of truth for turning a precise GPS fix into a coarse cell.
 import { latLngToCell, cellToLatLng, isValidCell, getResolution, gridDisk } from 'h3-js';
 
 export const H3_RES = 9 as const;

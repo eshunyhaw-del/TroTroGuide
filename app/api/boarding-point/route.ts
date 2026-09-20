@@ -8,14 +8,8 @@ export const runtime = 'nodejs';
 export const preferredRegion = ['dub1']; // see /api/search for the af-south-1 note
 
 // POST /api/boarding-point
-// Body: { cell: "<H3 res-9 id>", destinationId: "<uuid>", destinationType: "stop"|"neighborhood"|"landmark" }
-//
-// CORRECTION #1: this is a personalized endpoint, so it is POST (not a GET with
-// coordinates) and the body carries an H3 CELL, never raw lat/lng. The server
-// resolves the cell to its CENTRE — coarse (~174 m) — and uses that for the
-// PostGIS lookup, so nothing finer than a cell ever reaches the DB, the logs, or
-// a cache key. The result is deterministic per (cell, destination), which is
-// what lets the Cloudflare Worker build a coarse, privacy-safe cache variant.
+// Body: { cell: "<H3 res-9 id>", destinationId, destinationType? }. The client sends a coarse H3
+// cell, never raw GPS.
 export async function POST(req: NextRequest) {
   const rl = await check(boardingLimiter, clientIp(req));
   if (!rl.success) {
@@ -69,8 +63,8 @@ export async function POST(req: NextRequest) {
     noDirectRoute: options.length === 0,
     transfersAvailable: false, // multi-leg arrives in Phase 2
   });
-  // POST is not edge-cached by default; the Worker honours this TTL on its
-  // synthetic (cell+dest) cache key.
+  // POST is not edge-cached by default; the Worker honours this TTL on its synthetic (cell+dest)
+  // cache key.
   res.headers.set('Cache-Control', 'public, s-maxage=600, stale-while-revalidate=3600');
   return res;
 }

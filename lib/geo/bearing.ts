@@ -1,6 +1,4 @@
 // Compass bearing (degrees clockwise from north, 0–360) from point A to point B.
-// Used to express the rider's DIRECTION OF TRAVEL at a landmark, so street
-// imagery can be ranked by whether the camera faced the way the trotro is going.
 export function bearingDeg(aLat: number, aLng: number, bLat: number, bLng: number): number {
   const toRad = (d: number) => (d * Math.PI) / 180;
   const φ1 = toRad(aLat);

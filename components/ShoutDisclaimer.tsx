@@ -1,14 +1,6 @@
 'use client';
 
 // One-time "mate shouts are under review" disclaimer, shown when the app opens.
-//
-// Appears once per disclaimer version, then never again (acknowledgement is
-// stored in localStorage). Gated on SHOUTS_UNDER_REVIEW — flip that off when
-// verification is done and this stops rendering entirely.
-//
-// Modal mechanics mirror DonatePopup: scrim, focus trap, Esc to close, focus
-// restored on close. It records acknowledgement on dismissal so a rider only
-// ever sees it once.
 
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { Megaphone, X } from 'lucide-react';
@@ -48,8 +40,8 @@ export function ShoutDisclaimer() {
     setOpen(false);
   }, []);
 
-  // Decide once on mount. A short delay lets the app paint first, so the
-  // disclaimer lands on a ready screen rather than a cold flash.
+  // Decide once on mount. A short delay lets the app paint first, so the disclaimer lands on a
+  // ready screen rather than a cold flash.
   useEffect(() => {
     if (!SHOUTS_UNDER_REVIEW) return;
     if (readAck() === SHOUT_DISCLAIMER_VERSION) return;

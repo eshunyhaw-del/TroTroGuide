@@ -1,13 +1,5 @@
 'use client';
-// Admin field store. A dedicated IndexedDB ('trotro-admin', v2) with three
-// object stores, so it can never collide with the core-pack / captures DBs:
-//   verifications  — verified EXISTING OSM stops (keyed by osmRef)
-//   newStops       — NEW stops not in OSM (keyed by stopId) — purely proprietary
-//   routeChanges   — "this route changed" reports for curation (keyed by id)
-//
-// Everything here is the operator's PROPRIETARY field data (mate shouts, local
-// names, their own GPS). Offline-only, never synced. New stops have NO osm_ref —
-// they are not derived from OSM at all.
+// Admin field store.
 
 export interface Verification {
   osmRef: string; // 'node/12345' — primary key + provenance.osm_ref
@@ -121,7 +113,7 @@ async function all<T>(store: string): Promise<T[]> {
   }
 }
 
-// --- verifications (existing OSM stops) ---
+// verifications (existing OSM stops)
 export const saveVerification = (v: Verification) => put(VERIF, v);
 export const deleteVerification = (osmRef: string) => del(VERIF, osmRef);
 export const listVerifications = () => all<Verification>(VERIF);
@@ -129,12 +121,12 @@ export async function loadVerificationMap(): Promise<Map<string, Verification>> 
   return new Map((await listVerifications()).map((v) => [v.osmRef, v]));
 }
 
-// --- new stops (NOT in OSM) ---
+// new stops (NOT in OSM)
 export const saveNewStop = (s: NewStop) => put(NEW, s);
 export const deleteNewStop = (stopId: string) => del(NEW, stopId);
 export const listNewStops = () => all<NewStop>(NEW);
 
-// --- route changes ---
+// route changes
 export const saveRouteChange = (c: RouteChange) => put(CHANGES, c);
 export const deleteRouteChange = (id: string) => del(CHANGES, id);
 export const listRouteChanges = () => all<RouteChange>(CHANGES);
@@ -150,9 +142,10 @@ export interface VerificationExport {
   route_changes: Array<Record<string, unknown>>;
 }
 
-/** Download payload — three arrays (Feature 3). Keys match the documented
- *  format the promote script consumes. Backward-compatible: old single-object
- *  `verifications` exports are still accepted by the promote script. */
+/**
+ * Download payload — three arrays (Feature 3). Keys match the documented format the promote script
+ * consumes.
+ */
 export async function buildExport(): Promise<VerificationExport> {
   const [verifs, news, changes] = await Promise.all([listVerifications(), listNewStops(), listRouteChanges()]);
   const verifier = (typeof localStorage !== 'undefined' && localStorage.getItem('tg-admin-verifier')) || null;

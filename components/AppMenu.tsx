@@ -6,7 +6,6 @@ import { useRouter } from 'next/navigation';
 import { Menu, Home, Flag, Info, Heart } from 'lucide-react';
 import { SUPPORT_URL, SUPPORT_ENABLED } from '@/lib/support';
 
-
 export function AppMenu() {
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);

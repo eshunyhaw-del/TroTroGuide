@@ -1,21 +1,4 @@
-// ============================================================================
 // PHASE 4.2 (+ new-stops) — Build the shippable CorePack from VERIFIED data.
-// ============================================================================
-// Reads data/core_verified.json (from promote — verified OSM stops AND brand-new
-// fieldwork stops) and an OPTIONAL route-definition file, and writes a versioned
-// CorePack to public/core-pack/. Never reads osm_mirror / data/osm_raw.
-//
-// Routes are assembled from the CURRENT stop sequence:
-//   * data/routes.json (optional): per route { name, ref, mateShout,
-//       stops:[osm_refs in order] } — the verified OSM backbone.
-//   * NEW stops auto-insert into their route by `route_ref` + `sequence`.
-// The polyline is synthesized from YOUR stop coordinates and per-stop cumulative
-// distM is computed from it, so the on-board invariant holds by construction.
-//
-// Route changes (core_verified.routeChanges) are written to
-// data/route-changes-review.json for YOUR curation — NEVER shipped in the pack.
-//
-//   node scripts/build-core-pack-from-verified.mjs [--core data/core_verified.json] [--routes data/routes.json]
 
 import { createHash } from 'node:crypto';
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
@@ -67,7 +50,7 @@ function main() {
   const byOsmRef = new Map(coreStops.filter((s) => s.osmRef).map((s) => [s.osmRef, s]));
   const routeIdsByStop = new Map(coreStops.map((s) => [s.id, new Set()]));
 
-  // --- assemble routes from the CURRENT stop sequence ---
+  // assemble routes from the CURRENT stop sequence
   const routeDefs = args.routes && existsSync(args.routes) ? JSON.parse(readFileSync(args.routes, 'utf8')) : [];
   const meta = new Map();    // ref -> {name, mateShout}
   const entries = new Map(); // ref -> [{stop, pos, isNew}]
@@ -109,7 +92,7 @@ function main() {
     routes.push({ id, name: m.name, mateShout, polyline: encode(coords, 6), stops });
   }
 
-  // --- stops + synonyms ---
+  // stops + synonyms
   const stops = coreStops.map((s) => ({
     id: s.id, name: s.name, aliases: s.aliases || [], lat: s.lat, lng: s.lng,
     routeIds: [...(routeIdsByStop.get(s.id) || [])], landmark: null,
@@ -137,7 +120,7 @@ function main() {
   writeFileSync(join(dir, 'accra-core.json'), body);
   writeFileSync(join(ROOT, 'public', 'core-pack', 'manifest.json'), JSON.stringify({ version, url: `/core-pack/v${version}/accra-core.json`, bytes, sha256 }));
 
-  // --- route changes -> review file (NOT shipped) ---
+  // route changes -> review file (NOT shipped)
   const routeChanges = core.routeChanges || [];
   if (routeChanges.length) {
     writeFileSync(REVIEW, JSON.stringify({ note: 'Operator-reported route changes. Review, then update data/routes.json / re-verify before they reach the pack. NOT shipped to users.', generatedAt: new Date().toISOString(), routeChanges }, null, 2));

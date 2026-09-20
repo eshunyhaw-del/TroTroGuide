@@ -1,18 +1,4 @@
-// ============================================================================
 // PHASE 1.2 — Import raw OSM (data/osm_raw/) into osm_mirror.osm_features SQL.
-// ============================================================================
-// Reads the verbatim Overpass dumps from Task 1 and emits idempotent UPSERT SQL
-// to data/osm_import.sql. This is the ODbL "parking lot" loader:
-//
-//   * writes ONLY osm_mirror.* — never touches core.* (license firewall)
-//   * stamps every row with ODbL license + attribution + source_url
-//   * idempotent: re-running UPSERTs by osm_ref and only updates rows whose
-//     content_hash changed (so re-imports are cheap and never duplicate)
-//
-// Pure Node 18+, zero deps, no Supabase. The .sql file is applied separately
-// (Supabase SQL editor / psql / MCP) AFTER db/migrations/0004 has run.
-//
-//   Run:  node scripts/import-osm-to-mirror.mjs   (or: npm run import:osm)
 
 import { createHash } from 'node:crypto';
 import { readFileSync, writeFileSync, statSync } from 'node:fs';
@@ -45,7 +31,7 @@ function deriveRef(tags) {
   return m ? m[1] : '';
 }
 
-// --- SQL literal helpers ----------------------------------------------------
+// SQL literal helpers
 const q = (s) => "'" + String(s).replace(/'/g, "''") + "'"; // escape single quotes
 const sqlText = (s) => (s == null ? 'NULL' : q(s));
 const sqlTs = (s) => (s == null ? 'NULL' : q(s) + '::timestamptz');
@@ -65,9 +51,7 @@ function contentHash(parts) {
   return createHash('sha256').update(parts.join('\n')).digest('hex').slice(0, 32);
 }
 
-// Greedy assembly of a route's member ways into one LINESTRING. Best-effort:
-// orients/flips each segment to maintain continuity (the first segment may need
-// flipping). Scaffold geometry only — no phase depends on its precision yet.
+// Greedy assembly of a route's member ways into one LINESTRING.
 function stitchRoute(rel, wayMap, nodeMap) {
   const segs = [];
   for (const m of rel.members || []) {
@@ -212,7 +196,7 @@ function main() {
     });
   }
 
-  // --- emit SQL -------------------------------------------------------------
+  // emit SQL
   const all = [...rows.values()];
   const COLS =
     '(osm_ref, kind, tags, geom, content_hash, fetched_at, last_edit, freshness_score, route_refs, license, attribution, source_url)';
@@ -266,7 +250,7 @@ function main() {
   out.push('');
   writeFileSync(OUT, out.join('\n'));
 
-  // --- summary --------------------------------------------------------------
+  // summary
   const byKind = {};
   let withGeom = 0;
   let withRefs = 0;

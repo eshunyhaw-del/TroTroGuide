@@ -1,7 +1,5 @@
-// Build a small DEMO Accra Core Pack WITHOUT the database, so the app works
-// locally before Supabase is wired. Run: node scripts/build-fixture-pack.mjs
-// Writes public/core-pack/v<version>/accra-core.json + manifest.json (versioned,
-// immutable — same shape the real scripts/build-core-pack.ts produces).
+// Build a small DEMO Accra Core Pack WITHOUT the database, so the app works locally before Supabase
+// is wired.
 
 import { createHash } from 'node:crypto';
 import { mkdirSync, writeFileSync } from 'node:fs';
@@ -10,7 +8,7 @@ import { fileURLToPath } from 'node:url';
 
 const root = join(dirname(fileURLToPath(import.meta.url)), '..');
 
-// --- polyline6 encode (same algorithm as lib/geo/polyline.ts) ---------------
+// polyline6 encode (same algorithm as lib/geo/polyline.ts)
 function encodeSigned(num) {
   let sgn = num < 0 ? ~(num << 1) : num << 1;
   let out = '';
@@ -39,8 +37,7 @@ const routeCoords = [
   [5.6209, -0.1719],
 ];
 
-// Stop distances MUST match the polyline geometry, or on-board "arrived"
-// detection never fires. Compute the real cumulative length here.
+// Stop distances MUST match the polyline geometry, or on-board "arrived" detection never fires.
 function haversineM(aLat, aLng, bLat, bLng) {
   const R = 6371000;
   const t = (d) => (d * Math.PI) / 180;
@@ -55,14 +52,8 @@ for (let i = 1; i < routeCoords.length; i++) {
 }
 const routeLenR = Math.round(routeLen);
 
-// ===========================================================================
-// PLACEHOLDER ROUTE — Abeka Lapaz → Dome Kwabenya  (NOT from OSM, NOT verified)
-// ===========================================================================
-// Hand-authored, APPROXIMATE coordinates for exercising the map view only.
-// These are rough estimates, NOT surveyed and NOT derived from OpenStreetMap —
-// so they carry no ODbL obligation and keep the sellable core proprietary.
-// REPLACE with real fieldwork (admin verify → promote → build:verified-pack)
-// before this route is ever shipped as "real" data.
+// PLACEHOLDER ROUTE — Abeka Lapaz → Dome Kwabenya (NOT from OSM, NOT verified) Hand-authored,
+// APPROXIMATE coordinates for exercising the map view only.
 const DOME = [
   { id: 's-lapaz',       name: 'Lapaz',         aliases: ['La Paz', 'Lapaz', 'Abeka Lapaz'], lat: 5.6053, lng: -0.2540, landmark: 'Abeka Lapaz Terminal' },
   { id: 's-achimota',    name: 'Achimota Station', aliases: ['Achimota'],                    lat: 5.6190, lng: -0.2270, landmark: 'Achimota Retail Centre' },

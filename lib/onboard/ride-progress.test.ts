@@ -11,9 +11,9 @@ import {
   type RideStop,
 } from './ride-progress';
 
-// Same straight WEST→EAST device as mapmatch.test.ts: at a constant latitude,
-// distance along the route is exactly (lng - 0) * metresPerDegreeLng, so every
-// expectation below is exact rather than approximate.
+// Same straight WEST→EAST device as mapmatch.test.ts: at a constant latitude, distance along the
+// route is exactly (lng - 0) * metresPerDegreeLng, so every expectation below is exact rather than
+// approximate.
 const LAT = 5.6;
 const M_PER_LNG = 111_320 * Math.cos((LAT * Math.PI) / 180);
 const lngAt = (metres: number): number => metres / M_PER_LNG;
@@ -39,9 +39,7 @@ const route: PackRoute = {
   stops: STOPS,
 };
 
-// The rider and the stops must live in one along-route space. On this straight
-// test line the stop positions and the polyline agree exactly, so the projected
-// distance IS distM — real packs are messier, which is why RideStop exists.
+// The rider and the stops must live in one along-route space.
 const RIDE_STOPS: RideStop[] = STOPS.map((s) => ({
   stopId: s.stopId,
   seq: s.seq,
@@ -113,11 +111,9 @@ describe('progressFromAlong — the dot must MOVE', () => {
 });
 
 describe('stops that are out of order on the ground', () => {
-  // Real pack case: on "Trotro 275 : Madina-Adenta → Kaneshie", the stop named
-  // "Atomic First" (seq 11) physically sits FURTHER along the road than "Atomic
-  // Second" (seq 12) — the source ordering disagrees with the geography, so
-  // projected distances are not monotonic in seq. The dot must still resolve to
-  // a real row and must never crash or land outside the ridden window.
+  // Real pack case: on "Trotro 275 : Madina-Adenta → Kaneshie", the stop "Atomic First" (seq 11) sits
+  // further along the road than "Atomic Second" (seq 12), so projected distances are not monotonic in
+  // seq. The dot must still resolve to a real row inside the ridden window.
   const jumbled: LegGeometry = {
     routeId: 'r-jumbled',
     matcher: new RouteMatcher(route),
@@ -142,8 +138,8 @@ describe('stops that are out of order on the ground', () => {
   });
 
   it('prefers the later ROW when two stops are both behind the rider', () => {
-    // At 3300 m both jumbled stops are behind; the row that wins is the one
-    // further down the rendered list, so the dot keeps moving downward.
+    // At 3300 m both jumbled stops are behind; the row that wins is the one further down the
+    // rendered list, so the dot keeps moving downward.
     expect(progressFromAlong([jumbled], 0, 3300, 0)!.seq).toBe(4);
   });
 
@@ -183,8 +179,8 @@ describe('normaliseTransfer', () => {
   const legs = [leg(2, 5), leg(5, 9)];
 
   it('re-attributes leg 2’s board row to leg 1’s alight row', () => {
-    // The transfer stop is rendered ONCE (as leg 1's alight); highlighting
-    // leg 2's board seq would target a row the list never renders.
+    // The transfer stop is rendered ONCE (as leg 1's alight); highlighting leg 2's board seq would
+    // target a row the list never renders.
     const raw = progressFromAlong(legs, 1, 4000, 0)!;
     expect(raw.seq).toBe(5);
     const fixed = normaliseTransfer(legs, raw);

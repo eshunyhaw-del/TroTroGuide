@@ -1,6 +1,5 @@
 'use client';
 
-
 import { useEffect, useRef } from 'react';
 import maplibregl from 'maplibre-gl';
 import 'maplibre-gl/dist/maplibre-gl.css';
@@ -15,7 +14,6 @@ interface RouteMapProps {
   user: { lat: number; lng: number } | null;
   onClose: () => void;
 }
-
 
 const STYLE: maplibregl.StyleSpecification = {
   version: 8,
@@ -37,7 +35,6 @@ const STYLE: maplibregl.StyleSpecification = {
     { id: 'carto', type: 'raster', source: 'carto' },
   ],
 };
-
 
 function marker(cls: string, label: string, glyph?: string): HTMLDivElement {
   const el = document.createElement('div');

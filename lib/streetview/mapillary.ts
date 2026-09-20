@@ -1,35 +1,14 @@
 // Mapillary implementation of ImageProvider — SERVER ONLY.
-//
-// This module reads the secret MAPILLARY_TOKEN from env and must NEVER be
-// imported into a client component (same rule as lib/moolre.ts). The browser
-// only ever talks to /api/streetview, which calls this. The token never ships
-// to the client.
-//
-// Official API: Mapillary Graph API v4 (https://graph.mapillary.com), the
-// documented, supported entry point — we do NOT scrape mapillary.com or guess
-// image URLs. Auth is the client access token (starts "MLY|") sent as an
-// `Authorization: OAuth <token>` header. Get one, free, at
-// https://www.mapillary.com/dashboard/developers.
-//
-// Endpoint used:
-//   GET /images?fields=id,computed_geometry,geometry,compass_angle,captured_at,
-//                      thumb_1024_url,thumb_2048_url
-//              &bbox=<minLng>,<minLat>,<maxLng>,<maxLat>&limit=<n>
-// Response envelope: { data: Image[] }. captured_at is epoch MILLISECONDS.
-//
-// Image usage & attribution: Mapillary imagery is licensed CC BY-SA 4.0. We
-// therefore ALWAYS surface an attribution string + a link back to the image
-// (attributionUrlFor). We store nothing — images are fetched live and rendered
-// by URL; no caching to disk, in line with the terms. Short-lived in-memory
-// response caching (for rate-limit sanity) lives in the API route, not here.
 
 import type { ImageCandidate, ImageProvider, ImageQuery } from './types';
 
 const GRAPH_BASE = 'https://graph.mapillary.com';
 const TIMEOUT_MS = 8_000;
 
-/** Fields we ask Mapillary for. computed_geometry is the refined position; we
- *  fall back to raw geometry when the SfM-computed one is absent. */
+/**
+ * Fields we ask Mapillary for. computed_geometry is the refined position; we fall back to raw
+ * geometry when the SfM-computed one is absent.
+ */
 const FIELDS = [
   'id',
   'computed_geometry',
@@ -51,11 +30,7 @@ interface MapillaryImage {
   thumb_2048_url?: string;
 }
 
-/**
- * Convert a centre point + radius into a [minLng,minLat,maxLng,maxLat] bbox.
- * Small-angle flat-earth approximation — fine at the ≤200 m radii we query,
- * where curvature error is far below GPS noise.
- */
+/** Convert a centre point + radius into a [minLng,minLat,maxLng,maxLat] bbox. */
 export function radiusToBbox(
   lat: number,
   lng: number,
@@ -95,8 +70,8 @@ export class MapillaryProvider implements ImageProvider {
         signal: ac.signal,
       });
       if (!res.ok) {
-        // Surface as an error to the route (which maps it to status:'error'),
-        // never as fake data. 4xx here usually means a bad/expired token.
+        // Surface as an error to the route (which maps it to status:'error'), never as fake data.
+        // 4xx here usually means a bad/expired token.
         throw new Error(`Mapillary /images HTTP ${res.status}`);
       }
       const json = (await res.json()) as { data?: MapillaryImage[] };

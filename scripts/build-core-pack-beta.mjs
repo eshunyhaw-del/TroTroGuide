@@ -1,24 +1,5 @@
-// ============================================================================
-// BETA STATUS MODEL — build TWO CorePacks (firewall-safe, Option 1).
-// ============================================================================
-// The proprietary `core` schema is NEVER touched by OSM. Instead we MERGE at
-// build time:
-//
-//   BETA pack   (public app)  = OSM beta data (status:'beta', ODbL-attributed)
-//                               + verified core data (status:'verified')
-//               -> public/core-pack/v<ts>/accra-core.json (+ manifest.json)
-//
-//   VERIFIED pack (future B2B) = ONLY verified core data, OSM-free, proprietary
-//               -> data/core-pack-verified.json  (NOT served, the sellable asset)
-//
-// Sources:
-//   public/admin/osm-data.json   ODbL scaffold parsed by build-admin-data.mjs
-//   data/core_verified.json      proprietary fieldwork (from promote) — optional
-//   data/routes.json             verified route backbone — optional
-//
-// Why this keeps the sale clean: the verified pack is assembled from `core` ONLY,
-// which was independently field-collected. OSM lives in the beta pack alone, a
-// transient public artifact carrying its ODbL attribution. See ATTRIBUTION.txt.
+// BETA STATUS MODEL — build TWO CorePacks (firewall-safe, Option 1). The proprietary `core` schema
+// is NEVER touched by OSM.
 
 import { createHash } from 'node:crypto';
 import { existsSync, mkdirSync, readFileSync, writeFileSync, statSync } from 'node:fs';
@@ -35,10 +16,10 @@ const VERIFIED_OUT = join(ROOT, 'data', 'core-pack-verified.json');
 
 const ATTRIBUTION = '© OpenStreetMap contributors';
 const LICENSE = 'ODbL-1.0';
-const DEDUP_M = 60; // a verified stop within this radius (same folded name) supersedes its beta twin
-const STOP_DEDUP_M = 250; // OSM beta stops with the same folded name within this radius are the same physical stop
+const DEDUP_M = 60;
+const STOP_DEDUP_M = 250;
 
-// --- polyline6 + geo helpers (same algorithms as the other pack scripts) ----
+// polyline6 + geo helpers (same algorithms as the other pack scripts)
 function encodeSigned(num) {
   let sgn = num < 0 ? ~(num << 1) : num << 1;
   let out = '';
@@ -59,8 +40,8 @@ function haversineM(aLat, aLng, bLat, bLng) {
   const s = Math.sin(dLat / 2) ** 2 + Math.cos(t(aLat)) * Math.cos(t(bLat)) * Math.sin(dLng / 2) ** 2;
   return 2 * R * Math.asin(Math.min(1, Math.sqrt(s)));
 }
-// Distance (m) from point P to segment A→B, via a local equirectangular
-// projection centred on P (accurate to <1% at city scale / segment lengths).
+// Distance (m) from point P to segment A→B, via a local equirectangular projection centred on P
+// (accurate to <1% at city scale / segment lengths).
 function distPointToSegM(plat, plng, alat, alng, blat, blng) {
   const mLat = 111320, mLng = 111320 * Math.cos((plat * Math.PI) / 180);
   const ax = (alng - plng) * mLng, ay = (alat - plat) * mLat;
@@ -86,18 +67,15 @@ const rstop = (stopId, seq, distM, board, alight, status) => {
   return o;
 };
 
-// ---------------------------------------------------------------------------
 // BETA portion — from OSM (ODbL). Every record tagged status:'beta'.
-// ---------------------------------------------------------------------------
 function buildOsmBeta() {
   if (!existsSync(OSM)) {
     console.warn(`  ⚠ ${OSM} missing — run "npm run build:admin" first. Beta pack will have no OSM data.`);
     return { stops: new Map(), routes: [] };
   }
   const osm = JSON.parse(readFileSync(OSM, 'utf8'));
-  // Field-verified corrections to OSM route metadata (mate shout / display name),
-  // keyed by OSM relation ref. Lets a wrong route field be fixed without editing
-  // the OSM mirror; an absent file means no overrides (identical to plain OSM).
+  // Field-verified corrections to OSM route metadata (mate shout / display name), keyed by OSM
+  // relation ref.
   const overrides = existsSync(ROUTE_OVERRIDES)
     ? JSON.parse(readFileSync(ROUTE_OVERRIDES, 'utf8')).routes || {}
     : {};
@@ -114,7 +92,7 @@ function buildOsmBeta() {
   };
 
   const routes = [];
-  const routeLines = []; // [[lat,lng],...][] — geometry for the near-line landmark filter
+  const routeLines = []; // [[lat,lng],...][]
   for (const r of osm.routes) {
     if (!r.trotro) continue;
     // join ordered members -> coords (skip members without coords / consecutive dupes)
@@ -131,8 +109,8 @@ function buildOsmBeta() {
     const coords = seq.map((e) => [e.lat, e.lng]);
     const ov = overrides[r.relRef] || {};
     if (ov.shout != null || ov.name != null) overridden += 1;
-    // Mate shout = the OSM destination tag + "!", UNLESS a field override supplies
-    // the real shout (e.g. the local "Dodowa!" instead of the far terminus "Ministries!").
+    // Mate shout = the OSM destination tag + "!", UNLESS a field override supplies the real shout
+    // (e.g. the local "Dodowa!" instead of the far terminus "Ministries!").
     const shoutSrc = ov.shout != null ? ov.shout : r.to;
     const mateShout = shoutSrc ? `${shoutSrc}!` : '';
     let cum = 0;
@@ -164,17 +142,14 @@ function buildOsmBeta() {
   return { stops, routes, dedupCount: merged, routeLines, overridden };
 }
 
-// ---------------------------------------------------------------------------
-// LANDMARKS (beta only) — keep OSM POIs that sit within LANDMARK_NEAR_M of some
-// trotro line, so the pack carries useful "get down at the Shell" cues without
-// shipping every POI in Accra. ODbL scaffold → beta pack ONLY (never verified).
-// ---------------------------------------------------------------------------
+// LANDMARKS (beta only) — keep OSM POIs that sit within LANDMARK_NEAR_M of some trotro line, so the
+// pack carries useful "get down at the Shell" cues without shipping every POI in Accra.
 function buildBetaLandmarks(osm, routeLines) {
   const src = Array.isArray(osm.landmarks) ? osm.landmarks : [];
   if (!src.length || !routeLines.length) return [];
 
-  // Per-line bbox (pad ~0.002° ≈ 220m > NEAR_M) so we skip lines a landmark
-  // can't possibly be near before touching their segments.
+  // Per-line bbox (pad ~0.002° ≈ 220m > NEAR_M) so we skip lines a landmark can't possibly be near
+  // before touching their segments.
   const PAD = 0.002;
   const lineBoxes = routeLines.map((line) => {
     let minLat = Infinity, maxLat = -Infinity, minLng = Infinity, maxLng = -Infinity;
@@ -211,13 +186,9 @@ function buildBetaLandmarks(osm, routeLines) {
   return kept;
 }
 
-// Same-name OSM stop nodes within STOP_DEDUP_M are the same physical stop —
-// OSM tags them as separate nodes per route relation with no clustering, which
-// breaks "shared stop = transfer point" detection in planTripOffline(). Merge
-// each cluster into one canonical stop (most-connected member wins the id) and
-// rewrite every route.stops[].stopId reference accordingly. Same-name stops
-// further apart than the radius are left alone — they're genuinely different
-// places (e.g. two unrelated "Atomic First" stops 6.7km apart).
+// Same-name OSM stop nodes within STOP_DEDUP_M are the same physical stop — OSM tags them as
+// separate nodes per route relation with no clustering, which breaks "shared stop = transfer point"
+// detection in planTripOffline().
 function dedupeNearbyStops(stops, routes) {
   const byName = new Map();
   for (const s of stops.values()) {
@@ -269,10 +240,7 @@ function dedupeNearbyStops(stops, routes) {
   return remap.size;
 }
 
-// ---------------------------------------------------------------------------
 // VERIFIED portion — from core_verified.json (+ routes.json). Proprietary.
-// Route assembly mirrors build-core-pack-from-verified.mjs.
-// ---------------------------------------------------------------------------
 function buildVerified() {
   if (!existsSync(VERIFIED_CORE)) return { stops: new Map(), routes: [] };
   const core = JSON.parse(readFileSync(VERIFIED_CORE, 'utf8'));
@@ -362,13 +330,13 @@ function main() {
   const beta = buildOsmBeta();
   const verified = buildVerified();
 
-  // Landmarks are ODbL scaffold → beta pack only. Re-read the OSM source (cheap)
-  // and keep the ones sitting on a trotro corridor.
+  // Landmarks are ODbL scaffold → beta pack only. Re-read the OSM source (cheap) and keep the ones
+  // sitting on a trotro corridor.
   const betaLandmarks = existsSync(OSM)
     ? buildBetaLandmarks(JSON.parse(readFileSync(OSM, 'utf8')), beta.routeLines ?? [])
     : [];
 
-  // --- MERGE: verified supersedes a nearby beta twin (same folded name) ------
+  // MERGE: verified supersedes a nearby beta twin (same folded name)
   const merged = new Map(beta.stops);
   const verifiedStopList = [...verified.stops.values()];
   let superseded = 0;
@@ -382,7 +350,7 @@ function main() {
   }
   const mergedRoutes = [...beta.routes, ...verified.routes];
 
-  // --- BETA pack (public) ----------------------------------------------------
+  // BETA pack (public)
   const version = Date.now();
   const betaPack = {
     version,
@@ -397,7 +365,7 @@ function main() {
   };
   const betaBytes = writePack(betaPack);
 
-  // --- VERIFIED pack (sellable, NOT served) — assert OSM-free ----------------
+  // VERIFIED pack (sellable, NOT served) — assert OSM-free
   const vStops = [...verified.stops.values()];
   const leak = vStops.find((s) => s.status !== 'verified' || /^osm-/.test(s.id)) || verified.routes.find((r) => r.status !== 'verified' || /^osm-/.test(r.id));
   if (leak) { console.error('FIREWALL ASSERTION FAILED: OSM/non-verified data in the verified pack:', leak.id); process.exit(1); }
@@ -413,7 +381,7 @@ function main() {
   const verifiedBody = JSON.stringify(verifiedPack);
   writeFileSync(VERIFIED_OUT, verifiedBody);
 
-  // --- report ----------------------------------------------------------------
+  // report
   const betaStops = betaPack.stops.filter((s) => s.status === 'beta').length;
   const named = betaPack.stops.filter((s) => s.name && s.name.trim()).length;
   console.log('Two CorePacks built:');
