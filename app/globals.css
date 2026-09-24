@@ -1,15 +1,14 @@
 /* ============================================================================
-   Trotro Guide — PUBLIC app design system.
-   Apple structure (glass, tight type, pills, scale-press) + Free Now green.
+   Trotro Guide, public app design system: flat surfaces, one green accent.
    The admin dashboard (.adm-*) keeps its own deliberately-plain styling below.
    ============================================================================ */
 :root {
   color-scheme: light dark;
 
-  /* Free Now palette */
+  /* Brand palette */
   --color-primary: #00d166;
   --color-primary-dark: #00b050;
-  --color-primary-ink: #007a36;     /* ~5:1 on white — AA for normal-size green text */
+  --color-primary-ink: #007a36;     /* ~5:1 on white, AA for normal-size green text */
   --color-dark: #1a1a1a;
   --color-white: #ffffff;
   --color-gray-50: #f5f5f5;
@@ -26,13 +25,13 @@
 
   /* Semantic surfaces / text (flip in dark mode) */
   --bg: #ffffff;
-  --bg-app: #fafafa;                /* warm white — premium, not stark */
+  --bg-app: #fafafa;                /* warm white */
   --text: #1a1a1a;
   --text-secondary: #6b7280;
   --text-muted: #9ca3af;
   --hairline: #eceef1;
 
-  /* Soft, premium shadows (layered, low-opacity) */
+  /* Shadows */
   --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
   --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.07), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
   --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.08), 0 4px 6px -2px rgba(0, 0, 0, 0.03);
@@ -68,8 +67,8 @@
     --color-gray-50: #242424;
     --color-gray-100: #2e2e2e;
     --color-primary-ink: #23e07f;   /* brighter green reads better on dark */
-    --color-warning-ink: #ffb300;   /* brighter amber — #b26a00 fails AA on dark surfaces */
-    --color-error-ink: #ff6b6b;     /* brighter red — #c62020 fails AA on dark surfaces */
+    --color-warning-ink: #ffb300;   /* brighter amber, #b26a00 fails AA on dark surfaces */
+    --color-error-ink: #ff6b6b;     /* brighter red, #c62020 fails AA on dark surfaces */
     --glass-bg: rgba(30, 30, 30, 0.72);
     --glass-border: rgba(255, 255, 255, 0.12);
     --surface: rgba(34, 34, 34, 0.92);
@@ -94,8 +93,8 @@ button { min-height: 44px; font-family: inherit; }
 
 /* --- frosted glass ------------------------------------------------------- */
 /* Content surfaces (cards, search, pills): near-opaque frosted solid. Over the
-   app's flat canvas a real backdrop-filter blurs nothing — it just burns GPU and
-   trips driver bugs on some low-end Android GPUs — so cards use a solid surface
+   app's flat canvas a real backdrop-filter blurs nothing, it just burns GPU and
+   trips driver bugs on some low-end Android GPUs, so cards use a solid surface
    that looks identical and renders everywhere. */
 .glass {
   background: var(--surface);
@@ -149,20 +148,20 @@ button { min-height: 44px; font-family: inherit; }
 /* Long-walk / attention note: same size, amber so the rider notices the caveat
    without it reading as an error. */
 .tg-meta--warn {
-  color: #9a6a00;
+  color: #1a1a1a;
   font-weight: 600;
-  background: rgba(245, 178, 7, 0.12);
-  border: 1px solid rgba(245, 178, 7, 0.3);
+  background: var(--color-warning);
+  border: 0;
   border-radius: 10px;
   padding: 8px 12px;
 }
-/* Neutral/informational note (e.g. "this trip changes cars once") — blue, to
+/* Neutral/informational note (e.g. "this trip changes cars once"), blue, to
    match the transfer accent and read as info rather than a warning. */
 .tg-meta--info {
-  color: #1f5fd0;
+  color: #fff;
   font-weight: 600;
-  background: rgba(47, 111, 237, 0.10);
-  border: 1px solid rgba(47, 111, 237, 0.25);
+  background: #2f6fed;
+  border: 0;
   border-radius: 10px;
   padding: 8px 12px;
 }
@@ -181,15 +180,14 @@ button { min-height: 44px; font-family: inherit; }
 .tg-pill {
   flex: none; display: inline-flex; align-items: center; min-height: 44px;
   padding: 10px 16px; border-radius: var(--radius-pill);
-  border: 1px solid var(--surface-border); background: var(--surface);
-  box-shadow: var(--glass-shadow);
-  font-size: 14px; font-weight: 500; color: var(--text); cursor: pointer; white-space: nowrap;
+  border: 0; background: var(--color-gray-100);
+  font-size: 14px; font-weight: 600; color: var(--text); cursor: pointer; white-space: nowrap;
   transition: transform 150ms var(--ease);
 }
 .tg-pill:active { transform: scale(0.95); }
 .tg-pilllabel { font-size: 13px; color: var(--text-secondary); margin: 10px 0 2px; }
 
-/* --- cards (premium: more breathing room) ------------------------------- */
+/* --- cards ------------------------------------------------------------- */
 .tg-card { border-radius: var(--radius-lg); padding: var(--space-lg); margin: 14px 0; }
 .tg-card h3 { margin: 0 0 6px; }
 .tg-tap {
@@ -215,8 +213,8 @@ button { min-height: 44px; font-family: inherit; }
 .tg-dot--user_reported { background: var(--text-muted); }
 .tg-badge { display: inline-flex; align-items: center; gap: 4px; font-size: 12px; font-weight: 600; color: var(--text-secondary); background: var(--color-gray-50); border-radius: var(--radius-pill); padding: 2px 9px; }
 /* Status badges (BETA model): amber beta, green verified, grey pending. */
-.tg-badge--beta { color: var(--color-warning-ink); background: rgba(246, 166, 35, 0.18); }
-.tg-badge--verified { color: var(--color-primary-ink); background: rgba(0, 209, 102, 0.14); }
+.tg-badge--beta { color: #1a1a1a; background: var(--color-warning); }
+.tg-badge--verified { color: #0f2e19; background: var(--color-primary); }
 .tg-badge--pending { color: var(--text-secondary); background: var(--color-gray-100); }
 .tg-shouthead { display: flex; align-items: flex-start; justify-content: space-between; gap: 10px; }
 .tg-shouthead .tg-shout { margin: 2px 0; }
@@ -236,19 +234,19 @@ button { min-height: 44px; font-family: inherit; }
 .tg-stoplist li.board { color: var(--color-primary-ink); font-weight: 700; }
 .tg-stoplist li.alight { color: var(--color-map-end); font-weight: 700; }
 
-/* Support / donate — hosted Paystack payment page (MoMo + card). */
-.tg-support-card { display: flex; align-items: center; gap: 14px; text-decoration: none; color: inherit;
+/* Support / donate: opens the Paystack donate dialog (MoMo + card). */
+.tg-support-card { display: flex; width: 100%; text-align: left; font: inherit; cursor: pointer; align-items: center; gap: 14px; text-decoration: none; color: inherit;
   margin: 16px 0; padding: 16px 18px; border-radius: var(--radius-lg, 20px); background: var(--surface, #fff);
   border: 1px solid var(--border, rgba(0,0,0,0.08)); box-shadow: var(--shadow-sm); }
 .tg-support-card:hover { box-shadow: var(--shadow-md); }
 .tg-support-heart { display: grid; place-items: center; width: 44px; height: 44px; flex: none;
-  border-radius: 50%; background: rgba(0,209,102,0.14); color: var(--color-primary-ink, #007a36); }
+  border-radius: 50%; background: var(--color-primary); color: #0f2e19; }
 .tg-support-body { display: flex; flex-direction: column; gap: 3px; flex: 1 1 auto; min-width: 0; }
 .tg-support-title { font-size: 15px; font-weight: 700; }
 .tg-support-sub { font-size: 13px; color: var(--text-secondary); line-height: 1.4; }
 .tg-support-cta { flex: none; align-self: center; font-size: 14px; font-weight: 700;
   color: #0f2e19; background: var(--color-primary, #00d166); padding: 10px 16px; border-radius: 999px; }
-.tg-support-inline { display: inline-flex; align-items: center; gap: 7px; text-decoration: none;
+.tg-support-inline { display: inline-flex; background: none; border: 0; font-family: inherit; cursor: pointer; align-items: center; gap: 7px; text-decoration: none;
   font-size: 14px; font-weight: 600; color: var(--color-primary-ink, #007a36); padding: 12px 2px; margin-top: 6px; }
 .tg-support-inline > svg { color: #e0245e; flex: none; }
 
@@ -264,7 +262,7 @@ button { min-height: 44px; font-family: inherit; }
 .tg-stoplandmarks li > svg { color: var(--color-landmark, #d98a00); flex: none; }
 .tg-stoplandmark-name { flex: 1 1 auto; min-width: 0; }
 .tg-stoplandmark-type { flex: none; font-size: 10px; font-weight: 600; text-transform: capitalize;
-  color: var(--color-warning-ink); background: rgba(217, 138, 0, 0.12); border-radius: 999px; padding: 1px 7px; }
+  color: #1a1a1a; background: var(--color-warning); border-radius: 999px; padding: 1px 7px; }
 
 /* Star rating + issue checkboxes (rate & contribute). */
 .tg-stars { display: flex; gap: 6px; margin: 6px 0 16px; }
@@ -292,11 +290,9 @@ button { min-height: 44px; font-family: inherit; }
 .tg-tap:focus-visible,
 .tg-back:focus-visible { outline: 2px solid var(--color-map-current); outline-offset: 2px; }
 .tg-btn:disabled { opacity: 0.5; cursor: default; }
-/* Near-black label on the vibrant brand green (~8.9:1) — keeps Free Now's
-   signature colour while passing WCAG AA, which white-on-#00d166 (~2:1) fails. */
-.tg-btn--primary { background: var(--color-primary); color: #1a1a1a; box-shadow: 0 4px 14px rgba(0, 209, 102, 0.28); }
-.tg-btn--primary:hover:not(:disabled) { background: var(--color-primary-dark); box-shadow: 0 6px 18px rgba(0, 209, 102, 0.34); }
-.tg-btn--primary:active { box-shadow: 0 2px 8px rgba(0, 209, 102, 0.28); }
+/* Near-black label on the brand green (~8.9:1); white on #00d166 (~2:1) fails WCAG AA. */
+.tg-btn--primary { background: var(--color-primary); color: #1a1a1a; }
+.tg-btn--primary:hover:not(:disabled) { background: var(--color-primary-dark); }
 .tg-btn--secondary { background: transparent; color: var(--color-primary-ink); border: 1.5px solid var(--color-primary); }
 .tg-btn--warning { background: var(--color-warning); color: #1a1a1a; }
 .tg-btn--ghost { background: var(--color-gray-50); color: var(--text); }
@@ -371,7 +367,7 @@ textarea.tg-textinput { resize: vertical; min-height: 96px; line-height: 1.45; }
 .tg-rec .blip { width: 12px; height: 12px; border-radius: 50%; background: var(--color-error); animation: tg-pulse 1.2s infinite; flex: none; }
 
 /* --- toast / empty / progress ------------------------------------------- */
-.tg-toast { display: flex; align-items: center; gap: 8px; color: var(--color-primary-ink); background: rgba(0, 209, 102, 0.12); border-radius: var(--radius-md); padding: 12px 14px; margin: 10px 0; font-weight: 600; }
+.tg-toast { display: flex; align-items: center; gap: 8px; color: #0f2e19; background: var(--color-primary); border-radius: var(--radius-md); padding: 12px 14px; margin: 10px 0; font-weight: 600; }
 .tg-empty { text-align: center; padding: 28px 12px; }
 .tg-empty .ico { color: var(--text-muted); margin-bottom: 8px; }
 .tg-loading { display: flex; flex-direction: column; align-items: center; gap: 14px; padding: 48px 16px; text-align: center; }
@@ -396,7 +392,7 @@ textarea.tg-textinput { resize: vertical; min-height: 96px; line-height: 1.45; }
 .tg-slide-back { animation: tg-slidein-left 320ms var(--ease-spring) both; }
 
 /* --- staggered entrance: direct children pop in one after another instead of
-   all at once. Capped at 12 — anything past that just inherits the last delay. */
+   all at once. Capped at 12, anything past that just inherits the last delay. */
 @keyframes tg-pop { from { opacity: 0; transform: translateY(10px) scale(0.97); } to { opacity: 1; transform: translateY(0) scale(1); } }
 .tg-stagger > * { opacity: 0; animation: tg-pop 420ms var(--ease-spring) both; }
 .tg-stagger > *:nth-child(1) { animation-delay: 0ms; }
@@ -410,29 +406,29 @@ textarea.tg-textinput { resize: vertical; min-height: 96px; line-height: 1.45; }
 .tg-stagger > *:nth-child(9) { animation-delay: 320ms; }
 .tg-stagger > *:nth-child(n+10) { animation-delay: 360ms; }
 
-/* --- menu sheet pop — replaces the instant show/hide with a quick scale+fade
+/* --- menu sheet pop, replaces the instant show/hide with a quick scale+fade
    anchored to the trigger button, so it reads as opening FROM the hamburger. */
 @keyframes tg-menupop { from { opacity: 0; transform: scale(0.92) translateY(-6px); } to { opacity: 1; transform: scale(1) translateY(0); } }
 .tg-menusheet { transform-origin: top right; animation: tg-menupop 160ms var(--ease-spring) both; }
 
 /* --- hover-lift: desktop pointer affordance on tappable cards. Harmless on
    touch (no hover event fires), and :active scale still covers touch feedback. */
-.tg-quicktile, .tg-promocard, .tg-destrow, .tg-photocard-img {
+.tg-quicktile, .tg-destrow, .tg-photocard-img {
   transition: transform 180ms var(--ease), box-shadow 180ms var(--ease);
 }
-.tg-quicktile:hover, .tg-promocard:hover { transform: translateY(-2px); box-shadow: var(--shadow-md); }
+.tg-quicktile:hover { transform: translateY(-2px); box-shadow: var(--shadow-md); }
 .tg-destrow:hover { transform: translateX(2px); }
 .tg-photocard-img:hover { box-shadow: var(--shadow-md); }
 .tg-photocard-img img { transition: transform 280ms var(--ease); }
 .tg-photocard-img:hover img { transform: scale(1.28); }
 @keyframes tg-borderpulse { 0%, 100% { box-shadow: 0 0 0 0 rgba(255, 167, 38, 0); } 50% { box-shadow: 0 0 0 4px rgba(255, 167, 38, 0.35); } }
 
-/* --- minimal "Where to?" home (premium, spacious) ----------------------- */
+/* --- "Where to?" home ---------------------------------------------------- */
 .tg-where { padding-top: var(--space-md); }
 .tg-homehead { display: flex; align-items: center; justify-content: space-between; margin: 0 0 var(--space-lg); }
 .tg-homebrand { font-size: 19px; font-weight: 700; letter-spacing: -0.02em; margin: 0; color: var(--text); }
 .tg-homeheart { display: inline-flex; align-items: center; justify-content: center; width: 36px; height: 36px;
-  border-radius: 50%; background: rgba(255, 51, 102, 0.1); color: var(--color-map-end, #ff3366); flex: none; }
+  border-radius: 50%; background: var(--color-map-end, #ff3366); color: #fff; flex: none; }
 .tg-greeting { font-size: 15px; font-weight: 600; color: var(--text); margin: 0 0 6px; }
 .tg-nearcard { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; color: var(--text-secondary);
   margin: 0 0 var(--space-xl); }
@@ -440,19 +436,15 @@ textarea.tg-textinput { resize: vertical; min-height: 96px; line-height: 1.45; }
 .tg-where-title { font-size: 32px; font-weight: 700; line-height: 1.2; letter-spacing: -0.5px;
   text-align: center; margin: 0 0 var(--space-lg); }
 
-/* Typewriter caret for the home "Where are you going?" heading — a slim brand-
+/* Typewriter caret for the home "Where are you going?" heading, a slim brand-
    green bar that blinks after the text types in. min-height keeps the line from
    collapsing before the first character lands. */
-.tg-caret { display: inline-block; width: 3px; height: 1em; margin-left: 3px;
-  vertical-align: -0.08em; border-radius: 2px; background: var(--color-primary);
-  animation: tg-blink 1.05s step-end infinite; }
-@keyframes tg-blink { 0%, 50% { opacity: 1; } 50.01%, 100% { opacity: 0; } }
-.tg-search-premium { display: flex; align-items: center; gap: 12px; position: relative;
+.tg-searchbox { display: flex; align-items: center; gap: 12px; position: relative;
   background: var(--bg); border: 2px solid var(--surface-border); border-radius: var(--radius-md);
   padding: 18px 20px; box-shadow: var(--shadow-sm); transition: border-color 0.2s var(--ease), box-shadow 0.2s var(--ease); }
-.tg-search-premium:focus-within { border-color: var(--color-primary); box-shadow: 0 0 0 4px rgba(0, 209, 102, 0.12); }
-.tg-search-premium svg { color: var(--text-secondary); flex: none; }
-.tg-search-premium input { flex: 1; min-width: 0; border: 0; background: transparent; font: inherit; font-size: 17px; color: var(--text); outline: none; padding-right: 32px; }
+.tg-searchbox:focus-within { border-color: var(--color-primary); box-shadow: 0 0 0 4px rgba(0, 209, 102, 0.12); }
+.tg-searchbox svg { color: var(--text-secondary); flex: none; }
+.tg-searchbox input { flex: 1; min-width: 0; border: 0; background: transparent; font: inherit; font-size: 17px; color: var(--text); outline: none; padding-right: 32px; }
 .tg-reassure { display: flex; gap: 12px; align-items: flex-start; margin: var(--space-2xl) auto 0; max-width: 320px; color: var(--text-secondary); }
 .tg-reassure svg { color: var(--color-primary); flex: none; margin-top: 2px; }
 .tg-reassure p { margin: 0; font-size: 15px; line-height: 1.6; }
@@ -483,12 +475,12 @@ textarea.tg-textinput { resize: vertical; min-height: 96px; line-height: 1.45; }
 /* --- demo-data banner (placeholder pack warning) ------------------------- */
 .tg-demobanner { display: flex; align-items: center; gap: 8px; margin: 0 0 10px;
   padding: 8px 12px; border-radius: var(--radius-md); font-size: 13px; font-weight: 600;
-  color: var(--color-warning-ink); background: rgba(178, 106, 0, 0.1); }
+  color: #1a1a1a; background: var(--color-warning); }
 
 /* --- geolocation status banner (denied/unavailable/low-accuracy) --------- */
 .tg-geobanner { display: flex; align-items: center; gap: 8px; margin: 0 0 10px;
   padding: 8px 12px; border-radius: var(--radius-md); font-size: 13px; font-weight: 600;
-  color: var(--color-warning-ink); background: rgba(178, 106, 0, 0.1); }
+  color: #1a1a1a; background: var(--color-warning); }
 
 /* --- minimal home search clear button (sits inside the "Where to?" search) -
    Absolutely positioned + translateY(-50%) instead of flex/align-items: a
@@ -506,8 +498,8 @@ textarea.tg-textinput { resize: vertical; min-height: 96px; line-height: 1.45; }
 
 /* --- route map (Feature 2): full-screen MapLibre overlay ----------------- */
 /* ============================================================================
-   Donate prompt (results screen). Rises from the bottom on a phone — thumb
-   reach, and it reads as a sheet rather than an interstitial ad — and settles
+   Donate prompt (results screen). Rises from the bottom on a phone, thumb
+   reach, and it reads as a sheet rather than an interstitial ad, and settles
    into a centred card once there is room. Sits BELOW the full-screen map
    (z-50) since the map is armed-off anyway, and below the "get ready" alert.
    ============================================================================ */
@@ -536,7 +528,7 @@ textarea.tg-textinput { resize: vertical; min-height: 96px; line-height: 1.45; }
 }
 .tg-donate-heart {
   display: grid; place-items: center; width: 48px; height: 48px; margin: 0 auto 10px;
-  border-radius: 50%; background: rgba(224, 36, 94, 0.12); color: #e0245e;
+  border-radius: 50%; background: #e0245e; color: #fff;
 }
 .tg-donate-title { font-size: 20px; font-weight: 700; letter-spacing: -0.02em; margin: 0 0 6px; }
 .tg-donate-body {
@@ -545,6 +537,19 @@ textarea.tg-textinput { resize: vertical; min-height: 96px; line-height: 1.45; }
 }
 .tg-donate-actions { display: flex; flex-direction: column; gap: 8px; }
 .tg-donate-actions .tg-btn { width: 100%; }
+
+.tg-donate form { text-align: left; }
+.tg-donate form .tg-donate-heart,
+.tg-donate form .tg-donate-title,
+.tg-donate form .tg-donate-body { text-align: center; }
+.tg-give-amounts { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+.tg-give-amount {
+  min-height: 44px; border-radius: var(--radius-md); cursor: pointer;
+  border: 1.5px solid var(--color-gray-100); background: var(--bg);
+  font: inherit; font-weight: 600; color: var(--text);
+}
+.tg-give-amount.is-on { border-color: var(--color-primary); background: var(--color-primary); color: #0f2e19; }
+.tg-give-error { color: #c62828; font-size: 14px; margin: 0 0 12px; }
 
 @keyframes tg-donate-fade { from { opacity: 0; } to { opacity: 1; } }
 @keyframes tg-donate-rise {
@@ -586,7 +591,7 @@ textarea.tg-textinput { resize: vertical; min-height: 96px; line-height: 1.45; }
 }
 .tg-disclaimer-icon {
   display: grid; place-items: center; width: 48px; height: 48px; margin: 0 auto 10px;
-  border-radius: 50%; background: rgba(255, 167, 38, 0.15); color: var(--color-warning-ink);
+  border-radius: 50%; background: var(--color-warning); color: #1a1a1a;
 }
 .tg-disclaimer-title { font-size: 20px; font-weight: 700; letter-spacing: -0.02em; margin: 0 0 6px; }
 .tg-disclaimer-body {
@@ -604,13 +609,13 @@ textarea.tg-textinput { resize: vertical; min-height: 96px; line-height: 1.45; }
   .tg-disclaimer-scrim, .tg-disclaimer { animation: none; }
 }
 
-/* Inline caution on the Step 2 shout card — quiet, at the point of use.
+/* Inline caution on the Step 2 shout card, quiet, at the point of use.
    Bottom margin keeps it clear of the shout row below (both shout containers
    carry no top margin of their own). */
 .tg-shoutnote {
   display: flex; margin: 10px 0 14px; padding: 8px 12px;
   font-size: 12.5px; line-height: 1.45; font-weight: 500;
-  color: var(--color-warning-ink); background: rgba(255, 167, 38, 0.1);
+  color: #1a1a1a; background: var(--color-warning);
   border-radius: var(--radius-md);
 }
 
@@ -650,13 +655,13 @@ textarea.tg-textinput { resize: vertical; min-height: 96px; line-height: 1.45; }
 }
 
 /* ============================================================================
-   Home (search) + Result — redesigned 2-screen flow.
+   Home (search) + Result, redesigned 2-screen flow.
    ============================================================================ */
 .tg-home { padding-top: var(--space-sm); }
 .tg-homehero { text-align: center; margin: var(--space-lg) 0 var(--space-md); }
 .tg-greetpill { display: inline-flex; align-items: center; font-size: 12px; font-weight: 700;
-  letter-spacing: 0.03em; text-transform: uppercase; color: var(--color-primary-ink);
-  background: rgba(0, 209, 102, 0.14); border-radius: var(--radius-pill); padding: 5px 14px; margin-bottom: 10px; }
+  letter-spacing: 0.03em; text-transform: uppercase; color: #0f2e19;
+  background: var(--color-primary); border-radius: var(--radius-pill); padding: 5px 14px; margin-bottom: 10px; }
 .tg-homesub { color: var(--text-secondary); font-size: 15px; margin: 6px 0 0; }
 .tg-homecard { background: var(--bg); border: 1px solid var(--surface-border); border-radius: var(--radius-xl);
   box-shadow: var(--glass-shadow-lg); padding: var(--space-lg); margin: 0 0 var(--space-xl); position: relative; }
@@ -677,8 +682,8 @@ textarea.tg-textinput { resize: vertical; min-height: 96px; line-height: 1.45; }
 .tg-resultsheader--hero { margin: 0 0 var(--space-md); }
 .tg-back--onhero { color: var(--color-primary-ink); }
 
-/* hero (green) card used for Step 1 — matches the model's walk-to-stop panel */
-.tg-card--hero { background: linear-gradient(160deg, var(--color-primary-dark), var(--color-primary));
+/* Step 1 walk card: solid brand green. */
+.tg-card--hero { background: var(--color-primary);
   color: #0d2616; border: 0; }
 .tg-steplabel--hero { color: rgba(13, 38, 22, 0.88); }
 .tg-btn--onhero { background: #fff; color: var(--color-primary-ink); }
@@ -704,12 +709,12 @@ textarea.tg-textinput { resize: vertical; min-height: 96px; line-height: 1.45; }
 .tg-listenfor { display: flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 600;
   color: var(--color-warning-ink); margin: 4px 0 8px; }
 .tg-shoutpills { display: flex; gap: 8px; flex-wrap: wrap; margin: 0 0 8px; }
-.tg-shoutpill { background: rgba(0, 209, 102, 0.12); color: var(--color-primary-ink); font-weight: 700;
+.tg-shoutpill { background: var(--color-primary); color: #0f2e19; font-weight: 700;
   font-size: 15px; border-radius: var(--radius-pill); padding: 6px 14px; }
 
 .tg-ridelist { list-style: none; margin: 0; padding: 0 0 0 22px; position: relative;
   border-left: 2px solid var(--color-gray-100); display: flex; flex-direction: column; gap: 6px; }
-/* Stop rows anchor the thread — full-strength text + semibold so each stop
+/* Stop rows anchor the thread, full-strength text + semibold so each stop
    reads as a mini heading above its (lighter, indented) landmarks. board/
    alight/transfer rows override the colour below to keep their meaning. */
 .tg-ridelist li { font-size: 14px; font-weight: 600; color: var(--text); position: relative; padding: 2px 0; }
@@ -721,23 +726,23 @@ textarea.tg-textinput { resize: vertical; min-height: 96px; line-height: 1.45; }
 .tg-ridelist li.alight::before { background: var(--color-map-end); width: 12px; height: 12px; left: -29px; }
 .tg-stoptag { display: inline-block; font-size: 10px; font-weight: 700; text-transform: uppercase;
   letter-spacing: 0.03em; margin-left: 8px; padding: 1px 7px; border-radius: var(--radius-pill);
-  background: rgba(0, 209, 102, 0.16); color: var(--color-primary-ink); }
-.tg-stoptag--alight { background: rgba(255, 51, 102, 0.14); color: var(--color-map-end); }
+  background: var(--color-primary); color: #0f2e19; }
+.tg-stoptag--alight { background: var(--color-map-end); color: #fff; }
 /* Transfer point: a distinct blue (not board-green / alight-pink) so a change of
    cars reads as its own thing on the timeline. */
 .tg-ridelist li.transfer { color: #1f5fd0; font-weight: 700; }
 .tg-ridelist li.transfer::before { background: #2f6fed; width: 12px; height: 12px; left: -29px; }
-.tg-stoptag--transfer { background: rgba(47, 111, 237, 0.14); color: #1f5fd0; text-transform: none; letter-spacing: 0; }
+.tg-stoptag--transfer { background: #2f6fed; color: #fff; text-transform: none; letter-spacing: 0; }
 
 /* --- LIVE position on the ride list -------------------------------------
    Stops already behind the rider fade back so the timeline reads as progress
    rather than a flat list. Declared BEFORE `.here` so the live row always wins
-   (same specificity — source order decides). */
+   (same specificity, source order decides). */
 .tg-ridelist li.passed { color: var(--text-muted); font-weight: 500; }
 .tg-ridelist li.passed .tg-stoplandmarks { opacity: 0.55; }
 .tg-ridelist li.passed::before { background: var(--color-gray-100); }
 
-/* "You are here" — the one row that MOVES as the trotro moves. Green (riders
+/* "You are here", the one row that MOVES as the trotro moves. Green (riders
    already read the green dot as themselves) and pulsing, so it is instantly
    separable from the static board/alight milestones. The board stop keeps its
    green but becomes a hollow ring below, so only one filled green dot exists. */
@@ -764,13 +769,13 @@ textarea.tg-textinput { resize: vertical; min-height: 96px; line-height: 1.45; }
 /* Live-tracking banner above the list. */
 .tg-livestatus {
   display: flex; align-items: center; gap: 8px; margin: 0 0 10px;
-  font-size: 13px; font-weight: 600; color: var(--color-primary-ink);
-  background: rgba(0, 209, 102, 0.1); border-radius: var(--radius-pill);
+  font-size: 13px; font-weight: 600; color: #0f2e19;
+  background: var(--color-primary); border-radius: var(--radius-pill);
   padding: 7px 12px;
 }
 .tg-livestatus-dot {
   width: 8px; height: 8px; border-radius: 50%; flex: none;
-  background: var(--color-primary); animation: tg-livepulse 2s ease-out infinite;
+  background: #0f2e19; animation: tg-livepulse 2s ease-out infinite;
 }
 .tg-livestatus--stale { background: var(--color-gray-50); color: var(--text-secondary); }
 .tg-livestatus--stale .tg-livestatus-dot { background: var(--color-gray-400); animation: none; }
@@ -782,7 +787,7 @@ textarea.tg-textinput { resize: vertical; min-height: 96px; line-height: 1.45; }
 
 /* --- "Look out for" street-imagery card (Step 3) ------------------------- */
 /* Sits inside the Ride & alight card. Deliberately quiet chrome so the photo
-   and the landmark name carry it — premium, minimal, readable outdoors. */
+   and the landmark name carry it, readable outdoors. */
 .tg-lookout {
   margin: 0 0 14px; padding: 10px; border-radius: var(--radius-lg);
   background: var(--color-gray-50); border: 1px solid var(--surface-border);
@@ -805,7 +810,7 @@ textarea.tg-textinput { resize: vertical; min-height: 96px; line-height: 1.45; }
 }
 .tg-lookout-img.is-loaded { opacity: 1; }
 
-/* Attribution — required by the imagery licence, kept subtle but legible. */
+/* Attribution, required by the imagery licence, kept subtle but legible. */
 .tg-lookout-attrib {
   position: absolute; right: 6px; bottom: 6px; z-index: 2;
   font-size: 10px; font-weight: 600; line-height: 1; color: #fff; text-decoration: none;
@@ -852,10 +857,10 @@ textarea.tg-textinput { resize: vertical; min-height: 96px; line-height: 1.45; }
 .tg-legshouts { list-style: none; margin: 0 0 8px; padding: 0; display: flex; flex-direction: column; gap: 10px; }
 .tg-legshout { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
 .tg-legshout-label { font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.04em;
-  color: #1f5fd0; background: rgba(47, 111, 237, 0.12); border-radius: var(--radius-pill); padding: 3px 9px; }
+  color: #fff; background: #2f6fed; border-radius: var(--radius-pill); padding: 3px 9px; }
 .tg-legshout-to { font-size: 12px; color: var(--text-secondary); width: 100%; }
 .tg-tellmate { margin: var(--space-md) 0; padding: 12px 14px; border-radius: var(--radius-md);
-  background: rgba(246, 166, 35, 0.12); color: var(--color-warning-ink); font-weight: 600; font-size: 14px; }
+  background: var(--color-warning); color: #1a1a1a; font-weight: 600; font-size: 14px; }
 
 .tg-otherways { display: flex; flex-direction: column; gap: 8px; margin: 0 0 var(--space-lg); }
 .tg-othercard { display: flex; align-items: center; justify-content: space-between; gap: 10px;
@@ -866,7 +871,7 @@ textarea.tg-textinput { resize: vertical; min-height: 96px; line-height: 1.45; }
 .tg-othercard-row .dest { font-size: 15px; font-weight: 700; color: var(--text); }
 
 /* ============================================================================
-   Compact top bar (brand + menu) — shared app chrome, replaces the old
+   Compact top bar (brand + menu), shared app chrome, replaces the old
    centered "Trotro Guide" title bar. Pattern borrowed from ride-hailing apps'
    logo-left / hamburger-right header, rebuilt with our glass + green system.
    ============================================================================ */
@@ -899,7 +904,7 @@ textarea.tg-textinput { resize: vertical; min-height: 96px; line-height: 1.45; }
 .tg-menufoot { padding: 8px 12px 6px; font-size: 12px; color: var(--text-muted); }
 
 /* ============================================================================
-   Quick-action tiles — icon-tile shortcut row in the brand green,
+   Quick-action tiles, icon-tile shortcut row in the brand green,
    scoped to TroTro Guide's one job: find a trotro, or help map one.
    ============================================================================ */
 .tg-quicktiles { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin: 0 0 var(--space-lg); }
@@ -920,7 +925,7 @@ textarea.tg-textinput { resize: vertical; min-height: 96px; line-height: 1.45; }
 .tg-quicktile-sub { font-size: 12px; color: var(--text-secondary); margin: -6px 0 0; }
 
 /* ============================================================================
-   Destination rows — leading icon avatar + title/sub stack + trailing meta,
+   Destination rows, leading icon avatar + title/sub stack + trailing meta,
    used for "popular near you" and live search suggestions alike.
    ============================================================================ */
 .tg-destlist { display: flex; flex-direction: column; gap: 2px; margin: 0 0 var(--space-md); }
@@ -959,18 +964,17 @@ textarea.tg-textinput { resize: vertical; min-height: 96px; line-height: 1.45; }
 .tg-nearestcard-sub { font-size: 12.5px; color: var(--text-secondary); margin-top: 1px; }
 
 /* ============================================================================
-   Promo banners — full-bleed rounded gradient cards used as
-   community/contribute calls-to-action. One accent (brand green), no stock photography.
+   Contribute banner: a photo with a flat dark overlay and one call to action.
    ============================================================================ */
 .tg-promo {
   position: relative; overflow: hidden; border-radius: var(--radius-xl);
   padding: 22px 20px; margin: 0 0 var(--space-md);
-  background: linear-gradient(135deg, var(--color-primary-dark), var(--color-primary));
+  background: var(--color-dark);
   color: #0d2616; isolation: isolate;
 }
 .tg-promo::after {
   content: ""; position: absolute; inset: 0; z-index: -1;
-  background: radial-gradient(120% 140% at 100% 0%, rgba(255, 255, 255, 0.22), transparent 60%);
+  background: rgba(10, 26, 16, 0.72);
 }
 .tg-promo-kicker { font-size: 12px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.04em;
   color: rgba(13, 38, 22, 0.65); margin: 0 0 4px; }
@@ -978,25 +982,9 @@ textarea.tg-textinput { resize: vertical; min-height: 96px; line-height: 1.45; }
 .tg-promo-body { font-size: 14px; color: rgba(13, 38, 22, 0.75); margin: 0 0 14px; max-width: 85%; }
 .tg-promo .tg-btn { width: auto; min-height: 40px; padding: 10px 18px; margin-top: 0; font-size: 14px; background: #0d2616; color: #fff; box-shadow: none; }
 
-.tg-promogrid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin: 0 0 var(--space-lg); }
-.tg-promocard {
-  display: flex; flex-direction: column; justify-content: space-between; gap: 8px;
-  min-height: 128px; padding: 16px; border-radius: var(--radius-lg);
-  background: var(--color-dark); color: #fff; text-decoration: none; cursor: pointer;
-  transition: transform 150ms var(--ease);
-}
-.tg-promocard:active { transform: scale(0.97); }
-.tg-promocard--light { background: var(--surface); color: var(--text); border: 1px solid var(--surface-border); }
-.tg-promocard-title { font-size: 15px; font-weight: 800; letter-spacing: -0.015em; line-height: 1.2; }
-.tg-promocard-sub { font-size: 12px; color: rgba(255, 255, 255, 0.7); }
-.tg-promocard--light .tg-promocard-sub { color: var(--text-secondary); }
-.tg-promocard-icon { color: var(--color-primary); }
 
 /* ============================================================================
-   Photography — premium, Ghana-specific imagery (trotro mates, Accra streets
-   and skyline) layered behind hero copy and gating screens. Brand green stays
-   the single accent; photos supply the "premium and Ghanaian" atmosphere
-   DESIGN.md's photography-first principle calls for, without stock-photo gloss.
+   Photography by @thefotowalker behind the how-it-works slides and gate screens.
    ============================================================================ */
 .tg-herobanner {
   position: relative; height: 224px; border-radius: var(--radius-xl); overflow: hidden;
@@ -1011,7 +999,7 @@ textarea.tg-textinput { resize: vertical; min-height: 96px; line-height: 1.45; }
 .tg-herobanner .tg-where-title { text-align: left; color: #fff; font-size: 26px; margin: 0 0 6px; }
 .tg-herobanner .tg-homesub { text-align: left; color: rgba(255, 255, 255, 0.86); margin: 0; max-width: 92%; }
 
-/* Hero slideshow — slide 1 is the "Where to?" intro; slides 2–4 are the old
+/* Hero slideshow, slide 1 is the "Where to?" intro; slides 2–4 are the old
    "How TroTro works" steps. Slides are stacked and crossfade via opacity. */
 /* touch-action: pan-y lets a horizontal swipe drive the carousel while a
    vertical drag still scrolls the page; user-select/touch-callout off so a
@@ -1030,16 +1018,13 @@ textarea.tg-textinput { resize: vertical; min-height: 96px; line-height: 1.45; }
 .tg-herodot.is-active { width: 18px; min-width: 18px; border-radius: 4px; background: #fff; }
 @media (prefers-reduced-motion: reduce) { .tg-heroslide { transition: none; } }
 
-/* Promo banner — same component as before, now with a photographic base layer
-   under the green wash so the CTA reads as editorial, not a flat ad unit. */
 .tg-promo-img { position: absolute; inset: 0; z-index: -2; object-fit: cover; }
-.tg-promo::after { background: linear-gradient(135deg, rgba(0, 177, 84, 0.55), rgba(10, 26, 16, 0.86)); }
 .tg-promo { color: #fff; }
 .tg-promo-kicker { color: rgba(255, 255, 255, 0.78); }
 .tg-promo-body { color: rgba(255, 255, 255, 0.88); }
 .tg-promo-title { color: #fff; }
 
-/* Photo strip — horizontal-scroll gallery of Accra street/skyline photography.
+/* Photo strip, horizontal-scroll gallery of Accra street/skyline photography.
    Pure atmosphere, no CTAs; gives the app local visual identity beyond icons. */
 .tg-photostrip-wrap { margin: 0 0 var(--space-xl); }
 .tg-photostrip { overflow: hidden; padding: 2px 0 6px; -webkit-mask-image: linear-gradient(90deg, transparent, #000 5%, #000 95%, transparent); mask-image: linear-gradient(90deg, transparent, #000 5%, #000 95%, transparent); }
@@ -1056,7 +1041,7 @@ textarea.tg-textinput { resize: vertical; min-height: 96px; line-height: 1.45; }
 .tg-photocard-img img { object-fit: cover; transform: scale(1.18); }
 .tg-photocard-cap { font-size: 12.5px; font-weight: 600; color: var(--text-secondary); margin: 6px 2px 0; }
 
-/* CorePackGate background — full-bleed photo behind the download-consent /
+/* CorePackGate background, full-bleed photo behind the download-consent /
    loading / error cards, so the very first thing a new user sees is Accra. */
 .tg-gatewrap { position: fixed; inset: 0; z-index: 20; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: var(--space-lg); isolation: isolate; }
 .tg-gatebg-img { object-fit: cover; z-index: -2; }
@@ -1097,3 +1082,6 @@ textarea.tg-textinput { resize: vertical; min-height: 96px; line-height: 1.45; }
 .adm-muted { color: #777; font-size: 13px; }
 .adm-saved { color: #1a8a3a; font-weight: bold; }
 @media print { .adm-controls, button, .adm-banner { display: none; } }
+
+.tg-summary-line { font-size: 14px; color: var(--text-secondary); margin: 4px 0 0; line-height: 1.45; }
+.tg-homefacts { font-size: 13px; color: var(--text-secondary); text-align: center; margin: 0 0 var(--space-lg); }

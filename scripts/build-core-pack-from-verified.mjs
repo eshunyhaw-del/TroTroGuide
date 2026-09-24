@@ -1,4 +1,4 @@
-// PHASE 4.2 (+ new-stops) — Build the shippable CorePack from VERIFIED data.
+// PHASE 4.2 (+ new-stops), Build the shippable CorePack from VERIFIED data.
 
 import { createHash } from 'node:crypto';
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
@@ -129,10 +129,10 @@ function main() {
   const nNew = coreStops.filter((s) => s.isNew).length;
   console.log(`Verified CorePack v${version}:`);
   console.log(`  ${stops.length} stop(s) (${nNew} new), ${routes.length} route(s), ${synonyms.length} synonym(s), ${(bytes / 1024).toFixed(1)} KB`);
-  if (missingRefs) console.warn(`  ⚠ ${missingRefs} route stop ref(s) not among verified stops — verify those first.`);
+  if (missingRefs) console.warn(`  ⚠ ${missingRefs} route stop ref(s) not among verified stops, verify those first.`);
   if (routeChanges.length) console.log(`  ⚑ ${routeChanges.length} route change(s) → ${REVIEW} (review before applying)`);
-  if (!routes.length) console.warn('  ⚠ no routes — search works, boarding shows "not mapped yet".');
-  if (bytes > 1_200_000) console.warn('  ⚠ pack > 1.2 MB — prune before shipping on metered data.');
+  if (!routes.length) console.warn('  ⚠ no routes, search works, boarding shows "not mapped yet".');
+  if (bytes > 1_200_000) console.warn('  ⚠ pack > 1.2 MB, prune before shipping on metered data.');
   console.log('  wrote public/core-pack/manifest.json. Deploy with: vercel --prod');
 }
 

@@ -1,4 +1,4 @@
-// Image selection scoring — PURE and provider-independent. No network, no React, no
+// Image selection scoring, PURE and provider-independent. No network, no React, no
 // Mapillary.
 
 import type { ImageCandidate, ImageQuery } from './types';

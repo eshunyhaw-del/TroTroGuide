@@ -3,7 +3,7 @@ const nextConfig = {
   reactStrictMode: true,
 
   // Preact alias for the prod client bundle was reverted: preact/compat@10.23.2 doesn't implement
-  // React's `use()` hook, which Next 14.2.35's App Router client runtime calls internally — crashed
+  // React's `use()` hook, which Next 14.2.35's App Router client runtime calls internally, crashed
   // the whole tree with "c.use is not a function" on first render (stuck on "Loading…" forever).
 
   async headers() {

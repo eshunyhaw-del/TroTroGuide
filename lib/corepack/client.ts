@@ -161,7 +161,7 @@ export interface SearchHit {
   score: number;
 }
 
-/** OFFLINE search — instant, no network. */
+/** OFFLINE search, instant, no network. */
 export function search(q: string, limit = 12): SearchHit[] {
   if (!_mini) return [];
   // MiniSearch returns its built-in fields plus our storeFields; intersect with SearchDoc so the
@@ -278,7 +278,7 @@ export interface TripOption {
 }
 
 /**
- * Multi-leg trip search for journeys with no single direct route — the real Accra pattern of "car
+ * Multi-leg trip search for journeys with no single direct route, the real Accra pattern of "car
  * to Lapaz, then another car to your final stop".
  */
 export function planTripOffline(
@@ -305,11 +305,11 @@ export function planTripOffline(
   const routeById = new Map(_pack.routes.map((r) => [r.id, r]));
 
   // Unnamed route-member stops are fine for boarding/alighting at the ends of a single ride (the
-  // user can see the place on the map), but they make terrible mid-trip waypoints — "transfer at
+  // user can see the place on the map), but they make terrible mid-trip waypoints, "transfer at
   // ''" / "get down at ''" tells the rider nothing.
   const isNamed = (stopId: string) => Boolean(stopById.get(stopId)?.name?.trim());
 
-  // stopId -> every (route, seq) it appears in — this IS the transfer graph, since a stop shared by
+  // stopId -> every (route, seq) it appears in, this IS the transfer graph, since a stop shared by
   // two routes is exactly a valid transfer point.
   const stopRouteIndex = new Map<string, { routeId: string; rs: PackRouteStop }[]>();
   for (const route of _pack.routes) {
@@ -423,7 +423,7 @@ export function planTripOffline(
     return found;
   }
 
-  // Try 1 transfer first; only escalate to 2 transfers if NOTHING works with fewer — this is what
+  // Try 1 transfer first; only escalate to 2 transfers if NOTHING works with fewer, this is what
   // guarantees "fewest transfers" instead of just sorting a possibly-incomplete sample after the
   // fact.
   let results: TripOption[] = [];
@@ -433,7 +433,7 @@ export function planTripOffline(
   }
 
   // Dedupe identical route sequences, then rank by WALK distance first (the thing the rider
-  // actually feels and what they asked to minimize), riding distance only as a tiebreaker — summing
+  // actually feels and what they asked to minimize), riding distance only as a tiebreaker, summing
   // the two punished a 0m-walk option with a long ride below a long-walk option with a short ride.
   const seen = new Set<string>();
   const multiLeg = results
@@ -549,7 +549,7 @@ export interface NearestStopResult {
 }
 
 /**
- * Closest stop in the whole pack to (userLat,userLng) — independent of any destination search, so
+ * Closest stop in the whole pack to (userLat,userLng), independent of any destination search, so
  * the rider can just be told "walk here" before they've even picked where they're going.
  */
 export function nearestStopOffline(userLat: number, userLng: number): NearestStopResult | null {
@@ -563,7 +563,7 @@ export function nearestStopOffline(userLat: number, userLng: number): NearestSto
 }
 
 /**
- * Closest named neighborhood to (userLat,userLng) — used to label "near you" without a network
+ * Closest named neighborhood to (userLat,userLng), used to label "near you" without a network
  * reverse-geocode call (keeps the no-GPS-leaves-the-device promise above; the pack already carries
  * neighborhood centroids).
  */

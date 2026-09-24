@@ -8,7 +8,7 @@ dist
 *.tsbuildinfo
 public/core-pack
 
-# env — keep the example, never the real values
+# env, keep the example, never the real values
 .env*
 !.env.example
 
@@ -20,7 +20,7 @@ public/core-pack
 # logs
 *.log
 
-# Proprietary + ODbL-scaffold data — the license firewall: NEVER publish the
+# Proprietary + ODbL-scaffold data, the license firewall: NEVER publish the
 # sellable OSM-free pack or the raw OSM scaffold. These are regenerable locally
 # (npm run extract:osm / build:admin) and are excluded from the app build anyway.
 data/core-pack-verified.json

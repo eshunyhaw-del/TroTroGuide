@@ -1,12 +1,12 @@
 -- ============================================================================
--- 0004 — Phase 1: prepare osm_mirror for the AccraMobile3 / GUMAP import.
+-- 0004, Phase 1: prepare osm_mirror for the AccraMobile3 / GUMAP import.
 -- ============================================================================
 -- Extends the osm_mirror.osm_features table (canonical definition in 0001) with
 -- import helpers (freshness_score, route_refs, last_edit) and per-row ODbL
 -- attribution, plus the indexes the admin dashboard + fieldwork planning need.
 --
 -- osm_mirror is the ODbL "parking lot": SCAFFOLD ONLY. Nothing here is ever
--- copied into core.* as substantive content — core references OSM via osm_ref
+-- copied into core.* as substantive content, core references OSM via osm_ref
 -- text and only after independent field verification. This separation is the
 -- license firewall that keeps the proprietary dataset legally non-derived.
 -- ----------------------------------------------------------------------------

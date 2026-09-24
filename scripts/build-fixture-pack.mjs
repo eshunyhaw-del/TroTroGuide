@@ -52,7 +52,7 @@ for (let i = 1; i < routeCoords.length; i++) {
 }
 const routeLenR = Math.round(routeLen);
 
-// PLACEHOLDER ROUTE — Abeka Lapaz → Dome Kwabenya (NOT from OSM, NOT verified) Hand-authored,
+// PLACEHOLDER ROUTE, Abeka Lapaz → Dome Kwabenya (NOT from OSM, NOT verified) Hand-authored,
 // APPROXIMATE coordinates for exercising the map view only.
 const DOME = [
   { id: 's-lapaz',       name: 'Lapaz',         aliases: ['La Paz', 'Lapaz', 'Abeka Lapaz'], lat: 5.6053, lng: -0.2540, landmark: 'Abeka Lapaz Terminal' },
@@ -81,7 +81,7 @@ const domePackStops = DOME.map((s) => ({
 
 const pack = {
   version: Date.now(),
-  demo: true, // PLACEHOLDER pack — survives serialization so the UI can flag it.
+  demo: true, // PLACEHOLDER pack, survives serialization so the UI can flag it.
   bbox: [-0.7, 5.4, 0.3, 6.1],
   stops: [
     { id: 's-circle', name: 'Kwame Nkrumah Circle', aliases: ['Circle', 'Nkrumah Circle'], lat: 5.5703, lng: -0.2074, routeIds: ['r-circle-mall'], landmark: null },
@@ -101,7 +101,7 @@ const pack = {
       ],
     },
     {
-      // PLACEHOLDER route (see DOME block above) — approximate, not OSM, not verified.
+      // PLACEHOLDER route (see DOME block above), approximate, not OSM, not verified.
       id: 'r-lapaz-dome',
       name: 'Abeka Lapaz → Dome Kwabenya',
       mateShout: 'Dome! Dome! Kwabenya!',

@@ -1,5 +1,5 @@
 'use client';
-// PHASE 2 — Internal admin "Treasure Map" dashboard.
+// PHASE 2, Internal admin "Treasure Map" dashboard.
 
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import {
@@ -17,7 +17,7 @@ import {
   type Verification,
 } from '@/lib/admin/verification-store';
 
-// Obscurity, NOT security — this string ships in the client bundle and the data it gates
+// Obscurity, NOT security, this string ships in the client bundle and the data it gates
 // (/admin/osm-data.json) is public ODbL scaffold anyway.
 const ADMIN_KEY = 'tg-fieldwork-x7q29m';
 const DATA_URL = '/admin/osm-data.json';
@@ -176,7 +176,7 @@ export default function AdminTreasureMap() {
   if (!authed) {
     return (
       <main className="adm">
-        <h1>🔒 Treasure Map — admin</h1>
+        <h1>🔒 Treasure Map (admin)</h1>
         <p className="adm-muted">Internal fieldwork tool. Enter the access key.</p>
         <input
           className="tk-input"
@@ -205,7 +205,7 @@ export default function AdminTreasureMap() {
   return (
     <main className="adm">
       <div className="adm-banner">⚠ Internal ODbL scaffold for fieldwork planning, never shown in the public app, never sold.</div>
-      <h1 style={{ margin: '8px 0' }}>🗺 Treasure Map — admin</h1>
+      <h1 style={{ margin: '8px 0' }}>🗺 Treasure Map (admin)</h1>
 
       <div className="adm-stats">
         <span><b>{data.summary.stops}</b> OSM stops</span>
@@ -222,7 +222,7 @@ export default function AdminTreasureMap() {
             📈 Your progress: {progress.counted} / {progress.total} stops ({progress.pct}%)
           </summary>
           <p className="adm-muted" style={{ margin: '6px 0' }}>
-            By freshness — {(['fresh', 'stale', 'verystale', 'ghost'] as Bucket[]).map((b) => `${BUCKET_LABEL[b]}: ${progress.byBucket[b] ?? 0}`).join(' · ')}
+            By freshness: {(['fresh', 'stale', 'verystale', 'ghost'] as Bucket[]).map((b) => `${BUCKET_LABEL[b]}: ${progress.byBucket[b] ?? 0}`).join(' · ')}
           </p>
           {progress.topHoods.length > 0 && (
             <table style={{ fontSize: 13, borderCollapse: 'collapse' }}>
@@ -263,7 +263,7 @@ export default function AdminTreasureMap() {
         <StopList stops={stopsFiltered} verif={verif} onSaved={onSaved} />
       ) : (
         <div>
-          <p className="adm-muted">{routesFiltered.length} route(s) — tap a route to verify stops, add new stops, or flag a change</p>
+          <p className="adm-muted">{routesFiltered.length} route(s). Tap a route to verify stops, add new stops, or flag a change</p>
           {routesFiltered.slice(0, MAX_RENDER).map((r) => (
             <RouteCard
               key={r.relRef}
@@ -310,7 +310,7 @@ function StopList({ stops, verif, onSaved }: { stops: Stop[]; verif: Map<string,
   return (
     <div>
       <p className="adm-muted">
-        {stops.length} stop(s){stops.length > MAX_RENDER ? ` — showing first ${MAX_RENDER}; refine area/freshness/search` : ''}
+        {stops.length} stop(s){stops.length > MAX_RENDER ? ` (showing first ${MAX_RENDER}; refine area/freshness/search)` : ''}
       </p>
       {stops.slice(0, MAX_RENDER).map((s) => (
         <StopCard key={s.ref} stop={s} verification={verif.get(s.ref)} onSaved={onSaved} />
@@ -404,7 +404,7 @@ function NewStopForm({ route, defaultSeq, onDone }: { route: Route; defaultSeq: 
 
   const save = async () => {
     if (!name.trim()) { setErr('Stop name is required'); return; }
-    if (myLat == null || myLng == null) { setErr('GPS is required — tap "Use my GPS" or type lat/lng'); return; }
+    if (myLat == null || myLng == null) { setErr('GPS is required. Tap "Use my GPS" or type lat/lng'); return; }
     const s: NewStop = {
       stopId: crypto.randomUUID(), name: name.trim(), localName: localName.trim(), mateShout: mateShout.trim(),
       boardAlight, myLat, myLng, routeRef: route.ref, sequence: Number(seq) || defaultSeq, notes: notes.trim(), verifiedAt: Date.now(),
@@ -415,7 +415,7 @@ function NewStopForm({ route, defaultSeq, onDone }: { route: Route; defaultSeq: 
 
   return (
     <div className="adm-form" style={{ borderTop: '1px dashed #999', marginTop: 6 }}>
-      <div className="adm-muted">➕ New stop on route {route.ref} — purely your data (no OSM link)</div>
+      <div className="adm-muted">➕ New stop on route {route.ref} (your data only, no OSM link)</div>
       <label>Stop name *</label>
       <input type="text" value={name} onChange={(e) => setName(e.target.value)} placeholder="what you see on the ground" />
       <label>Local name</label>
@@ -432,7 +432,7 @@ function NewStopForm({ route, defaultSeq, onDone }: { route: Route; defaultSeq: 
       <input type="number" value={seq} onChange={(e) => setSeq(Number(e.target.value))} />
       <label>📍 GPS * {myLat != null ? `→ ${myLat}, ${myLng}` : ''}</label>
       <div className="adm-row">
-        <button className="adm-chip adm-gps" onClick={captureGps}>{gps === 'getting' ? 'getting…' : gps === 'error' ? 'GPS failed — type below' : 'Use my GPS'}</button>
+        <button className="adm-chip adm-gps" onClick={captureGps}>{gps === 'getting' ? 'getting…' : gps === 'error' ? 'GPS failed, type below' : 'Use my GPS'}</button>
         <input type="number" step="0.000001" placeholder="lat" value={myLat ?? ''} onChange={(e) => setMyLat(e.target.value === '' ? null : Number(e.target.value))} style={{ width: 110 }} />
         <input type="number" step="0.000001" placeholder="lng" value={myLng ?? ''} onChange={(e) => setMyLng(e.target.value === '' ? null : Number(e.target.value))} style={{ width: 110 }} />
       </div>
@@ -551,7 +551,7 @@ function StopCard({ stop, seq, verification, onSaved }: { stop: Stop; seq?: numb
           <label>📍 My GPS {myLat != null ? `→ ${myLat}, ${myLng}` : ''}</label>
           <div className="adm-row">
             <button className="adm-chip adm-gps" onClick={captureGps}>
-              {gps === 'getting' ? 'getting…' : gps === 'error' ? 'GPS failed — retry' : 'Use my current GPS'}
+              {gps === 'getting' ? 'getting…' : gps === 'error' ? 'GPS failed, retry' : 'Use my current GPS'}
             </button>
             {myLat != null && <button className="adm-chip" onClick={() => { setMyLat(null); setMyLng(null); }}>clear</button>}
           </div>

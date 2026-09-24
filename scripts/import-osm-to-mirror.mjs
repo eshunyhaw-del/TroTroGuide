@@ -1,4 +1,4 @@
-// PHASE 1.2 — Import raw OSM (data/osm_raw/) into osm_mirror.osm_features SQL.
+// PHASE 1.2, Import raw OSM (data/osm_raw/) into osm_mirror.osm_features SQL.
 
 import { createHash } from 'node:crypto';
 import { readFileSync, writeFileSync, statSync } from 'node:fs';
@@ -207,11 +207,11 @@ function main() {
     .join(', ');
 
   const out = [];
-  out.push('-- Trotro Guide — OSM -> osm_mirror import (Phase 1).');
+  out.push('-- Trotro Guide, OSM -> osm_mirror import (Phase 1).');
   out.push(`-- ${ATTRIBUTION}. Licensed ODbL (https://opendatacommons.org/licenses/odbl/1-0/).`);
   out.push('-- Source: AccraMobile3 (2017) / GUMAP via OpenStreetMap Overpass.');
   out.push(`-- Generated: ${new Date(NOW).toISOString()} | rows: ${all.length}`);
-  out.push('-- SCAFFOLD ONLY. Writes osm_mirror.* exclusively — never core.*.');
+  out.push('-- SCAFFOLD ONLY. Writes osm_mirror.* exclusively, never core.*.');
   out.push('-- Apply db/migrations/0004_import_osm_mirror.sql first.');
   out.push('');
   out.push('BEGIN;');

@@ -52,7 +52,7 @@ describe('H3 quantization (res 9)', () => {
     expect(url.includes('lat')).toBe(false);
     expect(url.includes('lng')).toBe(false);
 
-    // Simulate a log line built from the request — only the coarse cell is safe.
+    // Simulate a log line built from the request, only the coarse cell is safe.
     const logLine = JSON.stringify({ where: 'boarding', cell, destinationType: 'stop' });
     for (const frag of rawFragments) expect(logLine.includes(frag)).toBe(false);
     expect(logLine.includes(cell)).toBe(true);

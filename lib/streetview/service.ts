@@ -12,7 +12,7 @@ export async function resolveStreetImage(query: ImageQuery, now: number): Promis
   try {
     candidates = await provider.findCandidates(query);
   } catch {
-    // Provider/network failure. Navigation must continue regardless — the route maps this to a
+    // Provider/network failure. Navigation must continue regardless, the route maps this to a
     // non-fatal 'error' state the card renders quietly.
     return { status: 'error' };
   }

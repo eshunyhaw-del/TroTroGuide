@@ -1,5 +1,5 @@
 -- ============================================================================
--- Trotro Guide — Phase 0 schema
+-- Trotro Guide, Phase 0 schema
 -- CORRECTIONS APPLIED:
 --   * License firewall: osm_mirror (ODbL) vs core (proprietary) as SEPARATE schemas.
 --   * Provenance table with per-field source + license tags.
@@ -34,7 +34,7 @@ create type core.contribution_status as enum
   ('submitted','auto_validated','in_review','approved','rejected','applied','reverted');
 
 -- ---------------------------------------------------------------------------
--- OSM mirror (ODbL) — scaffold only
+-- OSM mirror (ODbL), scaffold only
 -- ---------------------------------------------------------------------------
 create table osm_mirror.osm_features (
   osm_ref      text primary key,                       -- 'node/123', 'way/456', 'relation/789'
@@ -47,7 +47,7 @@ create table osm_mirror.osm_features (
 create index osm_features_geom_gix on osm_mirror.osm_features using gist (geom);
 
 -- ---------------------------------------------------------------------------
--- core live tables (proprietary truth — approved data only)
+-- core live tables (proprietary truth, approved data only)
 -- geography(Point) for stops/landmarks  -> true-metre ST_DWithin for the 400m walk
 -- geometry(LineString/Polygon) for routes/boundaries -> cheaper line/polygon ops
 -- ---------------------------------------------------------------------------

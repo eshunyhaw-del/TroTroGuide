@@ -5,7 +5,8 @@
 
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { Heart, X } from 'lucide-react';
-import { SUPPORT_URL, SUPPORT_ENABLED } from '@/lib/support';
+import { SUPPORT_ENABLED, openDonate } from '@/lib/support';
+import { claimPopup } from '@/lib/popup-budget';
 import {
   SHOW_DELAY_MS,
   parseRecord,
@@ -20,7 +21,7 @@ function readRecord() {
   try {
     return parseRecord(localStorage.getItem(STORAGE_KEY));
   } catch {
-    return null; // private mode / storage disabled — treat as first run
+    return null; // private mode / storage disabled, treat as first run
   }
 }
 
@@ -55,6 +56,7 @@ export function DonatePopup({ armed }: DonatePopupProps) {
     if (!shouldShowPrompt(readRecord(), Date.now())) return;
 
     const id = setTimeout(() => {
+      if (!claimPopup()) return;
       writeRecord('shown'); // an ignored prompt still starts the cooldown
       setOpen(true);
     }, SHOW_DELAY_MS);
@@ -128,21 +130,20 @@ export function DonatePopup({ armed }: DonatePopupProps) {
           Found your trotro?
         </h2>
         <p className="tg-donate-body">
-          TroTro Guide is built by one developer in Accra, and it stays free with no ads and no
-          login. If it saved you a wrong turn today, a small gift keeps it running.
+          If TroTro Guide saved you a wrong turn today, a small gift helps keep it free.
         </p>
 
         <div className="tg-donate-actions">
-          <a
+          <button
             className="tg-btn tg-btn--primary"
-            href={SUPPORT_URL}
-            target="_blank"
-            rel="noopener noreferrer"
-            onClick={() => close('donated')}
+            onClick={() => {
+              close('donated');
+              openDonate();
+            }}
           >
             <Heart size={18} strokeWidth={2} aria-hidden="true" />
             Donate
-          </a>
+          </button>
           <button className="tg-btn tg-btn--secondary" onClick={() => close('later')}>
             Maybe later
           </button>

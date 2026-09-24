@@ -1,4 +1,4 @@
-// H3 quantization — the single source of truth for turning a precise GPS fix into a coarse cell.
+// H3 quantization, the single source of truth for turning a precise GPS fix into a coarse cell.
 import { latLngToCell, cellToLatLng, isValidCell, getResolution, gridDisk } from 'h3-js';
 
 export const H3_RES = 9 as const;
@@ -23,7 +23,7 @@ export function isValidR9(cell: string): boolean {
   }
 }
 
-/** Ring of neighbouring cells (k=1 => 7 cells) — used to soften cell-edge jitter. */
+/** Ring of neighbouring cells (k=1 => 7 cells), used to soften cell-edge jitter. */
 export function neighbors(cell: string, k = 1): string[] {
   return gridDisk(cell, k);
 }

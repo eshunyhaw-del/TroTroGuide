@@ -181,7 +181,7 @@ export function RouteMap({ routeId, boardStopId, alightStopId, user, onClose }: 
       const role = isBoard ? 'tg-marker--board' : isAlight ? 'tg-marker--alight' : 'tg-marker--stop';
       const label = isBoard ? 'Board here' : isAlight ? 'Get down here' : undefined;
       const glyph = isBoard ? '↑' : isAlight ? '↓' : undefined;
-      new maplibregl.Marker({ element: marker(role, label ? `${s.name} — ${label}` : `Stop: ${s.name}`, glyph) })
+      new maplibregl.Marker({ element: marker(role, label ? `${s.name}: ${label}` : `Stop: ${s.name}`, glyph) })
         .setLngLat([s.lng, s.lat])
         .setPopup(new maplibregl.Popup({ offset: 12 }).setHTML(popupHTML(s.name, { sub: s.landmark, label })))
         .addTo(map);

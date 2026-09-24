@@ -9,6 +9,7 @@ import {
   SHOUT_DISCLAIMER_VERSION,
   SHOUT_REVIEW_NOTE,
 } from '@/lib/shout-review';
+import { claimPopup } from '@/lib/popup-budget';
 
 const STORAGE_KEY = 'trotro:shoutDisclaimer';
 
@@ -17,7 +18,7 @@ function readAck(): string | null {
   try {
     return localStorage.getItem(STORAGE_KEY);
   } catch {
-    return null; // private mode — treat as not yet acknowledged
+    return null; // private mode, treat as not yet acknowledged
   }
 }
 
@@ -45,7 +46,9 @@ export function ShoutDisclaimer() {
   useEffect(() => {
     if (!SHOUTS_UNDER_REVIEW) return;
     if (readAck() === SHOUT_DISCLAIMER_VERSION) return;
-    const id = setTimeout(() => setOpen(true), 500);
+    const id = setTimeout(() => {
+      if (claimPopup()) setOpen(true);
+    }, 500);
     return () => clearTimeout(id);
   }, []);
 
@@ -111,8 +114,8 @@ export function ShoutDisclaimer() {
         </h2>
         <p className="tg-disclaimer-body">
           {SHOUT_REVIEW_NOTE} We&rsquo;re checking every route on the ground, and this note
-          goes away once they&rsquo;re all confirmed. Everything else — stops, routes and
-          directions — works as normal.
+          goes away once they&rsquo;re all confirmed. Stops, routes and directions work as
+          normal.
         </p>
 
         <div className="tg-disclaimer-actions">

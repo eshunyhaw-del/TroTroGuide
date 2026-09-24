@@ -1,5 +1,5 @@
 'use client';
-// PHASE 3.2 — "Help us map it" lightweight contribution form.
+// PHASE 3.2, "Help us map it" lightweight contribution form.
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';

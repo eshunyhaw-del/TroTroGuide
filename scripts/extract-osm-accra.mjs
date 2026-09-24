@@ -1,4 +1,4 @@
-// TASK 1 — OSM "Treasure Map": RAW extraction only.
+// TASK 1, OSM "Treasure Map": RAW extraction only.
 
 import { mkdirSync, writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
@@ -6,7 +6,7 @@ import { fileURLToPath } from 'node:url';
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..');
 
-// Greater Accra — the SAME box the app's geofence + fixture pack use (db/migrations/0001 geofence
+// Greater Accra, the SAME box the app's geofence + fixture pack use (db/migrations/0001 geofence
 // polygon, scripts/build-fixture-pack bbox).
 const DEFAULT_BBOX = [5.4, -0.7, 6.1, 0.3];
 
@@ -86,7 +86,7 @@ function buildQueries({ strict, bbox }) {
     `>;\n` +
     `out skel qt;`;
 
-  // NAVIGATION LANDMARKS — named POIs that riders actually use to orient ("get down at the Shell",
+  // NAVIGATION LANDMARKS, named POIs that riders actually use to orient ("get down at the Shell",
   // "before Kaneshie Market").
   const L_AMENITY = 'marketplace|fuel|hospital|clinic|place_of_worship|university|college|bank|police|bus_station|cinema|theatre|townhall|fire_station|courthouse|library|fast_food';
   const L_SHOP = 'mall|supermarket|department_store';
@@ -195,7 +195,7 @@ async function main() {
   const outDir = args.out ? args.out : join(ROOT, 'data', 'osm_raw');
   const queries = buildQueries({ strict: args.strict, bbox });
 
-  console.log(`Trotro Guide — OSM extraction (${args.strict ? 'STRICT/prompt' : 'robust/bbox'} mode)`);
+  console.log(`Trotro Guide, OSM extraction (${args.strict ? 'STRICT/prompt' : 'robust/bbox'} mode)`);
   console.log(`  bbox (s,w,n,e): ${bbox.join(', ')}`);
   console.log(`  endpoints:      ${endpoints.join(', ')}`);
   console.log(`  output:         ${outDir}\n`);
@@ -204,7 +204,7 @@ async function main() {
     for (const [name, q] of Object.entries(queries)) {
       console.log(`--- ${name}.json query ---\n${q}\n`);
     }
-    console.log('(dry run — no network calls made)');
+    console.log('(dry run, no network calls made)');
     return;
   }
 
@@ -217,12 +217,12 @@ async function main() {
     license: LICENSE,
     attribution: ATTRIBUTION,
     source: 'https://www.openstreetmap.org/copyright',
-    note: 'Raw OSM scaffold (ODbL). Treasure map only — do NOT copy into core.* / CorePack.',
+    note: 'Raw OSM scaffold (ODbL). Treasure map only, do NOT copy into core.* / CorePack.',
     queries,
     files: {},
   };
 
-  // Tag keys worth profiling — these answer "what did AccraMobile actually tag?"
+  // Tag keys worth profiling, these answer "what did AccraMobile actually tag?"
   const STOP_KEYS = ['highway', 'public_transport', 'bus', 'official_status', 'name', 'ref', 'network', 'operator', 'alt_name', 'loc_name'];
   const ROUTE_KEYS = ['route', 'route_master', 'bus', 'official_status', 'ref', 'name', 'from', 'to', 'network', 'operator', 'colour', 'frequency', 'charge', 'duration'];
   const LANDMARK_KEYS = ['amenity', 'shop', 'tourism', 'leisure', 'religion', 'name'];
@@ -234,7 +234,7 @@ async function main() {
     try {
       const { text, data, endpoint } = await overpass(query, { endpoints });
       const file = join(outDir, `${name}.json`);
-      writeFileSync(file, text); // verbatim — true raw store
+      writeFileSync(file, text); // verbatim, true raw store
 
       const counts = countByType(data);
       const relsOnly = (data.elements ?? []).filter((e) => e.type === 'relation');
@@ -254,13 +254,13 @@ async function main() {
 
       const fresh = manifest.files[`${name}.json`].elementEditRange;
       console.log(
-        `  ok ${name}.json — ${counts.total} elements ` +
+        `  ok ${name}.json, ${counts.total} elements ` +
           `(nodes ${counts.node}, ways ${counts.way}, relations ${counts.relation}), ` +
           `${(Buffer.byteLength(text) / 1024).toFixed(0)} KB`,
       );
       if (fresh.earliest) console.log(`     last-edited range: ${fresh.earliest} → ${fresh.latest}`);
       if (counts.total === 0) {
-        console.warn(`     WARNING: 0 elements — tagging/area may differ; try --strict or widen --bbox`);
+        console.warn(`     WARNING: 0 elements, tagging/area may differ; try --strict or widen --bbox`);
       }
     } catch (err) {
       anyFailure = true;
@@ -317,7 +317,7 @@ function attributionText() {
     'Provenance: AccraMobile3 (2017, Jungle Bus + AFD + OSM Ghana) and GUMAP (2020-2022)',
     'trotro routes & stops across Greater Accra.',
     '',
-    'LICENSE FIREWALL — READ THIS:',
+    'LICENSE FIREWALL, READ THIS:',
     '  This is SCAFFOLD ("treasure map") data. It MUST remain in the ODbL parking lot',
     '  (data/osm_raw/ on disk; the osm_mirror schema in the DB). Do NOT copy geometry,',
     '  names, or tags from here into the proprietary core dataset or the shipped CorePack.',

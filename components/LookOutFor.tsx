@@ -1,6 +1,6 @@
 'use client';
 
-// "Look out for" — the passenger-facing card that shows the upcoming landmark with real
+// "Look out for", the passenger-facing card that shows the upcoming landmark with real
 // street-level imagery, so a rider can recognise where they are and know when to get down.
 
 import { useEffect, useState } from 'react';
@@ -36,7 +36,7 @@ export function LookOutFor({ lookout }: { lookout: Lookout }) {
   const hasImage = image !== 'loading' && image.status === 'ok' && !imgFailed;
   const loading = image === 'loading';
 
-  // A resolved 'ok' just means the API returned a URL — on a slow trotro-window connection the
+  // A resolved 'ok' just means the API returned a URL, on a slow trotro-window connection the
   // actual photo bytes can still take a moment.
   const imgSrc = hasImage && image.status === 'ok' ? image.image.thumbUrl : null;
   useEffect(() => {
@@ -52,7 +52,7 @@ export function LookOutFor({ lookout }: { lookout: Lookout }) {
 
       <div className="tg-lookout-figure">
         {/* Skeleton covers both waiting on the API AND the photo bytes still
-            downloading — on a slow connection those are two separate delays,
+            downloading, on a slow connection those are two separate delays,
             and the figure would otherwise sit blank between them. */}
         {(loading || (hasImage && !imgPainted)) && (
           <div className="tg-lookout-skeleton" aria-hidden="true" />
@@ -76,7 +76,7 @@ export function LookOutFor({ lookout }: { lookout: Lookout }) {
               href={image.image.attributionUrl ?? 'https://www.mapillary.com'}
               target="_blank"
               rel="noopener noreferrer"
-              // Attribution is required by the imagery licence — never hidden.
+              // Attribution is required by the imagery licence, never hidden.
             >
               {image.image.attribution}
             </a>

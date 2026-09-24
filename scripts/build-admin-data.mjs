@@ -1,4 +1,4 @@
-// PHASE 2 (data) — build the lean OSM dataset the admin dashboard reads.
+// PHASE 2 (data), build the lean OSM dataset the admin dashboard reads.
 
 import { mkdirSync, readFileSync, writeFileSync, statSync } from 'node:fs';
 import { dirname, join } from 'node:path';
@@ -187,7 +187,7 @@ function main() {
     s.hood = best;
   }
 
-  // Navigation landmarks (optional — only present if the extract pulled them). ODbL scaffold, same
+  // Navigation landmarks (optional, only present if the extract pulled them). ODbL scaffold, same
   // as everything else here.
   const landmarksRaw = readJsonSafe('landmarks.json');
   const landmarks = [];

@@ -1,4 +1,4 @@
-// Encoded-polyline (Google/Mapbox algorithm) — vendored so we don't depend on @mapbox/polyline.
+// Encoded-polyline (Google/Mapbox algorithm), vendored so we don't depend on @mapbox/polyline.
 
 function encodeSigned(num: number): string {
   let sgn = num < 0 ? ~(num << 1) : num << 1;

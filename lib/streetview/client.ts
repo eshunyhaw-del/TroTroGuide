@@ -5,11 +5,11 @@
 
 import type { ImageResult } from './types';
 
-const GRID = 0.0001; // ~11 m — coords rounded to this share a cache entry
+const GRID = 0.0001; // ~11 m, coords rounded to this share a cache entry
 const BEARING_BUCKET = 45; // degrees
 const MAX_ENTRIES = 200;
 // The server already bounds its own call to Mapillary at 8s (mapillary.ts), but that does nothing
-// for a request that never reaches the server — a weak trotro-window connection that hangs rather
+// for a request that never reaches the server, a weak trotro-window connection that hangs rather
 // than fails outright.
 const FETCH_TIMEOUT_MS = 6_000;
 
@@ -24,7 +24,7 @@ const cache = new Map<string, ImageResult>();
 const inFlight = new Map<string, Promise<ImageResult>>();
 
 function remember(key: string, result: ImageResult): void {
-  // Don't cache transient failures — a later attempt may succeed. 'not_configured' is stable for
+  // Don't cache transient failures, a later attempt may succeed. 'not_configured' is stable for
   // the session, so caching it avoids pointless repeat calls.
   if (result.status === 'error') return;
   if (cache.size >= MAX_ENTRIES) {
@@ -44,7 +44,7 @@ export interface FetchImageArgs {
 
 /**
  * Fetch the best street image for a landmark point. Returns a normalised ImageResult and NEVER
- * throws — an abort or network failure resolves to { status:
+ * throws, an abort or network failure resolves to { status:
  */
 export async function fetchStreetImage({
   lat,
@@ -72,7 +72,7 @@ export async function fetchStreetImage({
     const ownController = new AbortController();
     const timer = setTimeout(() => ownController.abort(), FETCH_TIMEOUT_MS);
     // Abort our own controller if the caller's signal fires first (target landmark changed,
-    // component unmounted) — either way the fetch stops.
+    // component unmounted), either way the fetch stops.
     const onCallerAbort = () => ownController.abort();
     signal?.addEventListener('abort', onCallerAbort);
 
@@ -84,7 +84,7 @@ export async function fetchStreetImage({
       remember(key, json);
       return json;
     } catch {
-      // Includes both a hung connection hitting our timeout and a genuine AbortError — either way,
+      // Includes both a hung connection hitting our timeout and a genuine AbortError, either way,
       // a soft no-image; don't cache a transient miss.
       return { status: 'error' };
     } finally {

@@ -12,14 +12,11 @@ import {
   ChevronRight,
   ChevronLeft,
   X,
-  Bus,
   Megaphone,
   Construction,
   Map as MapIcon,
   Signal,
   Flag,
-  BookMarked,
-  Sparkles,
 } from 'lucide-react';
 import {
   search,
@@ -83,7 +80,7 @@ const POPULAR_HUBS = [
 
 const POPULAR_COUNT = 6;
 
-const MAX_LANDMARKS_PER_STOP = 3;
+const MAX_LANDMARKS_PER_STOP = 2;
 
 const formatDist = (m: number): string =>
   m < 1000 ? `${Math.round(m / 10) * 10} m` : `${(m / 1000).toFixed(1)} km`;
@@ -93,11 +90,11 @@ function liveStatusText(live: LiveRide): string {
   const { phase, stopId, metresToNext, stopsRemaining } = live.progress;
   const here = getStopName(stopId) || 'your stop';
 
-  if (live.stale) return `Live tracking paused — last seen at ${here}.`;
+  if (live.stale) return `Live tracking paused. Last seen at ${here}.`;
   if (phase === 'approaching') {
-    return `Not on board yet — ${formatDist(metresToNext ?? 0)} to ${here}.`;
+    return `Not on board yet. ${formatDist(metresToNext ?? 0)} to ${here}.`;
   }
-  if (phase === 'arrived') return `You've reached ${here} — get down here.`;
+  if (phase === 'arrived') return `You've reached ${here}. Get down here.`;
   return `At ${here} · ${stopsRemaining} stop${stopsRemaining === 1 ? '' : 's'} to go`;
 }
 
@@ -113,13 +110,13 @@ const HERO_SLIDES: HeroSlide[] = [
     img: '/img/trotro-one.jpg',
     alt: 'A trotro pulling up at the roadside on an Accra street',
     kicker: 'How TroTro works · Step 1',
-    title: 'Walk to the nearest main roadside — just stand visibly at the edge of any main road.',
+    title: 'Walk to the nearest main roadside and stand where drivers can see you.',
   },
   {
     img: '/img/trotro-mate-in-trotro.jpg',
     alt: 'A trotro mate leaning out and shouting the destination',
     kicker: 'How TroTro works · Step 2',
-    title: 'Listen for the mate’s shout — it tells you the trotro’s destination.',
+    title: 'Listen for the mate’s shout. It tells you where the trotro is going.',
   },
   {
     img: '/img/mate-in-yellow-trotro.jpg',
@@ -215,30 +212,6 @@ function clearSavedRide(): void {
   } catch {
     
   }
-}
-
-function Typewriter({ text, speed = 60 }: { text: string; speed?: number }) {
-  const [count, setCount] = useState(0);
-  useEffect(() => {
-    if (typeof window !== 'undefined' && window.matchMedia?.('(prefers-reduced-motion: reduce)').matches) {
-      setCount(text.length);
-      return;
-    }
-    setCount(0);
-    let i = 0;
-    const id = setInterval(() => {
-      i += 1;
-      setCount(i);
-      if (i >= text.length) clearInterval(id);
-    }, speed);
-    return () => clearInterval(id);
-  }, [text, speed]);
-  return (
-    <span aria-hidden="true">
-      {text.slice(0, count)}
-      <span className="tg-caret" />
-    </span>
-  );
 }
 
 export function Trotro() {
@@ -491,40 +464,38 @@ export function Trotro() {
           {isDemoPack() && (
             <p className="tg-demobanner" role="note">
               <Construction size={15} strokeWidth={2} aria-hidden="true" />
-              Demo data, routes &amp; stops are placeholders, not yet field-verified.
+              Demo data: routes and stops are placeholders, not yet checked on the ground.
             </p>
           )}
           {geoStatus === 'locating' && (
             <p className="tg-geobanner" role="note">
               <Signal size={15} strokeWidth={2} aria-hidden="true" />
-              Getting your location, until it lands, results are shown from Circle.
+              Getting your location. Until then, routes start from Circle.
             </p>
           )}
           {(geoStatus === 'denied' || geoStatus === 'unavailable') && (
             <p className="tg-geobanner" role="note">
               <Signal size={15} strokeWidth={2} aria-hidden="true" />
               {geoStatus === 'denied'
-                ? 'Location is off — showing routes from Circle. Turn on location for stops near you.'
-                : "Couldn't get your location — showing routes from Circle."}
+                ? 'Location is off, so routes start from Circle. Turn on location for stops near you.'
+                : "Couldn't get your location, so routes start from Circle."}
             </p>
           )}
           {geoStatus === 'ok' && geoAccuracy != null && geoAccuracy > 100 && (
             <p className="tg-geobanner" role="note">
               <Signal size={15} strokeWidth={2} aria-hidden="true" />
-              {`Approximate location (±${Math.round(geoAccuracy)} m) — getting a more precise fix…`}
+              {`Approximate location (±${Math.round(geoAccuracy)} m). Getting a more precise fix…`}
             </p>
           )}
-          {/* PRIMARY — search first. A rider at a roadside reaches the
+          {/* PRIMARY, search first. A rider at a roadside reaches the
               destination field immediately, above any editorial content. */}
           <div className="tg-homehero">
-            <h1 className="tg-where-title" aria-label="Where are you going?">
-              <Typewriter text="Where are you going?" />
-            </h1>
+            <h1 className="tg-where-title">Where are you going?</h1>
             <p className="tg-homesub">Type a destination for step-by-step trotro directions.</p>
           </div>
 
           <div className="tg-homecard">
-            <div className="tg-search-premium">
+            <div className="tg-searchbox">
               <Search size={20} strokeWidth={1.75} aria-hidden="true" />
               <input
                 ref={searchInputRef}
@@ -602,7 +573,7 @@ export function Trotro() {
             </button>
           )}
 
-          {/* SECONDARY — editorial / onboarding, demoted below the search so it
+          {/* SECONDARY, editorial / onboarding, demoted below the search so it
               never competes with the primary task. The old top hero slides live
               here now as a "how trotros work" gallery, no longer mixed with the
               search prompt. */}
@@ -681,36 +652,9 @@ export function Trotro() {
             </Link>
           </div>
 
-          <div className="tg-promogrid tg-stagger">
-            <div className="tg-promocard">
-              <Bus size={20} strokeWidth={1.75} className="tg-promocard-icon" aria-hidden="true" />
-              <div>
-                <p className="tg-promocard-title">{stats.routes}+ routes</p>
-                <p className="tg-promocard-sub">Mapped across Accra</p>
-              </div>
-            </div>
-            <div className="tg-promocard tg-promocard--light">
-              <BookMarked size={20} strokeWidth={1.75} className="tg-promocard-icon" aria-hidden="true" />
-              <div>
-                <p className="tg-promocard-title">{stats.stops}+ bus stops</p>
-                <p className="tg-promocard-sub">Verified across Accra</p>
-              </div>
-            </div>
-            <div className="tg-promocard tg-promocard--light">
-              <Sparkles size={20} strokeWidth={1.75} className="tg-promocard-icon" aria-hidden="true" />
-              <div>
-                <p className="tg-promocard-title">Always free</p>
-                <p className="tg-promocard-sub">No ads, no login</p>
-              </div>
-            </div>
-            <div className="tg-promocard">
-              <Signal size={20} strokeWidth={1.75} className="tg-promocard-icon" aria-hidden="true" />
-              <div>
-                <p className="tg-promocard-title">Works offline</p>
-                <p className="tg-promocard-sub">Directions need no signal</p>
-              </div>
-            </div>
-          </div>
+          <p className="tg-homefacts">
+            {stats.routes}+ routes and {stats.stops}+ stops mapped across Accra. Directions work offline.
+          </p>
 
           <PhotoStrip />
 
@@ -738,13 +682,13 @@ export function Trotro() {
           {fromPreview && (
             <p className="tg-meta">
               {geoStatus === 'locating'
-                ? "Showing routes from Circle while we get your location — they'll update to stops near you once it lands."
-                : "We don't have your location — showing routes from Circle. Turn on location for stops near you."}
+                ? "Showing routes from Circle while we find you. They'll switch to stops near you once we do."
+                : "We don't have your location, so routes start from Circle. Turn on location for stops near you."}
             </p>
           )}
           {hasRealFix && geoAccuracy != null && geoAccuracy > 150 && (
             <p className="tg-meta">
-              {`Approximate location (±${Math.round(geoAccuracy)} m) — the boarding stop will refine as your GPS sharpens.`}
+              {`Approximate location (±${Math.round(geoAccuracy)} m). The boarding stop will update as your GPS improves.`}
             </p>
           )}
           {hasRealFix && active && active.transfers === 0 && active.legs[0].walk_m > MAX_WALK_M && (
@@ -754,7 +698,7 @@ export function Trotro() {
           )}
           {active && active.transfers > 0 && (
             <p className="tg-meta tg-meta--info">
-              {`No single trotro goes all the way — this trip changes cars ${active.transfers === 1 ? 'once' : `${active.transfers} times`}, transferring at ${active.legs[0].alight_stop_name?.trim() || 'the interchange'}.`}
+              {`No single trotro goes all the way. This trip changes cars ${active.transfers === 1 ? 'once' : `${active.transfers} times`}, transferring at ${active.legs[0].alight_stop_name?.trim() || 'the interchange'}.`}
             </p>
           )}
 
@@ -777,31 +721,9 @@ export function Trotro() {
 
           {active && (
             <>
-              {}
-              <div className="tg-card tg-card--hero">
-                <p className="tg-steplabel tg-steplabel--hero">
-                  {active.legs[0].board_stop_name?.trim()
-                    ? `Step 1 · Walk to this ${active.legs[0].board_stop_name}`
-                    : 'Step 1 · Walk to the nearest roadside stop'}
-                </p>
-                <WalkMap from={tripOrigin ?? pos} to={getStop(active.legs[0].board_stop_id) ?? pos} toLabel={active.legs[0].board_stop_name?.trim() || 'Nearest stop'} />
-                <button
-                  className="tg-btn tg-btn--onhero"
-                  onClick={() => {
-                    const b = getStop(active.legs[0].board_stop_id);
-                    if (b) openWalkingDirections(b.lat, b.lng, active.legs[0].board_stop_name?.trim() || 'Nearest trotro stop');
-                  }}
-                >
-                  <Navigation size={18} strokeWidth={2} aria-hidden="true" />
-                  Open in Google Maps
-                </button>
-              </div>
-
-              {/* STEP 2 — board: mate shout(s). One pill for a direct trip; an
-                  ordered "1st car / 2nd car" list for a transfer trip so the
-                  rider knows which shout to listen for, and where to change. */}
+              {/* Board first: the mate shout is what a rider at the roadside needs most. */}
               <div className="tg-card glass">
-                <p className="tg-steplabel">Step 2 · Board your trotro</p>
+                <p className="tg-steplabel">Board your trotro</p>
                 <p className="tg-listenfor">
                   <Megaphone size={16} strokeWidth={2} aria-hidden="true" />
                   Listen for the mate shouting
@@ -828,11 +750,37 @@ export function Trotro() {
                     ))}
                   </ol>
                 )}
+                <p className="tg-summary-line">
+                  {active.legs[0].board_stop_name?.trim()
+                    ? `At ${active.legs[0].board_stop_name.trim()}`
+                    : 'At the nearest roadside stop'}
+                  {`, about ${walkingMinutes(active.legs[0].walk_m)} min walk. `}
+                  Get down at {active.legs[active.legs.length - 1].alight_stop_name?.trim() || 'your stop'}.
+                </p>
               </div>
 
-              {/* STEP 3 — ride & alight: full stop list across all legs */}
+              <div className="tg-card tg-card--hero">
+                <p className="tg-steplabel tg-steplabel--hero">
+                  {active.legs[0].board_stop_name?.trim()
+                    ? `Walk to ${active.legs[0].board_stop_name}`
+                    : 'Walk to the nearest roadside stop'}
+                </p>
+                <WalkMap from={tripOrigin ?? pos} to={getStop(active.legs[0].board_stop_id) ?? pos} toLabel={active.legs[0].board_stop_name?.trim() || 'Nearest stop'} />
+                <button
+                  className="tg-btn tg-btn--onhero"
+                  onClick={() => {
+                    const b = getStop(active.legs[0].board_stop_id);
+                    if (b) openWalkingDirections(b.lat, b.lng, active.legs[0].board_stop_name?.trim() || 'Nearest trotro stop');
+                  }}
+                >
+                  <Navigation size={18} strokeWidth={2} aria-hidden="true" />
+                  Open in Google Maps
+                </button>
+              </div>
+
+              {/* Ride and get down: full stop list across all legs. */}
               <div className="tg-card glass">
-                <p className="tg-steplabel">Step 3 · Ride &amp; alight</p>
+                <p className="tg-steplabel">Ride &amp; get down</p>
                 {liveRide && (
                   <p
                     className={`tg-livestatus${liveRide.stale ? ' tg-livestatus--stale' : ''}`}
@@ -1011,7 +959,7 @@ export function Trotro() {
       <DonatePopup armed={stage === 'result' && trips.length > 0 && !mapOpen} />
 
       {/* One-time "mate shouts under review" disclaimer, shown on app open.
-          Gated on SHOUTS_UNDER_REVIEW (lib/shout-review.ts) — flip that off
+          Gated on SHOUTS_UNDER_REVIEW (lib/shout-review.ts), flip that off
           when verification is done and this stops rendering. */}
       <ShoutDisclaimer />
     </div>

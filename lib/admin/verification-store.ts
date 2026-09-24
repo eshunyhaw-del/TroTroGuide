@@ -2,7 +2,7 @@
 // Admin field store.
 
 export interface Verification {
-  osmRef: string; // 'node/12345' — primary key + provenance.osm_ref
+  osmRef: string; // 'node/12345', primary key + provenance.osm_ref
   osmName: string | null; // formal OSM name at save time (for export convenience)
   exists: boolean;
   mateShout: string;
@@ -16,12 +16,12 @@ export interface Verification {
 export type BoardAlight = 'board' | 'alight' | 'both';
 
 export interface NewStop {
-  stopId: string; // client-generated uuid — NOT an OSM id
+  stopId: string; // client-generated uuid, NOT an OSM id
   name: string;
   localName: string;
   mateShout: string;
   boardAlight: BoardAlight;
-  myLat: number | null; // YOUR GPS — required to be useful
+  myLat: number | null; // YOUR GPS, required to be useful
   myLng: number | null;
   routeRef: string; // which route this belongs to
   sequence: number; // where it fits in the route order
@@ -143,7 +143,7 @@ export interface VerificationExport {
 }
 
 /**
- * Download payload — three arrays (Feature 3). Keys match the documented format the promote script
+ * Download payload, three arrays (Feature 3). Keys match the documented format the promote script
  * consumes.
  */
 export async function buildExport(): Promise<VerificationExport> {

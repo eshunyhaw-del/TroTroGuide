@@ -1,4 +1,4 @@
-// Provider registry — the single seam where the app picks WHICH image provider is active.
+// Provider registry, the single seam where the app picks WHICH image provider is active.
 
 import type { ImageProvider } from './types';
 import { MapillaryProvider } from './mapillary';

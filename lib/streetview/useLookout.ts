@@ -1,7 +1,7 @@
 'use client';
 
 // Drives the "Look out for" card: turns the live ride position into a single upcoming landmark +
-// its best street image, updating automatically as the trotro moves — and doing so WITHOUT
+// its best street image, updating automatically as the trotro moves, and doing so WITHOUT
 // hammering the provider.
 
 import { useEffect, useMemo, useState } from 'react';
@@ -48,7 +48,7 @@ function buildTargets(legs: readonly BoardingOption[]): LookoutTarget[] {
       });
     }
   });
-  // Sorted by (legIndex, alongM) — the order pickNextTarget expects.
+  // Sorted by (legIndex, alongM), the order pickNextTarget expects.
   targets.sort((a, b) => a.legIndex - b.legIndex || a.alongM - b.alongM);
   return targets;
 }

@@ -8,4 +8,4 @@ export const SHOUT_DISCLAIMER_VERSION = '1';
 
 // The one-line caution shown on the Step 2 shout card (and echoed in the popup).
 export const SHOUT_REVIEW_NOTE =
-  'Mate shouts are still being field-verified — if in doubt, confirm your destination with the mate.';
+  'Mate shouts are still being checked on the ground. If in doubt, confirm your destination with the mate.';

@@ -1,4 +1,4 @@
-// Cloudflare Worker — Phase 0 edge layer (FREE TIER ONLY).
+// Cloudflare Worker, Phase 0 edge layer (FREE TIER ONLY).
 
 import { latLngToCell, isValidCell, getResolution } from 'h3-js';
 
@@ -87,7 +87,7 @@ async function handleBoarding(req: Request, env: Env, ctx: ExecutionContext): Pr
   const cacheKeyUrl = `https://cache.trotro/api/boarding-point?cell=${cell}&d=${destType}:${destId}`;
   const cacheKey = new Request(cacheKeyUrl, { method: 'GET' });
 
-  // Verification aids (no raw GPS — only the coarse cell + derived key). GATED: emitted ONLY when
+  // Verification aids (no raw GPS, only the coarse cell + derived key). GATED: emitted ONLY when
   // DEBUG_HEADERS=true (dev).
   const dbg: Record<string, string> =
     env.DEBUG_HEADERS === 'true' ? { 'X-Tk-Cell': cell, 'X-Tk-Cache-Key': cacheKeyUrl } : {};
@@ -186,7 +186,7 @@ function passthrough(req: Request, env: Env): Promise<Response> {
 /** Fail-open: tell the client to use its offline Core Pack instead of erroring. */
 function degraded(): Response {
   return json(
-    { degraded: true, usePack: true, message: 'Origin unavailable — use the offline pack.' },
+    { degraded: true, usePack: true, message: 'Origin unavailable, use the offline pack.' },
     200,
     { 'X-Degraded': 'fail-open' },
   );

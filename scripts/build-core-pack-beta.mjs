@@ -1,4 +1,4 @@
-// BETA STATUS MODEL — build TWO CorePacks (firewall-safe, Option 1). The proprietary `core` schema
+// BETA STATUS MODEL, build TWO CorePacks (firewall-safe, Option 1). The proprietary `core` schema
 // is NEVER touched by OSM.
 
 import { createHash } from 'node:crypto';
@@ -57,7 +57,7 @@ const LANDMARK_NEAR_M = 150; // ship a landmark only if it's within this of some
 const LANDMARK_DEDUP_M = 120; // same-name landmarks (node + way of one feature) collapse to one
 const fold = (s) => (s || '').normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase().trim();
 const slug = (s) => (s || '').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
-const r5 = (v) => Math.round(v * 1e5) / 1e5; // ~1.1 m — plenty for walking/boarding, trims pack bytes
+const r5 = (v) => Math.round(v * 1e5) / 1e5; // ~1.1 m, plenty for walking/boarding, trims pack bytes
 // Build a route-stop, omitting null board/alight keys (×12k members = big saving).
 const rstop = (stopId, seq, distM, board, alight, status) => {
   const o = { stopId, seq, distM };
@@ -67,10 +67,10 @@ const rstop = (stopId, seq, distM, board, alight, status) => {
   return o;
 };
 
-// BETA portion — from OSM (ODbL). Every record tagged status:'beta'.
+// BETA portion, from OSM (ODbL). Every record tagged status:'beta'.
 function buildOsmBeta() {
   if (!existsSync(OSM)) {
-    console.warn(`  ⚠ ${OSM} missing — run "npm run build:admin" first. Beta pack will have no OSM data.`);
+    console.warn(`  ⚠ ${OSM} missing, run "npm run build:admin" first. Beta pack will have no OSM data.`);
     return { stops: new Map(), routes: [] };
   }
   const osm = JSON.parse(readFileSync(OSM, 'utf8'));
@@ -86,7 +86,7 @@ function buildOsmBeta() {
   const routeIdsByStop = new Map();
   const addStop = (ref, name, lat, lng) => {
     const id = sid(ref);
-    // aliases stay [] — the name itself is indexed, so [name] would just duplicate bytes.
+    // aliases stay [], the name itself is indexed, so [name] would just duplicate bytes.
     if (!stops.has(id)) stops.set(id, { id, name: name || '', aliases: [], lat: r5(lat), lng: r5(lng), routeIds: [], status: 'beta' });
     return id;
   };
@@ -142,7 +142,7 @@ function buildOsmBeta() {
   return { stops, routes, dedupCount: merged, routeLines, overridden };
 }
 
-// LANDMARKS (beta only) — keep OSM POIs that sit within LANDMARK_NEAR_M of some trotro line, so the
+// LANDMARKS (beta only), keep OSM POIs that sit within LANDMARK_NEAR_M of some trotro line, so the
 // pack carries useful "get down at the Shell" cues without shipping every POI in Accra.
 function buildBetaLandmarks(osm, routeLines) {
   const src = Array.isArray(osm.landmarks) ? osm.landmarks : [];
@@ -186,7 +186,7 @@ function buildBetaLandmarks(osm, routeLines) {
   return kept;
 }
 
-// Same-name OSM stop nodes within STOP_DEDUP_M are the same physical stop — OSM tags them as
+// Same-name OSM stop nodes within STOP_DEDUP_M are the same physical stop, OSM tags them as
 // separate nodes per route relation with no clustering, which breaks "shared stop = transfer point"
 // detection in planTripOffline().
 function dedupeNearbyStops(stops, routes) {
@@ -240,7 +240,7 @@ function dedupeNearbyStops(stops, routes) {
   return remap.size;
 }
 
-// VERIFIED portion — from core_verified.json (+ routes.json). Proprietary.
+// VERIFIED portion, from core_verified.json (+ routes.json). Proprietary.
 function buildVerified() {
   if (!existsSync(VERIFIED_CORE)) return { stops: new Map(), routes: [] };
   const core = JSON.parse(readFileSync(VERIFIED_CORE, 'utf8'));
@@ -365,7 +365,7 @@ function main() {
   };
   const betaBytes = writePack(betaPack);
 
-  // VERIFIED pack (sellable, NOT served) — assert OSM-free
+  // VERIFIED pack (sellable, NOT served), assert OSM-free
   const vStops = [...verified.stops.values()];
   const leak = vStops.find((s) => s.status !== 'verified' || /^osm-/.test(s.id)) || verified.routes.find((r) => r.status !== 'verified' || /^osm-/.test(r.id));
   if (leak) { console.error('FIREWALL ASSERTION FAILED: OSM/non-verified data in the verified pack:', leak.id); process.exit(1); }
@@ -391,8 +391,8 @@ function main() {
   console.log(`         -> public/core-pack/manifest.json`);
   console.log(`  VERIFIED (B2B)   v${version}: ${verifiedPack.stops.length} stops, ${verifiedPack.routes.length} routes, ${(Buffer.byteLength(verifiedBody) / 1024).toFixed(1)} KB (OSM-free ✓)`);
   console.log(`         -> ${VERIFIED_OUT} (NOT served)`);
-  if (betaBytes > 1_500_000) console.warn(`  ⚠ beta pack ${(betaBytes / 1024 / 1024).toFixed(2)} MB — large for metered data; consider pruning very-stale stops.`);
-  if (!vStops.length) console.log('  (no verified data yet — verified pack is empty; beta = OSM only.)');
+  if (betaBytes > 1_500_000) console.warn(`  ⚠ beta pack ${(betaBytes / 1024 / 1024).toFixed(2)} MB, large for metered data; consider pruning very-stale stops.`);
+  if (!vStops.length) console.log('  (no verified data yet, verified pack is empty; beta = OSM only.)');
 }
 
 main();

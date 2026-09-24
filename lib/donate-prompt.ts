@@ -1,4 +1,4 @@
-// WHEN — if ever — should the donate popup interrupt someone?
+// WHEN, if ever, should the donate popup interrupt someone?
 
 export type DonateAction =
   | 'shown'   // displayed, then dismissed via X / Esc / backdrop
@@ -39,7 +39,7 @@ export function recordFor(action: DonateAction, now: number): DonatePromptRecord
   return { lastShownAt: now, lastAction: action };
 }
 
-/** Tolerant parse — anything malformed means "no record", i.e. safe to show. */
+/** Tolerant parse, anything malformed means "no record", i.e. safe to show. */
 export function parseRecord(raw: string | null): DonatePromptRecord | null {
   if (!raw) return null;
   try {

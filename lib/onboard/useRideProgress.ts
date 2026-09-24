@@ -27,7 +27,7 @@ const STALE_AFTER_MS = 90_000;
 export interface LiveRide {
   progress: RideProgress;
   confidence: 'high' | 'low';
-  /** True when GPS has gone quiet — the dot is a last-known position. */
+  /** True when GPS has gone quiet, the dot is a last-known position. */
   stale: boolean;
 }
 

@@ -111,15 +111,15 @@ export class RouteMatcher {
 
     let cue: string | null = null;
     if (offRoute) {
-      cue = 'You may be off this route — check that you boarded the right trotro.';
+      cue = 'You may be off this route. Check that you boarded the right trotro.';
     } else if (arrived) {
-      cue = `This is your stop — get down at ${this.stopName(dest!.stopId)}.`;
+      cue = `This is your stop. Get down at ${this.stopName(dest!.stopId)}.`;
     } else if (dest && passed) {
       const remaining = dest.seq - passed.seq;
       cue =
         remaining <= 1
           ? `Next stop is yours: ${this.stopName(dest.stopId)}. Tell the mate now.`
-          : `You'll pass ${this.stopName(passed.stopId)} — your stop is ${remaining - 1} more after that.`;
+          : `You'll pass ${this.stopName(passed.stopId)}. Your stop is ${remaining - 1} more after that.`;
     } else if (next) {
       cue = `Heading toward ${this.stopName(next.stopId)} (${metresToNext} m).`;
     }

@@ -1,4 +1,4 @@
-// Mapillary implementation of ImageProvider — SERVER ONLY.
+// Mapillary implementation of ImageProvider, SERVER ONLY.
 
 import type { ImageCandidate, ImageProvider, ImageQuery } from './types';
 

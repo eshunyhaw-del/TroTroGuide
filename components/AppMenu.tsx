@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { Menu, Home, Flag, Info, Heart } from 'lucide-react';
-import { SUPPORT_URL, SUPPORT_ENABLED } from '@/lib/support';
+import { SUPPORT_ENABLED, openDonate } from '@/lib/support';
 
 export function AppMenu() {
   const [open, setOpen] = useState(false);
@@ -56,17 +56,17 @@ export function AppMenu() {
             Help us map it
           </Link>
           {SUPPORT_ENABLED && (
-            <a
+            <button
               className="tg-menuitem"
               role="menuitem"
-              href={SUPPORT_URL}
-              target="_blank"
-              rel="noopener noreferrer"
-              onClick={() => setOpen(false)}
+              onClick={() => {
+                setOpen(false);
+                openDonate();
+              }}
             >
               <Heart size={18} strokeWidth={1.75} aria-hidden="true" />
               Support this project
-            </a>
+            </button>
           )}
           <div className="tg-menudivider" />
           <p className="tg-menufoot">

@@ -1,4 +1,4 @@
-// "Look out for" target selection — PURE (no React, no network).
+// "Look out for" target selection, PURE (no React, no network).
 
 import type { PackLandmark } from '@/lib/corepack/types';
 import { bearingDeg } from '@/lib/geo/bearing';
@@ -8,7 +8,7 @@ export interface LookoutTarget {
   /** Which trip leg this landmark sits on. */
   legIndex: number;
   /**
-   * Distance along that leg's route to the landmark (same space as the rider's projected alongM —
+   * Distance along that leg's route to the landmark (same space as the rider's projected alongM,
    * see ride-progress.ts).
    */
   alongM: number;
@@ -23,7 +23,7 @@ export interface NextTarget {
 }
 
 /**
- * A landmark counts as "ahead" only once the rider is at least this far before it — so the card
+ * A landmark counts as "ahead" only once the rider is at least this far before it, so the card
  * doesn't cling to a landmark the trotro is already passing, and flips to the next one a touch
  * early (matching the "Passed → next" feel).
  */

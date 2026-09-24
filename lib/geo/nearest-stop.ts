@@ -1,4 +1,4 @@
-// Find the nearest stop to a user and estimate walking time. Pure geometry — no network, no GPS
+// Find the nearest stop to a user and estimate walking time. Pure geometry, no network, no GPS
 // leaves the device.
 
 import { haversineM } from './haversine';

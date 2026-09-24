@@ -45,7 +45,7 @@ export async function POST(req: NextRequest) {
   const issues = Array.isArray(body.issues) ? body.issues.length : 0;
   log.info({ where: 'contribute', kind, points, issues }, 'capture_received');
 
-  // ONLY "missing route" reports go to the ops sheet — and only the text the user typed.
+  // ONLY "missing route" reports go to the ops sheet, and only the text the user typed.
   if (kind === 'map-request') {
     const destination = (typeof body.destination === 'string' ? body.destination : '').trim();
     const detail = (typeof body.detail === 'string' ? body.detail : '').trim();

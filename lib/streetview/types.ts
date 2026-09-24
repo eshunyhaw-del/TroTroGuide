@@ -1,6 +1,6 @@
 // Street-level imagery: provider-agnostic types.
 
-/** A point the rider wants imagery for — usually an upcoming landmark. */
+/** A point the rider wants imagery for, usually an upcoming landmark. */
 export interface ImageQuery {
   /** Landmark / target latitude. */
   lat: number;
@@ -39,9 +39,9 @@ export interface StreetImage {
   fullUrl?: string | null;
   bearing: number | null;
   capturedAt: number | null;
-  /** e.g. "mapillary" — drives the attribution label + link. */
+  /** e.g. "mapillary", drives the attribution label + link. */
   provider: string;
-  /** Human attribution string, shown verbatim (never hidden — see terms). */
+  /** Human attribution string, shown verbatim (never hidden, see terms). */
   attribution: string;
   /** Canonical link back to the image on the provider, for attribution. */
   attributionUrl?: string | null;
@@ -51,8 +51,8 @@ export interface StreetImage {
 export type ImageResult =
   | { status: 'ok'; image: StreetImage }
   | { status: 'empty' } // provider reached, genuinely no imagery near the point
-  | { status: 'not_configured' } // no API token set — feature dormant, not broken
-  | { status: 'error' }; // provider/network failure — navigation continues
+  | { status: 'not_configured' } // no API token set, feature dormant, not broken
+  | { status: 'error' }; // provider/network failure, navigation continues
 
 /**
  * A street-level image provider. Implementations live server-side (they hold secret tokens) and are
@@ -64,7 +64,7 @@ export interface ImageProvider {
   /** True when the provider has the config (e.g. token) it needs to run. */
   isConfigured(): boolean;
   /**
-   * Return raw candidates near the query point. MUST NOT rank or pick — that is rank.ts's job, kept
+   * Return raw candidates near the query point. MUST NOT rank or pick, that is rank.ts's job, kept
    * separate so it's testable and provider-independent.
    */
   findCandidates(query: ImageQuery): Promise<ImageCandidate[]>;

@@ -154,7 +154,7 @@ export function progressFromAlong(
 
 /**
  * Normalise a transfer point to a single row. A transfer stop is one physical place that appears on
- * both legs — as leg N's alight and leg N+1's board.
+ * both legs, as leg N's alight and leg N+1's board.
  */
 export function normaliseTransfer(
   legs: readonly LegGeometry[],

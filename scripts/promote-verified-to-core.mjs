@@ -1,4 +1,4 @@
-// PHASE 4.1 (+ new-stops) — Promote field data into the PROPRIETARY core schema.
+// PHASE 4.1 (+ new-stops), Promote field data into the PROPRIETARY core schema.
 
 import { randomUUID } from 'node:crypto';
 import { existsSync, readFileSync, writeFileSync, statSync } from 'node:fs';
@@ -134,7 +134,7 @@ function main() {
   // promote_to_core.sql
   const ids = stops.map((s) => q(s.id));
   const out = [];
-  out.push('-- Trotro Guide — promote field data -> PROPRIETARY core.');
+  out.push('-- Trotro Guide, promote field data -> PROPRIETARY core.');
   out.push(`-- Generated ${new Date().toISOString()} from ${format}. Stops: ${stops.length} (new: ${stops.filter((s) => s.isNew).length}). Route changes: ${routeChanges.length}.`);
   out.push('-- core.informal_stops.osm_ref is always NULL; OSM linkage lives in core.provenance only.');
   out.push('BEGIN;');
@@ -152,16 +152,16 @@ function main() {
   if (ids.length) out.push(`DELETE FROM core.provenance WHERE entity_type='stop' AND entity_id IN (${ids.join(', ')});`);
   for (const s of stops) {
     const note = s.isNew
-      ? `NEW stop (route ${s.routeRef || '?'} seq ${s.sequence ?? '?'}, ${s.boardAlight || 'both'})${s.mateShout ? ` shout: ${s.mateShout}` : ''}${s.notes ? ` — ${s.notes}` : ''}`
+      ? `NEW stop (route ${s.routeRef || '?'} seq ${s.sequence ?? '?'}, ${s.boardAlight || 'both'})${s.mateShout ? ` shout: ${s.mateShout}` : ''}${s.notes ? `, ${s.notes}` : ''}`
       : s.notes;
     out.push(
       `INSERT INTO core.provenance (entity_type, entity_id, field, source, license, osm_ref, note) VALUES (` +
         `'stop', ${q(s.id)}, NULL, 'fieldwork', 'proprietary', ${sqlText(s.osmRef)}, ${sqlText(note)});`,
     );
     if (s.nameSource === 'osm')
-      out.push(`INSERT INTO core.provenance (entity_type, entity_id, field, source, license, osm_ref, note) VALUES ('stop', ${q(s.id)}, 'name', 'osm', 'ODbL', ${sqlText(s.osmRef)}, 'name from OSM fallback — verify in field');`);
+      out.push(`INSERT INTO core.provenance (entity_type, entity_id, field, source, license, osm_ref, note) VALUES ('stop', ${q(s.id)}, 'name', 'osm', 'ODbL', ${sqlText(s.osmRef)}, 'name from OSM fallback, verify in field');`);
     if (s.geomSource === 'osm')
-      out.push(`INSERT INTO core.provenance (entity_type, entity_id, field, source, license, osm_ref, note) VALUES ('stop', ${q(s.id)}, 'geom', 'osm', 'ODbL', ${sqlText(s.osmRef)}, 'geom from OSM fallback — capture your own GPS');`);
+      out.push(`INSERT INTO core.provenance (entity_type, entity_id, field, source, license, osm_ref, note) VALUES ('stop', ${q(s.id)}, 'geom', 'osm', 'ODbL', ${sqlText(s.osmRef)}, 'geom from OSM fallback, capture your own GPS');`);
   }
 
   // route changes (curation queue; never auto-applied)

@@ -1,9 +1,9 @@
 -- ============================================================================
--- 0005 — core.route_changes: operator-reported "this route changed" reports.
+-- 0005, core.route_changes: operator-reported "this route changed" reports.
 -- ============================================================================
 -- A curation queue. Promote inserts rows here from fieldwork; you review and set
 -- verified=true before they influence the shipped pack. This is metadata about
--- YOUR network knowledge — proprietary, no OSM linkage.
+-- YOUR network knowledge, proprietary, no OSM linkage.
 
 create table if not exists core.route_changes (
   id            uuid primary key default gen_random_uuid(),

@@ -61,7 +61,7 @@ describe('riddenStops', () => {
   });
 });
 
-describe('progressFromAlong — the dot must MOVE', () => {
+describe('progressFromAlong: the dot must move', () => {
   const legs = [leg(2, 8)]; // board at 1000 m, alight at 7000 m
 
   it('advances the highlighted stop as the rider travels (the reported bug)', () => {
@@ -151,7 +151,7 @@ describe('stops that are out of order on the ground', () => {
   });
 });
 
-describe('matchLegs — which leg is the rider on', () => {
+describe('matchLegs: which leg is the rider on', () => {
   const legs = [leg(2, 5), leg(5, 9)]; // 1000–4000 m, then 4000–8000 m
 
   it('picks the leg whose ridden window contains the rider', () => {

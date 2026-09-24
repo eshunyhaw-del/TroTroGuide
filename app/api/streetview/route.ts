@@ -12,7 +12,7 @@ export const preferredRegion = ['dub1'];
 export async function GET(req: NextRequest) {
   const rl = await check(streetviewLimiter, clientIp(req));
   if (!rl.success) {
-    // Soft fail — the imagery card just shows "no image", navigation is untouched.
+    // Soft fail, the imagery card just shows "no image", navigation is untouched.
     return NextResponse.json(
       { status: 'error' },
       { status: 429, headers: { 'Retry-After': String(retryAfterSeconds(rl.reset)) } },
@@ -45,7 +45,7 @@ export async function GET(req: NextRequest) {
   try {
     const result = await resolveStreetImage({ lat, lng, bearing, radiusM }, Date.now());
     const res = NextResponse.json(result);
-    // 'ok'/'empty' for a public landmark point are stable — cache hard at the edge so repeat riders
+    // 'ok'/'empty' for a public landmark point are stable, cache hard at the edge so repeat riders
     // past the same landmark cost the provider nothing.
     if (result.status === 'ok' || result.status === 'empty') {
       res.headers.set('Cache-Control', 'public, s-maxage=86400, stale-while-revalidate=604800');

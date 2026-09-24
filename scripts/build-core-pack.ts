@@ -78,7 +78,7 @@ async function main(): Promise<void> {
       `${pack.landmarks.length} landmarks, ${(bytes / 1024).toFixed(1)} KB`,
   );
   if (bytes > 1_200_000) {
-    console.warn('WARNING: pack > 1.2 MB target — prune or simplify before shipping on metered data.');
+    console.warn('WARNING: pack > 1.2 MB target, prune or simplify before shipping on metered data.');
   }
 }
 

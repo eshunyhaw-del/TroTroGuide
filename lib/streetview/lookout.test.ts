@@ -19,7 +19,7 @@ describe('pickNextTarget', () => {
   });
 
   it('skips a landmark the rider is already on top of (within AHEAD_EPS_M)', () => {
-    // Rider essentially at "b" (1500) — it should look past it to "c".
+    // Rider essentially at "b" (1500), it should look past it to "c".
     const next = pickNextTarget(single, 0, 1500 - AHEAD_EPS_M + 1);
     expect(next?.target.landmark.id).toBe('c');
   });

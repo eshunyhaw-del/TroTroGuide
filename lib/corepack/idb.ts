@@ -1,4 +1,4 @@
-// Minimal promise wrapper over IndexedDB — vendored so we don't depend on `idb`. One object store,
+// Minimal promise wrapper over IndexedDB, vendored so we don't depend on `idb`. One object store,
 // get/put by key.
 
 function assertBrowser(): void {

@@ -29,7 +29,7 @@ export function usePack(): UsePack {
     let timedOut = false;
     const timer = setTimeout(() => {
       timedOut = true;
-      // Never leave the user stuck on "Loading…" — anything still pending (slow network, blocked
+      // Never leave the user stuck on "Loading…", anything still pending (slow network, blocked
       // IndexedDB, etc.) falls back to a retryable error.
       setState('error');
     }, LOAD_TIMEOUT_MS);

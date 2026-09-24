@@ -1,8 +1,9 @@
 import type { ReactNode } from 'react';
 import localFont from 'next/font/local';
+import { DonateDialog } from '@/components/DonateDialog';
 import './globals.css';
 
-// Aspekta — self-hosted variable font (weights 100–900), exposed as a CSS variable so globals.css's
+// Aspekta, self-hosted variable font (weights 100–900), exposed as a CSS variable so globals.css's
 // `--font` can pick it up as the primary family.
 const aspekta = localFont({
   src: './fonts/AspektaVF.woff2',
@@ -13,7 +14,7 @@ const aspekta = localFont({
 
 export const metadata = {
   title: 'Trotro Guide',
-  description: 'Navigate Accra trotros by local name — works offline.',
+  description: 'Navigate Accra trotros by local name. Works offline.',
 };
 
 export const viewport = {
@@ -24,7 +25,10 @@ export const viewport = {
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
     <html lang="en" className={aspekta.variable}>
-      <body>{children}</body>
+      <body>
+        {children}
+        <DonateDialog />
+      </body>
     </html>
   );
 }

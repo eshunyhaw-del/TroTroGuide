@@ -9,7 +9,7 @@ const token = process.env.UPSTASH_REDIS_REST_TOKEN;
 
 const redis = url && token ? new Redis({ url, token }) : null;
 if (!redis) {
-  log.warn('Upstash not configured (UPSTASH_REDIS_REST_*) — rate limiting disabled.');
+  log.warn('Upstash not configured (UPSTASH_REDIS_REST_*); rate limiting disabled.');
 }
 
 function bucket(name: string, refillTokens: number, interval: Duration, capacity: number): Ratelimit | null {
@@ -28,7 +28,7 @@ function bucket(name: string, refillTokens: number, interval: Duration, capacity
 export const searchLimiter = bucket('search', 10, '10 s', 30);
 // ~0.5 req/s sustained, burst 15 (boarding-point is fired less often).
 export const boardingLimiter = bucket('boarding', 5, '10 s', 15);
-// Writes: fired once at end-of-trip, so keep it tight — ~1/12s sustained, burst 10.
+// Writes: fired once at end-of-trip, so keep it tight, ~1/12s sustained, burst 10.
 export const contributeLimiter = bucket('contribute', 5, '60 s', 10);
 // Street imagery: fired as the rider crosses landmarks (movement-gated + cached client-side), so a
 // modest sustained rate with a small burst for the app-open prefetch.

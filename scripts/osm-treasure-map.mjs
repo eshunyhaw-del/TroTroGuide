@@ -1,5 +1,5 @@
-// TASK 2 — OSM "Treasure Map" viewer. Reads the RAW Overpass dumps (data/osm_raw/, from Task 1) and
-// produces a FIELDWORK GUIDE — not a CorePack.
+// TASK 2, OSM "Treasure Map" viewer. Reads the RAW Overpass dumps (data/osm_raw/, from Task 1) and
+// produces a FIELDWORK GUIDE, not a CorePack.
 
 import { createHash } from 'node:crypto';
 import { readFileSync, writeFileSync } from 'node:fs';
@@ -176,7 +176,7 @@ function build() {
       operator: tags.operator ?? null,
       network: tags.network ?? null,
       classification: classify(tags),
-      // ODbL + 2017-stale hints — shown as "verify", never copied to core.
+      // ODbL + 2017-stale hints, shown as "verify", never copied to core.
       charge_hint: master?.charge ?? tags.charge ?? null,
       frequency_hint: master?.frequency ?? tags.frequency ?? null,
       mate_shout_placeholder: '', // YOU fill this in the field
@@ -263,7 +263,7 @@ function renderHtml(data) {
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Trotro Treasure Map — Accra fieldwork guide</title>
+<title>Trotro Treasure Map, Accra fieldwork guide</title>
 <style>
   :root { --green:#1a8a3a; --yellow:#b8860b; --red:#c0392b; --grey:#888; --line:#ddd; --bg:#fff; --fg:#111; --accent:#0b6; }
   * { box-sizing: border-box; }
@@ -323,7 +323,7 @@ function renderHtml(data) {
 </head>
 <body>
 <header>
-  <h1>🚐 Trotro Treasure Map — Accra fieldwork guide</h1>
+  <h1>🚐 Trotro Treasure Map, Accra fieldwork guide</h1>
   <div class="muted">${ATTRIBUTION} · ${LICENSE} · OSM data ${esc(s.osmTimestampBase || '?')} · generated ${esc(s.generatedAt.slice(0, 16).replace('T', ' '))}</div>
   <div class="stats">
     <span><b>${s.totals.trotroRoutes}</b> trotro routes</span>
@@ -335,7 +335,7 @@ function renderHtml(data) {
   <div class="legend" style="margin-top:8px">
     <span><span class="dot fresh"></span>fresh (≤${s.freshnessWindows.freshMaxYears}y)</span>
     <span><span class="dot aging"></span>aging (≤${s.freshnessWindows.agingMaxYears}y)</span>
-    <span><span class="dot stale"></span>stale — verify first</span>
+    <span><span class="dot stale"></span>stale, verify first</span>
     <span><span class="dot unknown"></span>unknown</span>
   </div>
 </header>
@@ -362,7 +362,7 @@ function renderHtml(data) {
 
 <main>
   <details class="no-print" id="hoodsBox">
-    <summary style="cursor:pointer;font-weight:600;padding:8px 4px">📍 Neighborhood summary — routes per area (tap to open)</summary>
+    <summary style="cursor:pointer;font-weight:600;padding:8px 4px">📍 Neighborhood summary, routes per area (tap to open)</summary>
     <table class="hoods" id="hoodsTable"></table>
   </details>
   <div id="count" class="muted" style="margin:8px 4px"></div>
@@ -370,7 +370,7 @@ function renderHtml(data) {
 </main>
 
 <footer>
-  ODbL scaffold — fieldwork guide only. Nothing here is copied into the proprietary core dataset; verify in the field,
+  ODbL scaffold, fieldwork guide only. Nothing here is copied into the proprietary core dataset; verify in the field,
   then create fresh core records (Task 4). Your checkboxes &amp; notes are saved on THIS device (localStorage) and never uploaded.
 </footer>
 
@@ -432,14 +432,14 @@ function sortRoutes(list){
 function stopRow(r, st){
   const id = st.osm_ref;
   const saved = lsGet(r.osm_ref+'|'+id) || {};
-  const maps = st.lat!=null ? '<a href="https://www.google.com/maps?q='+st.lat+','+st.lng+'" target="_blank" rel="noopener">'+st.lat.toFixed(5)+', '+st.lng.toFixed(5)+'</a>' : '—';
+  const maps = st.lat!=null ? '<a href="https://www.google.com/maps?q='+st.lat+','+st.lng+'" target="_blank" rel="noopener">'+st.lat.toFixed(5)+', '+st.lng.toFixed(5)+'</a>' : ', ';
   const ck = (k,label)=> '<label><input type="checkbox" data-k="'+esc(r.osm_ref+'|'+id)+'" data-f="'+k+'"'+(saved[k]?' checked':'')+'> '+label+'</label>';
   return '<tr>'
     + '<td>'+st.seq+'</td>'
     + '<td>'+esc(st.name || '(unnamed stop)')+'</td>'
     + '<td class="coords hide-sm">'+maps+'</td>'
     + '<td class="nid hide-sm">'+esc(id)+'</td>'
-    + '<td class="hide-sm">'+(st.last_edited? esc(st.last_edited.slice(0,10)) : '—')+'</td>'
+    + '<td class="hide-sm">'+(st.last_edited? esc(st.last_edited.slice(0,10)) : ', ')+'</td>'
     + '<td><span class="dot '+st.freshness+'" title="'+st.freshness+'"></span></td>'
     + '<td><div class="chk">'+ck('visited','Visited')+ck('exists','Exists')+ck('shout','Shout')+ck('localname','Local name')+'</div>'
        + '<div class="note"><input type="text" placeholder="note / heard shout / local name…" data-note="'+esc(r.osm_ref+'|'+id)+'" value="'+esc(saved.note||'')+'"></div></td>'
@@ -476,7 +476,7 @@ function routeCard(r){
     + '<span class="ends" style="flex-basis:100%">'+esc(ends)+'</span>'
     + (r.operator?'<span class="op">'+esc(r.operator)+'</span>':'')
     + '</summary>';
-  // Lazy: build the (heavy) stop table only on first open — keeps 567 cards snappy on low-end phones.
+  // Lazy: build the (heavy) stop table only on first open, keeps 567 cards snappy on low-end phones.
   d.addEventListener('toggle', () => {
     if (d.open && !d.dataset.built){ d.insertAdjacentHTML('beforeend', buildRouteBody(r)); d.dataset.built='1'; }
   }, { once:false });
